@@ -69,7 +69,12 @@
           <password>admin</password>
           <path>/</path>
         </configuration>
-<!--        <executions>
+        <!--
+        It would be better to use the following configuration but "Cannot invoke Tomcat manager" error was thrown.
+        Failed to execute this solution. http://www.java2s.com/Tutorials/Java/Maven_Tutorial/2080__Maven_Deploy_Tomcat.htm
+        Reason: tomcat-users.xml, which can't be found on local directory, is generated in target folder after building the project.
+
+        <executions>
           <execution>
             <id>clean-undeploy</id>
             <phase>clean</phase>
@@ -84,7 +89,7 @@
               <goal>deploy</goal>
             </goals>
           </execution>
-        </executions>-->
+        </executions> -->
       </plugin>
     </plugins>
   </build>

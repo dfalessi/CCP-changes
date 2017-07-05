@@ -2,4 +2,4 @@
 .gitignore
 .idea/
 CCP-changes.iml
-src/
+/target
