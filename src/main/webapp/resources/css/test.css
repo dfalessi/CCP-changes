@@ -1,3 +1,48 @@
-body{
-    background: pink;
+/* Sample CSS styles */
+/* @author Tina Rickard */
+
+html * {
+  font-family: "arial" !important;
+}
+
+body {
+  color: lightgreen;
+}
+
+h1 {
+  color: green;
+  font-size: 2em;
+  font-weight: 700;
+}
+
+h2 {
+  color: cornflowerblue;
+  font-size: 1.5em;
+  font-weight: 500;
+}
+
+h3 {
+  color: lightskyblue;
+  font-size: 1.25em;
+  font-weight: 400;
+}
+
+p {
+  color: darkblue;
+  font-size: 1em;
+}
+
+a:link {
+  color: aquamarine;
+  font-weight: 700;
+}
+
+a:visited {
+  color:darkgray;
+  font-weight: 700;
+}
+
+#pdfLink {
+  background: transparent url(pdf-icon-small.png) center left no-repeat;
+  padding-left: 16px;
 }
