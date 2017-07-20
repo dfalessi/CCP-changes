@@ -18,26 +18,9 @@
           var title = "<h2>Snapshot</h2>";
           document.write(title);
           var stats = [
-            "Rel. ID",
-            "Req.",
-            "Class ID",
-            "Size",
-            "# Attr.",
-            "MetricX",
-            "# Smells",
-            "Touched?",
-            "Rule 1",
-            "Rule 2",
-            "...",
-            "Rule X",
-            "Beg. Size",
-            "LOC Added",
-            "LOC Deleted",
-            "LOC Modified",
-            "LOC Touched",
-            "# Files Touched",
-            "# Commits",
-            "# Developers"
+            "Date Created |",
+            "Project Name |",
+            "Revision",
           ];
 
           var table = "<table class = \"table table-bordered\"><thead><tr>";
