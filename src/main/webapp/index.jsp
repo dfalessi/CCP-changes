@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-      <title>Bootstrap Test Page 3</title>
+      <title>SURP 2017 App</title>
       <meta charset="utf-8">
       <meta name="description" content="Testing bootstrap here!">
       <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,15 +11,32 @@
   </head>
   <body>
     <div class="container">
-      <button onclick="myFunction()">Try it</button>
-      <div id="demo"></div>
+      <p></p>
+      <p>Upload .xml file here</p>
+      <button onclick="getXml()">Upload</button>
+      <p id = "name"></p>
       <script>
-        function myFunction() {
-          var title = "<h2>Snapshot</h2>";
-          document.write(title);
+        function getXml() {
+          var fileName = "File name will be displayed here after uploading";
+          document.getElementById("name").innerHTML = fileName;
+        }
+      </script>
+    </div>
+    <div class="container">
+
+    </div>
+    <div class="container">
+      <button onclick="displaySnapshots()">Display snapshots</button>
+      <p id="title"></p>
+      <div id="table"></div>
+      <script>
+        function displaySnapshots() {
+          var title = "<h2>Snapshots</h2>";
+          document.getElementById("title").innerHTML = title;
+          //document.write(title);
           var stats = [
-            "Date Created |",
-            "Project Name |",
+            "Date Created",
+            "Project Name",
             "Revision",
           ];
 
@@ -28,7 +45,8 @@
             table += "<th>" + stats[i] + "</th>";
           }
           table += "</tr></thead></table>";
-          document.write(table);
+          document.getElementById("table").innerHTML = table;
+          //document.write(table);
         }
       </script>
     </div>
