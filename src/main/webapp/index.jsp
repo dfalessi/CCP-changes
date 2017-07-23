@@ -12,8 +12,7 @@
   <body>
     <div class="container">
       <p></p>
-      <p>Upload .xml file here</p>
-      <button onclick="getXml()">Upload</button>
+      <button onclick="getXml()">Click to Upload XML</button>
       <p id = "name"></p>
       <script>
         function getXml() {
@@ -23,17 +22,44 @@
       </script>
     </div>
     <div class="container">
+      <button onclick="displayProjects()">Click to Select Projects</button>
+      <p id="tip"></p>
+      <select id="projectSelect" multiple="true"></select>
+      <div id="submit"></div><p id="submitText" style="font-size: small"></p>
+      <p></p>
+      <script>
+        function displayProjects() {
+          document.getElementById("tip").innerHTML = "Hold down 'ctrl' to select multiple projects.";
+          var select = document.getElementById("projectSelect");
+          var projects = [
+            "Example Project 1",
+            "Example Project 2",
+            "Example Project 3",
+            "Example Project 4"
+          ];
 
+          select.innerHTML = "";
+          for (var i = 0; i < projects.length; i++) {
+            var option = projects[i];
+            select.innerHTML += "<option>" + option + "</option>";
+          }
+          var submit = document.getElementById("submit");
+          submit.innerHTML = "<button onclick=\"submitProjects()\">Submit</button>";
+        }
+        function submitProjects() {
+          var submitText = document.getElementById("submitText");
+          submitText.innerHTML = "<i>Submitted.</i>"
+        }
+      </script>
     </div>
     <div class="container">
-      <button onclick="displaySnapshots()">Display snapshots</button>
+      <button onclick="displaySnapshots()">Click to Display snapshots</button>
       <p id="title"></p>
       <div id="table"></div>
       <script>
         function displaySnapshots() {
           var title = "<h2>Snapshots</h2>";
           document.getElementById("title").innerHTML = title;
-          //document.write(title);
           var stats = [
             "Date Created",
             "Project Name",
@@ -46,7 +72,6 @@
           }
           table += "</tr></thead></table>";
           document.getElementById("table").innerHTML = table;
-          //document.write(table);
         }
       </script>
     </div>
