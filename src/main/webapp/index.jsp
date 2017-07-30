@@ -12,12 +12,14 @@
   <body>
     <div class="container">
       <p></p>
-      <button onclick="getXml()">Click to Upload XML</button>
+      <!--<button onclick="getXml()">Click to Upload XML</button>-->
+      <input type="file" id="xml">
       <p id = "name"></p>
       <script>
         function getXml() {
-          var fileName = "File name will be displayed here after uploading";
-          document.getElementById("name").innerHTML = fileName;
+          //var fileName = "File name will be displayed here after uploading";
+          //document.getElementById("name").innerHTML = fileName;
+
         }
       </script>
     </div>
