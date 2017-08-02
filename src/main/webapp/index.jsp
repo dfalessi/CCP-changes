@@ -12,14 +12,21 @@
   <body>
     <div class="container">
       <p></p>
-      <!--<button onclick="getXml()">Click to Upload XML</button>-->
-      <input type="file" id="xml">
+      <input type="file" id="file" onchange="return checkExtension()">
       <p id = "name"></p>
       <script>
-        function getXml() {
-          //var fileName = "File name will be displayed here after uploading";
-          //document.getElementById("name").innerHTML = fileName;
-
+        // some code from codexworld.com
+        function checkExtension() {
+          var fileInput = document.getElementById("file");
+          var filePath = fileInput.value;
+          var allowedExtensions = /(\.xml)$/i;
+          if(!allowedExtensions.exec(filePath)){
+            alert("Invalid file type. Please use an xml file.");
+            fileInput.value = "";
+            return false;
+          } else {
+            return true;
+          }
         }
       </script>
     </div>
