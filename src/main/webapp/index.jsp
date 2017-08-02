@@ -19,8 +19,9 @@
         function checkExtension() {
           var fileInput = document.getElementById("file");
           var filePath = fileInput.value;
-          var allowedExtensions = /(\.xml)$/i;
-          if(!allowedExtensions.exec(filePath)){
+          var allowedExtension = "xml";
+          var nameSplit = filePath.split(".");
+          if (nameSplit[nameSplit.length - 1] !== allowedExtension) {
             alert("Invalid file type. Please use an xml file.");
             fileInput.value = "";
             return false;
