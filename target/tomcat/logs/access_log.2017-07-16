@@ -1,0 +1,5 @@
+0:0:0:0:0:0:0:1 - - [16/Jul/2017:18:59:13 -0700] "GET / HTTP/1.1" 200 138 http-bio-8080-exec-1 953
+0:0:0:0:0:0:0:1 - - [16/Jul/2017:18:59:15 -0700] "GET /resources/css/test.css HTTP/1.1" 404 949 http-bio-8080-exec-7 1993
+0:0:0:0:0:0:0:1 - - [16/Jul/2017:18:59:27 -0700] "GET /resources/css/test.css HTTP/1.1" 404 949 http-bio-8080-exec-8 3
+0:0:0:0:0:0:0:1 - - [16/Jul/2017:18:59:56 -0700] "GET / HTTP/1.1" 200 138 http-bio-8080-exec-9 2
+0:0:0:0:0:0:0:1 - - [16/Jul/2017:18:59:56 -0700] "GET /resources/css/test.css HTTP/1.1" 200 32 http-bio-8080-exec-10 26
