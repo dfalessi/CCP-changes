@@ -3,9 +3,9 @@ import git
 import re
 
 MAX_RESULTS = 1000
-TIKA_REQ_STR = "project=TIKA and issueType=\'New Feature\' AND "
+TIKA_REQ_STR = "project=TIKA AND issueType=\'New Feature\' AND "
 TIKA_LOCAL_REPO = r"C:\Users\yiupang\Documents\CCP-REPOS\tika-master"
-REQUIREMENT = 'TIKA-2016'
+REQUIREMENT = 'TIKA-2016' # for testing purpose
 
 '''
 Goal: To resolve this question:
@@ -18,6 +18,7 @@ def getOpenFeatures(jira):
 Goal: To resolve this question:
 		for each requirement in Tika, compute how many requirements have been implemented (resolved or closed) 
 	before this requirement started to be implemented (i.e., until it became in porgress).
+
 '''
 def getNumRequirementsBeforeThis(jira, reqName):
 	startProgressDate = None
@@ -31,9 +32,12 @@ def getNumRequirementsBeforeThis(jira, reqName):
 				startProgressDate = re.findall('(\d{4}-\d{2}-\d{2})', history.created)[0]
 
 	# 2. all the issues have type of New Feature and status of RESOLVED or CLOSED before that time.
-	allIssueBeforeThis = jira.search_issues(TIKA_REQ_STR + "status WAS IN (\'Resolved\', \'Closed\') BEFORE " + startProgressDate, maxResults=MAX_RESULTS)
-	numIssueBeforeThis = len(allIssueBeforeThis)
-	return numIssueBeforeThis
+	if startProgressDate != None:
+		allIssueBeforeThis = jira.search_issues(TIKA_REQ_STR + "status WAS IN (\'Resolved\', \'Closed\') BEFORE " + startProgressDate, maxResults=MAX_RESULTS)
+		numIssueBeforeThis = len(allIssueBeforeThis)
+		return numIssueBeforeThis
+	else:# this issue has no "In Progress" phase.
+		return -1
 
 '''
 Goal: To resolve this question:
@@ -44,40 +48,57 @@ def getOpenInProgressFeatures(jira):
 
 '''
 Goal: To resolve this question:
-	number of commits for that requirement.
+	developers for that requirement.
 '''
-def getGitDevelopersForRequirement(reqName):
+def getGitDevelopersForThisReq(reqName):
 	repo = git.Repo(TIKA_LOCAL_REPO)
 	logInfo = repo.git.log("--all", "-i", "--grep=" + reqName)
 	if(len(logInfo) == 0):
-		print ("[ERROR] No commit messages mentioned " + reqName)
-	authors = re.findall('(?<=Author: )\w+', logInfo)
-	# print ("[DEBUG] raw string of the logInfo: ", logInfo)
-	return authors
+		return []
+	else:
+		developers = re.findall('(?<=Author: )([a-zA-Z ]+)', logInfo)
+		formattedDevelopers = []
+		for dev in developers: #delete the last white space character detected by the regex
+			formattedDevelopers.append(dev[:-1])
+		return formattedDevelopers
 
 '''
 Goal: Multiple commits might be made by the same developer.
 	 This function is to not print the same name multiple times.
 '''
-def printUniqueDevelopers(developers):
-	print ("The developers worked on: " + REQUIREMENT)
+def getUniqueDevelopers(developers, reqName):
 	seen = set()
 	uniqueDevelopers = []
 	for dev in developers:
 		if dev not in seen:
 			uniqueDevelopers.append(dev)
 			seen.add(dev)
-			print ("\t" + dev)
+	return uniqueDevelopers
+
+'''
+Goal: Loop all the issues of TIKA to computer the following two matrixes:
+	1. The number of closed or resolved issues before each requirement has started being implemented
+	2. Developers for each requirement.
+'''
+def printTicketInfoForReqs(jira):
+	requirements = jira.search_issues("project=TIKA AND issueType=\'New Feature\'")
+	for req in requirements:
+		print ("Ticket's id: " + req.key)
+		print ("reqBeforeThis:", getNumRequirementsBeforeThis(jira, req.key))
+		developers = getUniqueDevelopers(getGitDevelopersForThisReq(req.key), req.key)
+		print ("numDevelopers: ", len(developers))
+		print ("developers:", developers)
+		print ("\n\n\n")
+
 
 def main():
 	jira = JIRA({
 		'server': 'https://issues.apache.org/jira'
 	})
-
 	print ("The number of open requirements: ", len(getOpenFeatures(jira)))
 	print ("The number of requirements in progress: ", len(getOpenInProgressFeatures(jira)))
-	print ("The number of closed or resolved issues before an issue has started being implemented: ", getNumRequirementsBeforeThis(jira, REQUIREMENT))
-	printUniqueDevelopers(getGitDevelopersForRequirement(REQUIREMENT))
+	printTicketInfoForReqs(jira)
+	# testing: getGitDevelopersForThisReq(REQUIREMENT)
 
 if __name__ == "__main__":
 	main()
