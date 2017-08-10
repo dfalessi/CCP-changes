@@ -1,11 +1,13 @@
 from jira import JIRA
 import git
 import re
+import csv
 
 MAX_RESULTS = 1000
 TIKA_REQ_STR = "project=TIKA AND issueType=\'New Feature\' AND "
 TIKA_LOCAL_REPO = r"C:\Users\yiupang\Documents\CCP-REPOS\tika-master"
 REQUIREMENT = 'TIKA-2016' # for testing purpose
+CSV_FILE = 'TIKA-Table'
 
 '''
 Goal: To resolve this question:
@@ -27,7 +29,7 @@ def getNumRequirementsBeforeThis(jira, reqName):
 	changelog = issue.changelog
 	for history in changelog.histories:
 		for item in history.items:
-			if item.field == 'status' and item.fromString == 'Open' and item.toString == 'In Progress':
+			if item.field == 'status' and item.toString == 'In Progress':
 				# print ('[DEBUG] Date:' + history.created + ' From:' + item.fromString + ' To:' + item.toString)
 				startProgressDate = re.findall('(\d{4}-\d{2}-\d{2})', history.created)[0]
 
@@ -76,7 +78,7 @@ def getUniqueDevelopers(developers, reqName):
 	return uniqueDevelopers
 
 '''
-Goal: Loop all the issues of TIKA to computer the following two matrixes:
+Goal: Loop all the issues of TIKA to compute the following two matrixes:
 	1. The number of closed or resolved issues before each requirement has started being implemented
 	2. Developers for each requirement.
 '''
@@ -90,15 +92,31 @@ def printTicketInfoForReqs(jira):
 		print ("developers:", developers)
 		print ("\n\n\n")
 
+'''
+Goal: Loop all the issues of TIKA to compute the following two matrixes and output them to a csv file.
+'''
+def outputCSVFile(jira):
+	with open('TIKA-Table', 'w', newline='') as csvfile:
+		fieldnames = ['numOpenRequirements', 'numInProgressRequirements', 'ticket', 'numRequirementsBeforeThis', 'numDevelopers']
+		writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+		writer.writeheader()
+		writer.writerow({'numOpenRequirements': len(getOpenFeatures(jira)), 
+			'numInProgressRequirements': len(getOpenInProgressFeatures(jira))})
+		for req in jira.search_issues("project=TIKA AND issueType=\'New Feature\'"):
+			writer.writerow({'ticket': req.key,
+				'numRequirementsBeforeThis': getNumRequirementsBeforeThis(jira, req.key),
+				'numDevelopers': len(getUniqueDevelopers(getGitDevelopersForThisReq(req.key), req.key))
+			})
+
 
 def main():
 	jira = JIRA({
 		'server': 'https://issues.apache.org/jira'
 	})
-	print ("The number of open requirements: ", len(getOpenFeatures(jira)))
-	print ("The number of requirements in progress: ", len(getOpenInProgressFeatures(jira)))
-	printTicketInfoForReqs(jira)
+	# print ("The number of open requirements: ", len(getOpenFeatures(jira)))
+	# print ("The number of requirements in progress: ", len(getOpenInProgressFeatures(jira)))
+	# printTicketInfoForReqs(jira)
 	# testing: getGitDevelopersForThisReq(REQUIREMENT)
-
+	outputCSVFile(jira)
 if __name__ == "__main__":
 	main()
