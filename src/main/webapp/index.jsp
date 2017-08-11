@@ -15,7 +15,7 @@
       <input type="file" id="file" onchange="return checkExtension()">
       <p id = "name"></p>
       <script>
-        // some code from codexworld.com
+        // some code from codexworld.com (https://www.codexworld.com/file-type-extension-validation-javascript/)
         function checkExtension() {
           var fileInput = document.getElementById("file");
           var filePath = fileInput.value;
