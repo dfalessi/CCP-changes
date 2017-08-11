@@ -16,7 +16,7 @@ class Preprocessor:
     Returns a copy of string with all non-alphanumeric characters replaced by whitespace.
     '''
     def removeSpecialChars(self, string):
-        return self.spec_chars_regex.sub(" ", string)
+        return self.spec_chars_regex.sub(' ', string)
     
     '''
     splitCamelCase(self, string)
