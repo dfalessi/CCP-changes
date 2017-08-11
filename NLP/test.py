@@ -10,12 +10,8 @@ p = Preprocessor()
 #print(p.stripSpecialChars(string))
 print p.preprocess(string)
 
-'''
-regex = '[^0-9a-zA-Z]'
+string2 = "verbs: running, ran, walked, seen, seeing, hopping, swam, $#!+ment, (golfing). adjectives: red, or@nge, dus-ty, (sh!ny:-P)"
+print p.preprocess(string2)
 
-newString = re.sub(regex, " ", string)
-print(newString)
-
-newStringSplit = newString.split()
-print(newStringSplit)
-'''
+string3 = "caressed, ponies, oxen, boxes, geese, goose, velvet, varieties, deities, fish, people, humans, soybeans, shivers"
+print p.preprocess(string3)
