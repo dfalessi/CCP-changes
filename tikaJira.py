@@ -45,7 +45,6 @@ def getItemHistory(jira, reqName):
   results = {}
   descChangedCounter = 0
   startProgressTime = None
-  endProgressTime = None 
   currentStatus = 'Open'
   transitionsCounter = 0
   for history in getHistories(jira, reqName):
@@ -55,8 +54,6 @@ def getItemHistory(jira, reqName):
         descChangedCounter += 1
 
       if item.field == 'status':# Resolve #2
-        if startProgressTime != None and item.toString != 'In Progress':
-          endProgressTime = re.findall(DATE_REGEX, history.created)[0]
         if (item.toString == 'In Progress'):# Resolve #2 and #3
           startProgressTime = re.findall(DATE_REGEX, history.created)[0]
 
@@ -66,8 +63,8 @@ def getItemHistory(jira, reqName):
 
   results["numDescChanged"] = descChangedCounter
 
-  if(endProgressTime != None and startProgressTime != None):
-    timeClause = " DURING (" + startProgressTime + ", " + endProgressTime + ")"
+  if(startProgressTime != None):
+    timeClause = " ON " + startProgressTime
     results["numOpen"] = len(jira.search_issues(TIKA_REQ_STR + "status WAS \'Open\'" + timeClause, maxResults=MAX_RESULTS))
     results["numInProgress"] = len(jira.search_issues(TIKA_REQ_STR + "status WAS \'In Progress\'" + timeClause, maxResults=MAX_RESULTS))
     results["numReopened"] = len(jira.search_issues(TIKA_REQ_STR + "status WAS \'Reopened\'" + timeClause, maxResults=MAX_RESULTS))
