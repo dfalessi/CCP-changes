@@ -7,9 +7,22 @@ import urllib.request
 MAX_RESULTS = 1000
 TIKA_REQ_STR = "project=TIKA AND issueType=\'New Feature\' AND "
 TIKA_LOCAL_REPO = r"C:\Users\yiupang\Documents\CCP-REPOS\tika-master"
-REQUIREMENT = 'TIKA-2016' # for testing purpose
+REQUIREMENT = 'TIKA-1016' # for testing purpose
 CSV_FILE = 'TIKA-Table.csv'
 DATE_REGEX = '(\d{4}-\d{2}-\d{2})'
+STATUSES = ["Open", "In Progress", "Reopened", "Resolved", "Closed"]
+'''
+Goal: Get all possible transitions
+'''
+def getAllPossibleTransitions():
+  transitions = {}
+  for idx, val in enumerate(STATUSES):
+    for idx2, val2 in enumerate(STATUSES):
+      if idx != idx2:
+        transitions[val+"|"+val2] = [val, val2]
+  return transitions
+
+TRANSITIONS = getAllPossibleTransitions()#a <transition>|<transition2> of dictionary
 
 '''
 Goal: To resolve this question:
@@ -43,10 +56,15 @@ Goal:
 '''
 def getItemHistory(jira, reqName):
   results = {}
+  transitionCounters = {}
   descChangedCounter = 0
   startProgressTime = None
   currentStatus = 'Open'
-  transitionsCounter = 0
+
+  # initailize transitionCounters
+  for key in TRANSITIONS:
+    transitionCounters[key] = 0
+
   for history in getHistories(jira, reqName):
     for item in history.items:
 
@@ -58,8 +76,9 @@ def getItemHistory(jira, reqName):
           startProgressTime = re.findall(DATE_REGEX, history.created)[0]
 
       if item.field == 'status' and currentStatus != item.toString:# Resolve #4
+        key = currentStatus + "|" + item.toString
+        transitionCounters[key] += 1
         currentStatus = item.toString
-        transitionsCounter += 1
 
   results["numDescChanged"] = descChangedCounter
 
@@ -81,7 +100,7 @@ def getItemHistory(jira, reqName):
   else:# this issue has no "In Progress" phase.
     results["numDevelopedRequirementsBeforeThisInProgress"] = "NA"
 
-  results["numTransitions"] = transitionsCounter
+  results["transitionCounters"] = transitionCounters
   return results
 
 '''
@@ -139,35 +158,51 @@ def printTicketInfoForReqs(jira):
 '''
 Goal: Loop all the issues of TIKA to compute the matrixes and output them to a csv file.
 '''
-def outputCSVFile(jira):
+def outputCSVFile(jira, limit):
   with open(CSV_FILE, 'w', newline='') as csvfile:
-    fieldnames = ['numOpenRequirements', 'numInProgressRequirements', 'ticket',
-       'numDevelopedRequirementsBeforeThisInProgress', 'numDevelopers', "numDescChanged", "numTransitions",
-       "numOpen", "numInProgress", "numReopened", "numResolved", "numClosed"]
+    fieldnames = [
+       'numOpenRequirements',
+       'numInProgressRequirements', 
+       'ticket',
+       'numDevelopedRequirementsBeforeThisInProgress',
+       'numDevelopers',
+       "numDescChanged",
+       "numOpen",
+       "numInProgress",
+       "numReopened",
+       "numResolved",
+       "numClosed"]
+    for key in TRANSITIONS:
+      fieldnames.append(key)
+
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
     writer.writerow({'numOpenRequirements': len(getOpenFeatures(jira)), 
       'numInProgressRequirements': len(getOpenInProgressFeatures(jira))})
-    for req in jira.search_issues("project=TIKA AND issueType=\'New Feature\'"):
+    for indx, req in enumerate(jira.search_issues("project=TIKA AND issueType=\'New Feature\'")):
+      if limit != None and indx == limit:
+        break
       results = getItemHistory(jira, req.key)
-      writer.writerow({'ticket': req.key,
+      row = {
+        'ticket': req.key,
         'numDevelopedRequirementsBeforeThisInProgress': results["numDevelopedRequirementsBeforeThisInProgress"],
         'numDevelopers': len(getUniqueDevelopers(getGitDevelopersForThisReq(req.key), req.key)),
         'numDescChanged': results["numDescChanged"],
-        'numTransitions': results["numTransitions"],
         'numOpen': results['numOpen'],
         "numInProgress": results["numInProgress"],
         "numReopened": results["numReopened"],
         "numResolved": results["numResolved"],
-        "numClosed": results["numClosed"]
-      })
+        "numClosed": results["numClosed"],
+      }
+      for key in results["transitionCounters"]:
+          row[key] = results["transitionCounters"][key]
+      writer.writerow(row)
 
 def main():
   jira = JIRA({
     'server': 'https://issues.apache.org/jira'
   })
-  # printTicketInfoForReqs(jira)
-  outputCSVFile(jira)
+  outputCSVFile(jira, None)
 
 if __name__ == "__main__":
   main()
