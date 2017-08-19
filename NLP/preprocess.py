@@ -11,7 +11,8 @@ from porter import PorterStemmer
 class Preprocessor:
     
     '''
-    Constructor. Initializes object with pre-compiled regexes.
+    Constructor.
+    Initializes object with pre-compiled regexes.
     '''
     def __init__(self):
     
