@@ -2,12 +2,22 @@ from jira import JIRA
 import git
 import re
 import csv
+import json
+import urllib.request
 
 MAX_RESULTS = 1000
 TIKA_REQ_STR = "project=TIKA AND issueType=\'New Feature\' AND "
 TIKA_LOCAL_REPO = r"C:\Users\yiupang\Documents\CCP-REPOS\tika-master"
 REQUIREMENT = 'TIKA-2016' # for testing purpose
-CSV_FILE = 'TIKA-Table'
+CSV_FILE = 'TIKA-Table.csv'
+
+'''
+Goal: To resolve this question:
+	For each requirement compute how many times it was reopened.
+'''
+def getReopenTimes(jira, reqName):
+	return jira.search_issues(TIKA_REQ_STR + "status WAS \'Reopened\' AND key = " + reqName, maxResults=MAX_RESULTS)
+	#print (json.dumps(parsed, indent=4, sort_keys=True))
 
 '''
 Goal: To resolve this question:
@@ -16,18 +26,32 @@ Goal: To resolve this question:
 def getOpenFeatures(jira):
 	return jira.search_issues(TIKA_REQ_STR + "status=\'Open\'", maxResults=MAX_RESULTS)
 
+def getHistories(jira, reqName):
+	issue = jira.issue(reqName, expand='changelog')
+	return issue.changelog.histories
+
+'''
+Goal: To resolve PERILS-11 - Changed
+'''
+def getNumDescChanged(jira, reqName):
+	counter = 0
+	for history in getHistories(jira, reqName):
+		for item in history.items:
+			if(item.field == 'description'):
+				counter += 1
+	return counter
+
 '''
 Goal: To resolve this question:
 		for each requirement in Tika, compute how many requirements have been implemented (resolved or closed) 
 	before this requirement started to be implemented (i.e., until it became in porgress).
 
+	Resolved vs Closed ?
+	
 '''
 def getNumRequirementsBeforeThis(jira, reqName):
 	startProgressDate = None
-	# 1. get the time when the issue is changed to "in progress"
-	issue = jira.issue(reqName, expand='changelog')
-	changelog = issue.changelog
-	for history in changelog.histories:
+	for history in getHistories(jira, reqName):
 		for item in history.items:
 			if item.field == 'status' and item.toString == 'In Progress':
 				# print ('[DEBUG] Date:' + history.created + ' From:' + item.fromString + ' To:' + item.toString)
@@ -89,15 +113,16 @@ def printTicketInfoForReqs(jira):
 		print ("reqBeforeThis:", getNumRequirementsBeforeThis(jira, req.key))
 		developers = getUniqueDevelopers(getGitDevelopersForThisReq(req.key), req.key)
 		print ("numDevelopers: ", len(developers))
-		print ("developers:", developers)
+		#print ("developers:", developers)
+		print ("numDescChanged:", getNumDescChanged(jira, req.key))
 		print ("\n\n\n")
 
 '''
 Goal: Loop all the issues of TIKA to compute the following two matrixes and output them to a csv file.
 '''
 def outputCSVFile(jira):
-	with open('TIKA-Table', 'w', newline='') as csvfile:
-		fieldnames = ['numOpenRequirements', 'numInProgressRequirements', 'ticket', 'numRequirementsBeforeThis', 'numDevelopers']
+	with open(CSV_FILE, 'w', newline='') as csvfile:
+		fieldnames = ['numOpenRequirements', 'numInProgressRequirements', 'ticket', 'numRequirementsBeforeThis', 'numDevelopers', "numDescChanged"]
 		writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 		writer.writeheader()
 		writer.writerow({'numOpenRequirements': len(getOpenFeatures(jira)), 
@@ -105,7 +130,8 @@ def outputCSVFile(jira):
 		for req in jira.search_issues("project=TIKA AND issueType=\'New Feature\'"):
 			writer.writerow({'ticket': req.key,
 				'numRequirementsBeforeThis': getNumRequirementsBeforeThis(jira, req.key),
-				'numDevelopers': len(getUniqueDevelopers(getGitDevelopersForThisReq(req.key), req.key))
+				'numDevelopers': len(getUniqueDevelopers(getGitDevelopersForThisReq(req.key), req.key)),
+				'numDescChanged': getNumDescChanged(jira, req.key)
 			})
 
 
@@ -118,5 +144,7 @@ def main():
 	# printTicketInfoForReqs(jira)
 	# testing: getGitDevelopersForThisReq(REQUIREMENT)
 	outputCSVFile(jira)
+	# print (getReopenTimes(jira, 'TIKA-1913'))
+
 if __name__ == "__main__":
 	main()
