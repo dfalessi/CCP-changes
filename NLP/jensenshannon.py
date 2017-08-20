@@ -6,7 +6,8 @@
 Algorithms on entropies.
 
 Found at:
-https://github.com/viveksck/langchangetrack/blob/master/langchangetrack/utils/entropy.py
+https://github.com/viveksck/langchangetrack/blob/master/
+    langchangetrack/utils/entropy.py
 """
 from itertools import izip
 import numpy as np

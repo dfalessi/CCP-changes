@@ -1,3 +1,26 @@
+# -*- coding: utf-8 -*-
+'''
+This implementation is from a vector space tutorial from
+Radim Řehůřek's Gensim library, which requires both the SciPy
+and NumPy libraries. All of these are open source software.
+
+The Gensim, SciPy, and NumPy libraries are required for this
+program.
+
+This implementation also requires Vivek Kulkarni's Jensen-Shannon
+Divergence calculator (imported in jensenshannon.py).
+
+For download and more information on Gensim, see this link:
+< https://radimrehurek.com/gensim/index.html >
+
+For download and more information on SciPy & NumPy, see this link:
+< https://www.scipy.org/index.html >
+
+For download and more information on Vivek Kulkarni's JSD calculator,
+see this link:
+< https://github.com/viveksck/langchangetrack/ >
+'''
+
 import sys
 from gensim import corpora, models, matutils, similarities
 import numpy
@@ -13,7 +36,6 @@ def main(argv):
         + " Format is \'python jsd.py [file name] \' \"query\" \'"
     else:
         div = jsd(argv[1], argv[2])
-        #print div
         export(div[0])
 
 '''
@@ -23,12 +45,9 @@ Returns the Jensen-Shannon Divergence score of the file and query.
 def jsd(fileName, query):
     pp = preprocess.Preprocessor()
     fileText = pp.prepDoc(fileName, combine = True)
-    #print fileText
     queryText = pp.preprocess(query)
     texts = [queryText, fileText]
-    #print texts
     probDists = getProbDists(texts)
-    #print probDists
     return jensenshannon.jensen_shannon_divergence(numpy.array(probDists))
 
 '''
