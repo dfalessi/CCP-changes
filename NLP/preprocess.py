@@ -45,7 +45,6 @@ class Preprocessor:
     Stemmer.
     '''
     def porterStem(self, words):
-        #stems = ["" for x in range(len(words))]
         stems = [""] * len(words)
         return [self.stemmer.stem(word, 0, len(word) - 1) for word in words]
         
@@ -65,7 +64,7 @@ class Preprocessor:
     
     '''
     prepDoc(self, doc)
-    Opens the document specified as doc, preprocesses each line and returns a ]
+    Opens the document specified as doc, preprocesses each line and returns a
     list of arrays containing the preprocessed lines of the document.
     '''
     def prepDoc(self, doc, combine = False):
