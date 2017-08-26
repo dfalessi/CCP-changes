@@ -2,15 +2,25 @@ from jira import JIRA
 import git
 import re
 import csv
-import urllib.request
+import requests
+from datetime import datetime
 
 MAX_RESULTS = 1000
 TIKA_REQ_STR = "project=TIKA AND issueType=\'New Feature\' AND "
 TIKA_LOCAL_REPO = r"C:\Users\yiupang\Documents\CCP-REPOS\tika-master"
-REQUIREMENT = 'TIKA-1016' # for testing purpose
+REQUIREMENT = 'TIKA-1699' # for testing purpose
 CSV_FILE = 'TIKA-Table.csv'
 DATE_REGEX = '(\d{4}-\d{2}-\d{2})'
-STATUSES = ["Open", "In Progress", "Reopened", "Resolved", "Closed"]
+AUTHOR_REGEX = '(?<=Author: )([a-zA-Z ]+)'
+COMMIT_REGEX = '(?<=commit )([a-z-A-Z0-9]+)'
+COMMIT_DATE_REGEX = '(?<=Date:   )([A-Za-z0-9: ]+)'
+STATE_STR = "Status"
+OPEN_STR = "Open"
+IN_PROGRESS_STR = "In Progress"
+REOPENED_STR = "Reopened"
+RESOLVED_STR = "Resolved"
+CLOSED_STR = "Closed"
+STATUSES = [OPEN_STR, IN_PROGRESS_STR, REOPENED_STR, RESOLVED_STR, CLOSED_STR]
 '''
 Goal: Get all possible transitions
 '''
@@ -21,7 +31,6 @@ def getAllPossibleTransitions():
       if idx != idx2:
         transitions[val+"|"+val2] = [val, val2]
   return transitions
-
 TRANSITIONS = getAllPossibleTransitions()#a <transition>|<transition2> of dictionary
 
 '''
@@ -46,15 +55,14 @@ def getHistories(jira, reqName):
   return issue.changelog.histories
 
 '''
-TODO
 Goal: To resolve PERILS 3 -	JIRA Workflow compliance
+  How many times a commit related to the requirement happened while the requirement was: open, in progress, closed, resolved, reopened.
 '''
 
+
 def initDataStatuesesOtherReqWhileOpen(jira, end, results):
-  timeClause = None
-  if end == None: # the issue is in open status without activities
-    timeClause = ""
-  else:
+  timeClause = ""
+  if end != None: # the issue is in open status without activities
     timeClause = " BEFORE " + end
   results["numOpenWhileThisOpen"] = len(jira.search_issues(TIKA_REQ_STR + "status WAS \'Open\'" + timeClause, maxResults=MAX_RESULTS))
   results["numInProgressWhileThisOpen"] = len(jira.search_issues(TIKA_REQ_STR + "status WAS \'In Progress\'" + timeClause, maxResults=MAX_RESULTS))
@@ -106,8 +114,9 @@ def getItemHistory(jira, reqName):
   transitionCounters = {}
   descChangedCounters = {}
   startProgressTime = None
-  currentStatus = 'Open'
+  currentStatus = OPEN_STR
   numCommitsEachStatus = {}
+  currentStatusCreatedDate = None
   endOpenTime = None
 
   # initailize transitionCounters
@@ -120,21 +129,20 @@ def getItemHistory(jira, reqName):
 
   for history in getHistories(jira, reqName):
     for item in history.items:
+      createdTime = re.findall(DATE_REGEX, history.created)[0]
       if item.field == 'description':# Resolve #1
         descChangedCounters[currentStatus] += 1
+      # print (history.created)
+      if item.field == STATE_STR:# Resolve #2
+        if (item.toString == IN_PROGRESS_STR):# Resolve #2 and #3
+          startProgressTime = createdTime
 
-      if item.field == 'status':# Resolve #2
-        if (item.toString == 'In Progress'):# Resolve #2 and #3
-          startProgressTime = re.findall(DATE_REGEX, history.created)[0]
-
-      if item.field == 'status' and currentStatus != item.toString:# Resolve #4
+      if item.field == STATE_STR and currentStatus != item.toString:# Resolve #4
         key = currentStatus + "|" + item.toString
         transitionCounters[key] += 1
-        print (currentStatus, item.toString)
-        if currentStatus == "Open" and item.toString != "Open":
-          endOpenTime = re.findall(DATE_REGEX, history.created)[0]
-          print (endOpenTime)
-        numCommitsEachStatus["numCommits" + currentStatus.replace(" ", "")] += getGitCommitsForThisReq(reqName, True)["numCommits"] # get the commit history of the currentStatus.
+        if currentStatus == OPEN_STR and item.toString != OPEN_STR:# Resolved #6
+          endOpenTime = createdTime
+        currentStatusCreatedDate = createdTime
         currentStatus = item.toString
 
   results["numDescChangedCounters"] = descChangedCounters
@@ -143,6 +151,7 @@ def getItemHistory(jira, reqName):
   initDataNumDeveloped(jira, results, startProgressTime)
   results["transitionCounters"] = transitionCounters
   results["numCommitsEachStatus"] = numCommitsEachStatus
+  # numCommitsEachStatus["numCommits" + currentStatus.replace(" ", "")]
 
   return results
 
@@ -159,20 +168,22 @@ Goal: To resolve this question:
 '''
 def getGitCommitsForThisReq(reqName, isGetNumCommit):
   repo = git.Repo(TIKA_LOCAL_REPO)
-  numCommits = 0
+  datesForAllCommits = []
   logInfo = repo.git.log("--all", "-i", "--grep=" + reqName)
+
   if(len(logInfo) == 0):
     return {"formattedDevelopers": [], "numCommits": 0}
   else:
-    developers = re.findall('(?<=Author: )([a-zA-Z ]+)', logInfo)
+    developers = re.findall(AUTHOR_REGEX, logInfo)
     formattedDevelopers = []
     if isGetNumCommit == True:
-      print ("len", logInfo)#TODO:  use the timestamp instead
-      numCommits += 1
+      dates = re.findall(COMMIT_DATE_REGEX, logInfo)
+      for date in dates:
+        datesForAllCommits.append(datetime.strptime(date[:-1], "%a %b %d %H:%M:%S %Y").strftime("%Y-%m-%d"))
     else:
       for dev in developers: #delete the last white space character detected by the regex
         formattedDevelopers.append(dev[:-1])
-    return {"formattedDevelopers": formattedDevelopers, "numCommits": numCommits}
+    return {"formattedDevelopers": formattedDevelopers, "datesForAllCommits": datesForAllCommits}
 
 '''
 Goal: Multiple commits might be made by the same developer.
@@ -272,10 +283,9 @@ def main():
   jira = JIRA({
     'server': 'https://issues.apache.org/jira'
   })
-  outputCSVFile(jira, None)
-  # getGitCommitsForThisReq("TIKA-1699", True)
-  # getItemHistory(jira, "TIKA-2332")
-  # getHistories(jira, "TIKA-2332")
+  # outputCSVFile(jira, 5)
+  getItemHistory(jira, REQUIREMENT)
+  # print (datetime.strptime('Mon Aug 17', "%a %b %y"))
 
 if __name__ == "__main__":
   main()
