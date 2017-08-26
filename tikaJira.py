@@ -46,42 +46,14 @@ def getHistories(jira, reqName):
   return issue.changelog.histories
 
 '''
-Goal: 
-1. To resolve PERILS-11 - Changed
-2. To resolve PERILS-7 - Statuses of other existing requirements
-3. To resolve this question:
-    for each requirement in Tika, compute how many requirements have been implemented (resolved or closed) 
-  before this requirement started to be implemented (i.e., until it became in porgress).
-4. To resolve PERILS-2 - Transitions
+TODO
+Goal: To resolve PERILS 3 -	JIRA Workflow compliance
 '''
-def getItemHistory(jira, reqName):
-  results = {}
-  transitionCounters = {}
-  descChangedCounter = 0
-  startProgressTime = None
-  currentStatus = 'Open'
 
-  # initailize transitionCounters
-  for key in TRANSITIONS:
-    transitionCounters[key] = 0
-
-  for history in getHistories(jira, reqName):
-    for item in history.items:
-
-      if(item.field == 'description'):# Resolve #1
-        descChangedCounter += 1
-
-      if item.field == 'status':# Resolve #2
-        if (item.toString == 'In Progress'):# Resolve #2 and #3
-          startProgressTime = re.findall(DATE_REGEX, history.created)[0]
-
-      if item.field == 'status' and currentStatus != item.toString:# Resolve #4
-        key = currentStatus + "|" + item.toString
-        transitionCounters[key] += 1
-        currentStatus = item.toString
-
-  results["numDescChanged"] = descChangedCounter
-
+'''
+Goal: To init data for PERILS-7 - Statuses of other existing requirements
+'''
+def initDataStatusesOtherReq(jira, startProgressTime, results):
   if(startProgressTime != None):
     timeClause = " ON " + startProgressTime
     results["numOpen"] = len(jira.search_issues(TIKA_REQ_STR + "status WAS \'Open\'" + timeClause, maxResults=MAX_RESULTS))
@@ -93,6 +65,12 @@ def getItemHistory(jira, reqName):
     results["numOpen"] = results["numReopened"] = results["numInProgress"] = "NA"
     results["numResolved"] = results["numClosed"] = "NA"
 
+'''
+Goal: To init data for this question:
+    for each requirement in Tika, compute how many requirements have been implemented (resolved or closed) 
+  before this requirement started to be implemented (i.e., until it became in porgress).
+'''
+def initDataNumDeveloped(jira, results, startProgressTime):
   if startProgressTime != None:
     allIssueBeforeThis = jira.search_issues(TIKA_REQ_STR + "status WAS IN (\'Resolved\', \'Closed\') BEFORE " + startProgressTime, maxResults=MAX_RESULTS)
     numIssueBeforeThis = len(allIssueBeforeThis)
@@ -100,7 +78,51 @@ def getItemHistory(jira, reqName):
   else:# this issue has no "In Progress" phase.
     results["numDevelopedRequirementsBeforeThisInProgress"] = "NA"
 
+'''
+Goal: 
+1. To resolve PERILS-11 - Changed, Ans: Column F-J
+2. To resolve PERILS-7 - Statuses of other existing requirements
+3. To resolve this question:
+    for each requirement in Tika, compute how many requirements have been implemented (resolved or closed) 
+  before this requirement started to be implemented (i.e., until it became in porgress).
+4. To resolve PERILS-2 - Transitions
+5. To resolve PERILS-3 - Workflow compliance
+'''
+def getItemHistory(jira, reqName):
+  results = {}
+  transitionCounters = {}
+  descChangedCounters = {}
+  startProgressTime = None
+  currentStatus = 'Open'
+  numCommitsEachStatus = {}
+
+  # initailize transitionCounters
+  for key in TRANSITIONS:
+    transitionCounters[key] = 0
+  for key in STATUSES:
+    numCommitsEachStatus[key] = 0
+    descChangedCounters[key] = 0
+
+  for history in getHistories(jira, reqName):
+    for item in history.items:
+
+      if item.field == 'description':# Resolve #1
+        descChangedCounters[currentStatus] += 1
+
+      if item.field == 'status':# Resolve #2
+        if (item.toString == 'In Progress'):# Resolve #2 and #3
+          startProgressTime = re.findall(DATE_REGEX, history.created)[0]
+
+      if item.field == 'status' and currentStatus != item.toString:# Resolve #4
+        key = currentStatus + "|" + item.toString
+        transitionCounters[key] += 1
+        currentStatus = item.toString
+
+  results["numDescChangedCounters"] = descChangedCounters
+  initDataStatusesOtherReq(jira, startProgressTime, results)
+  initDataNumDeveloped(jira, results, startProgressTime)
   results["transitionCounters"] = transitionCounters
+
   return results
 
 '''
@@ -166,7 +188,11 @@ def outputCSVFile(jira, limit):
        'ticket',
        'numDevelopedRequirementsBeforeThisInProgress',
        'numDevelopers',
-       "numDescChanged",
+       'numDescOpen',
+       'numDescInProgress',
+       'numDescResolved',
+       'numDescReopened',
+       'numDescClosed',
        "numOpen",
        "numInProgress",
        "numReopened",
@@ -187,22 +213,23 @@ def outputCSVFile(jira, limit):
         'ticket': req.key,
         'numDevelopedRequirementsBeforeThisInProgress': results["numDevelopedRequirementsBeforeThisInProgress"],
         'numDevelopers': len(getUniqueDevelopers(getGitDevelopersForThisReq(req.key), req.key)),
-        'numDescChanged': results["numDescChanged"],
         'numOpen': results['numOpen'],
         "numInProgress": results["numInProgress"],
         "numReopened": results["numReopened"],
         "numResolved": results["numResolved"],
         "numClosed": results["numClosed"],
       }
+      for key in results["numDescChangedCounters"]:
+        row["numDesc" + key.replace(" ", "")] = results["numDescChangedCounters"][key]
       for key in results["transitionCounters"]:
-          row[key] = results["transitionCounters"][key]
+        row[key] = results["transitionCounters"][key]
       writer.writerow(row)
 
 def main():
   jira = JIRA({
     'server': 'https://issues.apache.org/jira'
   })
-  outputCSVFile(jira, None)
+  outputCSVFile(jira, 20)
 
 if __name__ == "__main__":
   main()
