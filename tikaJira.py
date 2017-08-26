@@ -8,13 +8,13 @@ from datetime import datetime
 MAX_RESULTS = 1000
 TIKA_REQ_STR = "project=TIKA AND issueType=\'New Feature\' AND "
 TIKA_LOCAL_REPO = r"C:\Users\yiupang\Documents\CCP-REPOS\tika-master"
-REQUIREMENT = 'TIKA-1699' # for testing purpose
+REQUIREMENT = 'TIKA-2016' # for testing purpose, TIKA-1699 has the most committs and TIKA-2016 has the best transitions
 CSV_FILE = 'TIKA-Table.csv'
 DATE_REGEX = '(\d{4}-\d{2}-\d{2})'
 AUTHOR_REGEX = '(?<=Author: )([a-zA-Z ]+)'
 COMMIT_REGEX = '(?<=commit )([a-z-A-Z0-9]+)'
 COMMIT_DATE_REGEX = '(?<=Date:   )([A-Za-z0-9: ]+)'
-STATE_STR = "Status"
+STATE_STR = "status"
 OPEN_STR = "Open"
 IN_PROGRESS_STR = "In Progress"
 REOPENED_STR = "Reopened"
@@ -116,33 +116,53 @@ def getItemHistory(jira, reqName):
   startProgressTime = None
   currentStatus = OPEN_STR
   numCommitsEachStatus = {}
-  currentStatusCreatedDate = None
   endOpenTime = None
+  openTimeTracking = None
+  endTimeTracking = None
+  statusTracking = None
+  isJustOpen = False
 
   # initailize transitionCounters
   for key in TRANSITIONS:
     transitionCounters[key] = 0
   for key in STATUSES:
     numCommitsStr = "numCommits" + key.replace(" ", "")
-    numCommitsEachStatus[numCommitsStr] = 0
     descChangedCounters[key] = 0
 
   for history in getHistories(jira, reqName):
-    for item in history.items:
+    for ndx, item in enumerate(history.items):
       createdTime = re.findall(DATE_REGEX, history.created)[0]
+      #if ndx == 0:
+        #numCommitsEachStatus[OPEN_STR] = [{"startTime": createdTime}]
       if item.field == 'description':# Resolve #1
         descChangedCounters[currentStatus] += 1
       # print (history.created)
       if item.field == STATE_STR:# Resolve #2
         if (item.toString == IN_PROGRESS_STR):# Resolve #2 and #3
           startProgressTime = createdTime
-
       if item.field == STATE_STR and currentStatus != item.toString:# Resolve #4
+        # fromString means one status starts, and toString means one status ends.
+        print (item.toString)
+        print (item.fromString)
+
+        if statusTracking == item.fromString: # End one status
+          numCommitsEachStatus[item.fromString].append({"endTime": createdTime})
+        elif item.fromString == OPEN_STR and isJustOpen == False:# A newly open ticket has no transition so I have to record the endTime in a edge case. 
+          numCommitsEachStatus[item.fromString] = [{"endTime": createdTime}]
+          isJustOpen = True
+
+        if item.toString not in numCommitsEachStatus:
+          numCommitsEachStatus[item.toString] = [{"startTime": createdTime}] # start one new status
+          statusTracking = item.toString
+        else:
+          numCommitsEachStatus[item.toString].append({"startTime": createdTime})
+          statusTracking = item.toString
+
+
         key = currentStatus + "|" + item.toString
         transitionCounters[key] += 1
         if currentStatus == OPEN_STR and item.toString != OPEN_STR:# Resolved #6
           endOpenTime = createdTime
-        currentStatusCreatedDate = createdTime
         currentStatus = item.toString
 
   results["numDescChangedCounters"] = descChangedCounters
@@ -284,7 +304,7 @@ def main():
     'server': 'https://issues.apache.org/jira'
   })
   # outputCSVFile(jira, 5)
-  getItemHistory(jira, REQUIREMENT)
+  print (getItemHistory(jira, REQUIREMENT)["numCommitsEachStatus"])
   # print (datetime.strptime('Mon Aug 17', "%a %b %y"))
 
 if __name__ == "__main__":
