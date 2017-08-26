@@ -50,6 +50,18 @@ TODO
 Goal: To resolve PERILS 3 -	JIRA Workflow compliance
 '''
 
+def initDataStatuesesOtherReqWhileOpen(jira, end, results):
+  timeClause = None
+  if end == None: # the issue is in open status without activities
+    timeClause = ""
+  else:
+    timeClause = " BEFORE " + end
+  results["numOpenWhileThisOpen"] = len(jira.search_issues(TIKA_REQ_STR + "status WAS \'Open\'" + timeClause, maxResults=MAX_RESULTS))
+  results["numInProgressWhileThisOpen"] = len(jira.search_issues(TIKA_REQ_STR + "status WAS \'In Progress\'" + timeClause, maxResults=MAX_RESULTS))
+  results["numReopenedWhileThisOpen"] = len(jira.search_issues(TIKA_REQ_STR + "status WAS \'Reopened\'" + timeClause, maxResults=MAX_RESULTS))
+  results["numResolvedWhileThisOpen"] = len(jira.search_issues(TIKA_REQ_STR + "status WAS \'Resolved\'" + timeClause, maxResults=MAX_RESULTS))
+  results["numClosedWhileThisOpen"] = len(jira.search_issues(TIKA_REQ_STR + "status WAS \'Closed\'" + timeClause, maxResults=MAX_RESULTS))
+
 '''
 Goal: To init data for PERILS-7 - Statuses of other existing requirements
 '''
@@ -87,6 +99,7 @@ Goal:
   before this requirement started to be implemented (i.e., until it became in porgress).
 4. To resolve PERILS-2 - Transitions
 5. To resolve PERILS-3 - Workflow compliance
+6. To resolve PERILS-16 - Statuses of other requirements when open
 '''
 def getItemHistory(jira, reqName):
   results = {}
@@ -95,17 +108,18 @@ def getItemHistory(jira, reqName):
   startProgressTime = None
   currentStatus = 'Open'
   numCommitsEachStatus = {}
+  endOpenTime = None
 
   # initailize transitionCounters
   for key in TRANSITIONS:
     transitionCounters[key] = 0
   for key in STATUSES:
-    numCommitsEachStatus[key] = 0
+    numCommitsStr = "numCommits" + key.replace(" ", "")
+    numCommitsEachStatus[numCommitsStr] = 0
     descChangedCounters[key] = 0
 
   for history in getHistories(jira, reqName):
     for item in history.items:
-
       if item.field == 'description':# Resolve #1
         descChangedCounters[currentStatus] += 1
 
@@ -116,12 +130,19 @@ def getItemHistory(jira, reqName):
       if item.field == 'status' and currentStatus != item.toString:# Resolve #4
         key = currentStatus + "|" + item.toString
         transitionCounters[key] += 1
+        print (currentStatus, item.toString)
+        if currentStatus == "Open" and item.toString != "Open":
+          endOpenTime = re.findall(DATE_REGEX, history.created)[0]
+          print (endOpenTime)
+        numCommitsEachStatus["numCommits" + currentStatus.replace(" ", "")] += getGitCommitsForThisReq(reqName, True)["numCommits"] # get the commit history of the currentStatus.
         currentStatus = item.toString
 
   results["numDescChangedCounters"] = descChangedCounters
   initDataStatusesOtherReq(jira, startProgressTime, results)
+  initDataStatuesesOtherReqWhileOpen(jira, endOpenTime, results)
   initDataNumDeveloped(jira, results, startProgressTime)
   results["transitionCounters"] = transitionCounters
+  results["numCommitsEachStatus"] = numCommitsEachStatus
 
   return results
 
@@ -136,17 +157,22 @@ def getOpenInProgressFeatures(jira):
 Goal: To resolve this question:
   developers for that requirement.
 '''
-def getGitDevelopersForThisReq(reqName):
+def getGitCommitsForThisReq(reqName, isGetNumCommit):
   repo = git.Repo(TIKA_LOCAL_REPO)
+  numCommits = 0
   logInfo = repo.git.log("--all", "-i", "--grep=" + reqName)
   if(len(logInfo) == 0):
-    return []
+    return {"formattedDevelopers": [], "numCommits": 0}
   else:
     developers = re.findall('(?<=Author: )([a-zA-Z ]+)', logInfo)
     formattedDevelopers = []
-    for dev in developers: #delete the last white space character detected by the regex
-      formattedDevelopers.append(dev[:-1])
-    return formattedDevelopers
+    if isGetNumCommit == True:
+      print ("len", logInfo)#TODO:  use the timestamp instead
+      numCommits += 1
+    else:
+      for dev in developers: #delete the last white space character detected by the regex
+        formattedDevelopers.append(dev[:-1])
+    return {"formattedDevelopers": formattedDevelopers, "numCommits": numCommits}
 
 '''
 Goal: Multiple commits might be made by the same developer.
@@ -171,7 +197,7 @@ def printTicketInfoForReqs(jira):
   for req in requirements:
     print ("Ticket's id: " + req.key)
     print ("reqBeforeThis:", getNumDevelopedRequirementsBeforeThisInProgress(jira, req.key))
-    developers = getUniqueDevelopers(getGitDevelopersForThisReq(req.key), req.key)
+    developers = getUniqueDevelopers(getGitCommitsForThisReq(req.key, False)["formattedDevelopers"], req.key)
     print ("numDevelopers: ", len(developers))
     #print ("developers:", developers)
     print ("numDescChanged:", getNumDescChanged(jira, req.key))
@@ -193,6 +219,16 @@ def outputCSVFile(jira, limit):
        'numDescResolved',
        'numDescReopened',
        'numDescClosed',
+       "numCommitsOpen",
+       "numCommitsInProgress",
+       "numCommitsResolved",
+       "numCommitsReopened",
+       "numCommitsClosed",
+       "numOpenWhileThisOpen",
+       "numInProgressWhileThisOpen",
+       "numResolvedWhileThisOpen",
+       "numReopenedWhileThisOpen",
+       "numClosedWhileThisOpen",
        "numOpen",
        "numInProgress",
        "numReopened",
@@ -212,7 +248,12 @@ def outputCSVFile(jira, limit):
       row = {
         'ticket': req.key,
         'numDevelopedRequirementsBeforeThisInProgress': results["numDevelopedRequirementsBeforeThisInProgress"],
-        'numDevelopers': len(getUniqueDevelopers(getGitDevelopersForThisReq(req.key), req.key)),
+        'numDevelopers': len(getUniqueDevelopers(getGitCommitsForThisReq(req.key, False), req.key)),
+        "numOpenWhileThisOpen": results['numOpenWhileThisOpen'],
+        "numInProgressWhileThisOpen": results['numInProgressWhileThisOpen'],
+        "numResolvedWhileThisOpen": results['numResolvedWhileThisOpen'],
+        "numReopenedWhileThisOpen": results['numReopenedWhileThisOpen'],
+        "numClosedWhileThisOpen": results['numClosedWhileThisOpen'],
         'numOpen': results['numOpen'],
         "numInProgress": results["numInProgress"],
         "numReopened": results["numReopened"],
@@ -223,13 +264,18 @@ def outputCSVFile(jira, limit):
         row["numDesc" + key.replace(" ", "")] = results["numDescChangedCounters"][key]
       for key in results["transitionCounters"]:
         row[key] = results["transitionCounters"][key]
+      for key in results["numCommitsEachStatus"]:
+        row[key] = results["numCommitsEachStatus"][key]
       writer.writerow(row)
 
 def main():
   jira = JIRA({
     'server': 'https://issues.apache.org/jira'
   })
-  outputCSVFile(jira, 20)
+  outputCSVFile(jira, None)
+  # getGitCommitsForThisReq("TIKA-1699", True)
+  # getItemHistory(jira, "TIKA-2332")
+  # getHistories(jira, "TIKA-2332")
 
 if __name__ == "__main__":
   main()
