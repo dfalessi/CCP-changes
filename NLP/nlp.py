@@ -28,11 +28,8 @@ def main(argv):
         print "Invalid arguments. Format is \'python nlp.py [file name]\'"
     else:
         pp = Preprocessor()
-        texts = []
         print "Starting NLP..."
-        with open(argv[1]) as file:
-            for line in file:
-                texts.append(pp.preprocess(line))
+        texts = pp.prepDoc(argv[1])
         c = Corpus(texts)
         c.createCorpus()
         scores = c.calc_tfidf()
@@ -61,5 +58,6 @@ def printScores(scores):
     for i in range (0, len(scores)):
         print("Statement #%d: %f" % (i, scores[i]))
 
+# =========================
 if __name__ == '__main__':
     main(sys.argv)

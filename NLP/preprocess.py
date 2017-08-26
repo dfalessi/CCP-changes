@@ -2,7 +2,8 @@
 This program uses Vivake Gupta's Python version of the Porter Stemmer,
 which can be found at: https://tartarus.org/martin/PorterStemmer/python.txt
 
-Further information can be found at: https://tartarus.org/martin/PorterStemmer/
+Further information can be found at:
+< https://tartarus.org/martin/PorterStemmer/ >
 '''
 
 import re
@@ -23,14 +24,16 @@ class Preprocessor:
     
     '''
     removeSpecialChars(self, string)
-    Returns a copy of string with all non-alphanumeric characters replaced by whitespace.
+    Returns a copy of string with all non-alphanumeric characters replaced by
+    whitespace.
     '''
     def removeSpecialChars(self, string):
         return self.spec_chars_regex.sub(' ', string)
     
     '''
     splitCamelCase(self, string)
-    Returns a copy of string with each camelCase word split into separate words with whitespace in between.
+    Returns a copy of string with each camelCase word split into separate words
+    with whitespace in between.
     '''
     def splitCamelCase(self, string):
         newString = self.camel_case_regex_1.sub(r'\1 \2', string)
@@ -38,21 +41,50 @@ class Preprocessor:
     
     '''
     porterStem(self, words)
-    Returns a list of each word in words that have been stemmed by the Porter Stemmer.
+    Returns a list of each word in words that have been stemmed by the Porter
+    Stemmer.
     '''
     def porterStem(self, words):
-        stems = ["" for x in range(len(words))]
+        stems = [""] * len(words)
         return [self.stemmer.stem(word, 0, len(word) - 1) for word in words]
         
     '''
     preprocess(self, string)
-    Replaces all special (non-alphanumeric) characters in string with whitespace,
-        splits all camelCase words in string into separate words with whitespace in between,
-        splits all remaining words into a list of all words (in lowercase) found in the edited string,
-        and returns a list of all the words' stems via the Porter Stemmer.
+    Replaces all special (non-alphanumeric) characters in string with
+        whitespace, splits all camelCase words in string into separate words
+        with whitespace in between, splits all remaining words into a list of
+        all words (in lowercase) found in the edited string, and returns a list
+        of all the words' stems via the Porter Stemmer.
     '''
     def preprocess(self, string):
         newString = self.removeSpecialChars(string)
         newString = self.splitCamelCase(newString)
         words = newString.lower().split()
         return self.porterStem(words)
+    
+    '''
+    prepDoc(self, doc)
+    Opens the document specified as doc, preprocesses each line and returns a
+    list of arrays containing the preprocessed lines of the document.
+    '''
+    def prepDoc(self, doc, combine = False):
+        texts = []
+        with open(doc) as file:
+            for line in file:
+                prepLine = self.preprocess(line)
+                if len(prepLine) > 0:
+                    texts.append(prepLine)
+        if combine == False:
+            return texts
+        else:
+            return self.combineVectors(texts)
+    
+    '''
+    combineVectors(self, texts)
+    Turns a list of vectors into one long vector, and returns this long vector.
+    '''
+    def combineVectors(self, texts):
+        newTexts = []
+        for text in texts:
+            newTexts += text
+        return newTexts
