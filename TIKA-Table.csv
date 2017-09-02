@@ -1,7 +1,0 @@
-numOpenRequirements,numInProgressRequirements,ticket,numDevelopedRequirementsBeforeThisInProgress,numDevelopers,numDescOpen,numDescInProgress,numDescResolved,numDescReopened,numDescClosed,numCommitsOpen,numCommitsInProgress,numCommitsResolved,numCommitsReopened,numCommitsClosed,numOpenWhileThisOpen,numInProgressWhileThisOpen,numResolvedWhileThisOpen,numReopenedWhileThisOpen,numClosedWhileThisOpen,numOpen,numInProgress,numReopened,numResolved,numClosed,Open|Reopened,Open|Resolved,Closed|Reopened,Reopened|Open,Resolved|In Progress,Closed|In Progress,Reopened|Closed,In Progress|Reopened,Closed|Open,Reopened|Resolved,Open|Closed,Resolved|Open,In Progress|Resolved,Open|In Progress,Reopened|In Progress,Resolved|Closed,Resolved|Reopened,In Progress|Open,Closed|Resolved,In Progress|Closed
-43,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,,TIKA-2332,NA,2,0,0,0,0,0,0,0,0,0,0,197,38,140,14,63,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,,TIKA-2233,NA,2,0,0,0,0,0,0,0,0,0,0,197,38,140,14,63,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,,TIKA-2232,NA,2,0,0,0,0,0,0,0,0,0,0,197,38,140,14,63,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,,TIKA-2084,NA,2,2,0,0,0,0,0,0,0,0,0,197,38,140,14,63,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-,,TIKA-2053,NA,2,0,0,0,0,0,0,0,0,0,0,197,38,140,14,63,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
