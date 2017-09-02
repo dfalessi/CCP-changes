@@ -52,7 +52,6 @@ Goal: Write headers to csv
 def _initColumnsNamesForTransitions(csvfile, writer):
   for key in config.TRANSITIONS:
     COLUMNS_NAMES.append(key)
-
   writer.writeheader()
 
 '''
