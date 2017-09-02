@@ -54,4 +54,4 @@ def _getCommitsDatesForThisReq(logInfo):
   datesForAllCommits = []
   for date in dates:
     datesForAllCommits.append(datetime.strptime(date[:-1], "%a %b %d %H:%M:%S %Y").strftime("%Y-%m-%d"))
-  return  {"datesForAllCommits": datesForAllCommits}
+  return datesForAllCommits

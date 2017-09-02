@@ -15,43 +15,17 @@ Goal: To resolve this question:
 def getReopenTimes(jira, reqName):
   return jiraInfoRepositroy.numIssueWhileReopenedByClause(jira, "key = " + reqName)
 
-'''
-Goal: To init data for this question:
-    for each requirement in Tika, compute how many requirements have been implemented (resolved or closed) 
-  before this requirement started to be implemented (i.e., until it became in porgress).
-'''
-def initDataNumDeveloped(jira, results, startProgressTime):
-  if startProgressTime != None:
-    allIssueBeforeThis = jira.search_issues(TIKA_REQ_STR_WHERE + "status WAS IN (\'Resolved\', \'Closed\') BEFORE " + startProgressTime, maxResults=MAX_RESULTS)
-    numIssueBeforeThis = len(allIssueBeforeThis)
-    results["numDevelopedRequirementsBeforeThisInProgress"] = numIssueBeforeThis
-  else:# this issue has no "In Progress" phase.
-    results["numDevelopedRequirementsBeforeThisInProgress"] = "NA"
 
 '''
 Goal: 
-3. To resolve PERILS-12:
-    for each requirement in Tika, compute how many requirements have been implemented (resolved or closed) 
-  before this requirement started to be implemented (i.e., until it became in porgress).
-4. To resolve PERILS-2 - Transitions
 5. To resolve PERILS-3 - Workflow compliance
   How many times a commit related to the requirement happened while the requirement was: open, in progress, closed, resolved, reopened.
-6. To resolve PERILS-16 - Statuses of other requirements when open
 '''
 def getItemHistory(jira, reqName):
   results = {}
-  transitionCounters = {}
   currentStatus = OPEN_STR
   dateRangeEachStatus = collections.OrderedDict()
-  endOpenTime = None
-  openTimeTracking = None
-  endTimeTracking = None
-  statusTracking = None
-  isJustOpen = False
-
-  # initailize transitionCounters
-  for key in TRANSITIONS:
-    transitionCounters[key] = 0
+  openTimeTracking = endTimeTracking = statusTracking = isJustOpen = None
 
   for history in getHistories(jira, reqName):
     for ndx, item in enumerate(history.items):
@@ -63,27 +37,21 @@ def getItemHistory(jira, reqName):
         elif item.fromString == OPEN_STR and isJustOpen == False:# A newly open ticket has no transition so I have to record the endTime of "Open" in a edge case. 
           dateRangeEachStatus[item.fromString] = [{END_TIME: createdTime}]
           isJustOpen = True
-
         if item.toString not in dateRangeEachStatus:
           dateRangeEachStatus[item.toString] = [{START_TIME: createdTime}] # start one new status
           statusTracking = item.toString
         else:
           dateRangeEachStatus[item.toString].append({START_TIME: createdTime})
           statusTracking = item.toString
-
-        key = currentStatus + "|" + item.toString
-        transitionCounters[key] += 1
-        if currentStatus == OPEN_STR and item.toString != OPEN_STR:# Resolved #6
-          endOpenTime = createdTime
         currentStatus = item.toString
 
   ### Put data into dictionery ###
   results["numDescChangedCounters"] = jiraInfoRepositroy.getNumDescriptionChanged(jira, reqName)
-  results = dict(getStatuesOfOtherReqWhenThisInProgress(jira, reqName), getStatuesOfOtherReqBeforeThisInProgress(jira, reqName))
-  initDataStatuesesOtherReqWhileThisOpen(jira, endOpenTime, results)
-  results["transitionCounters"] = transitionCounters
-  commitDates = gitInfo.getGitDeveloperForThisReq(reqName)
-  results["numCommitsEachStatus"] = getNumCommittEachStatusByDateRange(dateRangeEachStatus, commitDates["datesForAllCommits"])
+  results = dict(jiraInfoRepositroy.getStatuesOfOtherReqWhenThisInProgress(jira, reqName), 
+                 jiraInfoRepositroy.getStatuesOfOtherReqBeforeThisInProgress(jira, reqName),
+                 jiraInfoRepositroy.getOtherReqStatusesWhenThisOpen(jira, reqName))
+  results["transitionCounters"] = jiraInfoRepositroy.getNumEachTransition(jira, reqName)
+  results["numCommitsEachStatus"] = getNumCommittEachStatusByDateRange(dateRangeEachStatus, gitInfo.getCommitsDatesForThisReq(reqName))
   return results
 
 '''
@@ -108,7 +76,6 @@ def getUniqueDevelopers(developers, reqName):
 
 
 ###################### PERILS-3 STARTS ######################
-
 '''
 Goal: A helper for getNumCommittEachStatusByDateRange()
 Format [{"startime": "2017-09-13"}, {"endTime": "2017-04-34"}] into {"startTime": "2017-09-13", "endTime": "2017-04-34"}
@@ -154,5 +121,3 @@ def getNumCommittEachStatusByDateRange(statusTimeRangesDict, commitDates):
           numCommittEachStatus[key] += 1
           hasRecordedDateDict[commitNdx] = True
   return numCommittEachStatus
-
-###################### PERILS-3 ENDS ######################

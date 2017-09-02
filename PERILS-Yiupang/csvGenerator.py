@@ -68,7 +68,7 @@ def outputCSVFile(jira, limit):
       results = jiraInfo.getItemHistory(jira, req.key)
       ROW["ticket"] = req.key
       ROW["numDevelopedRequirementsBeforeThisInProgress"] = results["numDevelopedRequirementsBeforeThisInProgress"]
-      ROW["numDevelopers"] = len(getUniqueDevelopers(gitInfo.getGitDeveloperForThisReq(req.key), req.key))
+      ROW["numDevelopers"] = len(jiraInfo.getUniqueDevelopers(gitInfo.getGitDeveloperForThisReq(req.key), req.key))
       ROW["numOpenWhileThisOpen"] = results['numOpenWhileThisOpen']
       ROW["numInProgressWhileThisOpen"] = results['numInProgressWhileThisOpen']
       ROW["numResolvedWhileThisOpen"] = results['numResolvedWhileThisOpen']
