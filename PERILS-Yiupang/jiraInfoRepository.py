@@ -2,19 +2,21 @@ import config
 import collections
 import re
 import gitInfo
+from datetime import datetime
+from datetime import date
 
 ### Global variables for storing data while loop history of a requirenment ###
 HISTORIES = None
 CURRENT_STATUS = None
 
 ### Global variables specific for tickets ###
-DESCRIPTION_CHANGED_COUNTERS = None
+DESCRIPTION_CHANGED_COUNTERS = {}
 START_PROGRESS_TIME = None # PERILS-7 && PERILS-12 && PERILS-16 
 OPEN_END_TIME = None # PERILS-16
 TRANSITION_COUNTERS = None # PERILS-2
 OPEN_TIME_TRACKING = STATUS_TRACKING = None # PERILS-3
 IS_JUST_OPEN = False # PERILS-3
-DATE_RANGE_EACH_STATUS = collections.OrderedDict() # PERILS-3
+DATE_RANGE_EACH_STATUS = None # PERILS-3
 
 ###################### PUBLIC APIs ######################
 def numIssueWhileOpenByClause(jira, clause=""):
@@ -37,17 +39,19 @@ Goal: To resolve PERILS-11 - Changed.
 A public wrapper for _initNumDescriptionChangedCounter()
 '''
 def getNumDescriptionChanged(jira, reqName):
-  return _getHistoryItems(jira, reqName, _initNumDescriptionChangedCounter)
+  _getHistoryItems(jira, reqName, _initNumDescriptionChangedCounter)
+  return DESCRIPTION_CHANGED_COUNTERS
 
 '''
 Goal: To init data for PERILS-7 - Statuses of other existing requirements
 A public wrapper for _getStatuesOfOtherReqWhenThisInProgress()
 '''
 def getStatuesOfOtherReqWhenThisInProgress(jira, reqName):
+  global START_PROGRESS_TIME
   _getHistoryItems(jira, reqName, _initStartInProgressTime)
   result = {}
   if START_PROGRESS_TIME != None:
-    timeClause = " ON " + START_PROGRESS_TIME
+    timeClause = " ON " + re.findall(config.JIRA_DATE_REGEX, START_PROGRESS_TIME)[0]
     result["numOpen"] = numIssueWhileOpenByClause(jira, timeClause)
     result["numInProgress"] = numIssueWhileInProgressByClause(jira, timeClause)
     result["numReopened"] = numIssueWhileReopenedByClause(jira, timeClause)
@@ -64,10 +68,11 @@ Goal: To resolve PERILS-12:
   before this requirement started to be implemented (i.e., until it became in porgress).
 '''
 def getStatuesOfOtherReqBeforeThisInProgress(jira, reqName):
+  global START_PROGRESS_TIME
   _getHistoryItems(jira, reqName, _initStartInProgressTime)
   result = {}
   if START_PROGRESS_TIME != None:
-    allIssueBeforeThis = jira.search_issues(TIKA_REQ_STR_WHERE + "status WAS IN (\'Resolved\', \'Closed\') BEFORE " + START_PROGRESS_TIME, maxResults=MAX_RESULTS)
+    allIssueBeforeThis = jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS IN (\'Resolved\', \'Closed\') BEFORE " + re.findall(config.JIRA_DATE_REGEX, START_PROGRESS_TIME)[0], maxResults=config.MAX_RESULTS)
     numIssueBeforeThis = len(allIssueBeforeThis)
     result["numDevelopedRequirementsBeforeThisInProgress"] = numIssueBeforeThis
   else:# this issue has no "In Progress" phase.
@@ -78,17 +83,19 @@ def getStatuesOfOtherReqBeforeThisInProgress(jira, reqName):
 Goal: To resolve PERILS-2: transitions
 '''
 def getNumEachTransition(jira, reqName):
-  return _getHistoryItems(jira, reqName, _initNumEachTransition)
+  _getHistoryItems(jira, reqName, _initNumEachTransition)
+  return TRANSITION_COUNTERS
 
 '''
 Goal: To resolve PERILS-16 - Statuses of other requirements when open
 '''
 def getOtherReqStatusesWhenThisOpen(jira, reqName):
+  global OPEN_END_TIME
   _getHistoryItems(jira, reqName, _initFinishedOpenStatusTime)
   result = {}
   timeClause = ""
-  if START_PROGRESS_TIME != None: # the issue is in open status without activities
-    timeClause = " BEFORE " + START_PROGRESS_TIME
+  if OPEN_END_TIME != None: # the issue is in open status without activities
+    timeClause = " BEFORE " + re.findall(config.JIRA_DATE_REGEX, OPEN_END_TIME)[0]
   result["numOpenWhileThisOpen"] = numIssueWhileOpenByClause(jira, timeClause)
   result["numInProgressWhileThisOpen"] = numIssueWhileInProgressByClause(jira, timeClause)
   result["numReopenedWhileThisOpen"] = numIssueWhileReopenedByClause(jira, timeClause)
@@ -102,8 +109,11 @@ Goal: To resolve PERILS-3 - Workflow compliance
     open, in progress, closed, resolved, reopened.
 '''
 def getNumCommitDuringEachReq(jira, reqName):
+  print ("Before gethistoryitem, DATE_RANGE_EACH_STATUS = ", DATE_RANGE_EACH_STATUS)
+  print ("reqName = " + reqName)
   _getHistoryItems(jira, reqName, _initDateRangeEachStatus)
-  return _getNumCommittEachStatusByDateRange(DATE_RANGE_EACH_STATUS, gitInfo.getCommitsDatesForThisReq(reqName))
+  # print ("_initDateRangeEachStatus = " + )
+  return _getNumCommittEachStatusByDateRange(gitInfo.getCommitsDatesForThisReq(reqName))
 
 
 ###################### PRIVATE FUNCTIONS ######################
@@ -115,12 +125,12 @@ def _getHistoryItems(jira, reqName, callback):
   _initHistories(jira, reqName)
   _initCounters()
   result = {}
-  if CURRENT_STATUS == None:
-    CURRENT_STATUS = config.OPEN_STR
+  CURRENT_STATUS = config.OPEN_STR
   for history in HISTORIES:
-    createdTime = re.findall(config.JIRA_DATE_REGEX, history.created)[0]
+    createdTime = re.findall(config.JIRA_DATE_TIME_REGEX, history.created)[0]
     for indx, item in enumerate(history.items):
       if item.field == config.STATE_STR and CURRENT_STATUS != item.toString:
+        print ("item = ", item)
         result = callback(item, createdTime)
         CURRENT_STATUS = item.toString
   return result
@@ -129,6 +139,7 @@ def _getHistoryItems(jira, reqName, callback):
 Goal: To resolve PERILS-11 - Changed
 '''
 def _initNumDescriptionChangedCounter(item, _):
+  global DESCRIPTION_CHANGED_COUNTERS
   if item.field == 'description':# Resolve #1
     DESCRIPTION_CHANGED_COUNTERS[CURRENT_STATUS] += 1
   
@@ -136,9 +147,11 @@ def _initNumDescriptionChangedCounter(item, _):
 Goal: To resolve PERILS-12
 '''
 def _initStartInProgressTime(item, createdTime):
+  global START_PROGRESS_TIME
   if item.field == config.STATE_STR:
     if (item.toString == config.IN_PROGRESS_STR):
       START_PROGRESS_TIME = createdTime
+      print (START_PROGRESS_TIME)
 
 '''
 Goal: To resolved PERILS-2
@@ -147,12 +160,13 @@ def _initNumEachTransition(item, _):
   global TRANSITION_COUNTERS
   key = CURRENT_STATUS + "|" + item.toString
   TRANSITION_COUNTERS[key] += 1
-  return TRANSITION_COUNTERS
 
 '''
 Goal: To resolve PERILS-16 - Statuses of other requirements when open
 '''
 def _initFinishedOpenStatusTime(item, createdTime):
+  global CURRENT_STATUS
+  global OPEN_END_TIME
   if CURRENT_STATUS == config.OPEN_STR and item.toString != config.OPEN_STR:# Resolved #6
     OPEN_END_TIME = createdTime
 
@@ -175,15 +189,15 @@ def _initDateRangeEachStatus(item, createdTime):
   else:
     DATE_RANGE_EACH_STATUS[item.toString].append({config.START_TIME: createdTime})
     STATUS_TRACKING = item.toString
+  print ("AFTER _initDateRangeEachStatus, DATE_RANGE_EACH_STATUS = ", DATE_RANGE_EACH_STATUS)
 
 '''
 Goal: A call to JIRA API to get the changelog
 '''
 def _initHistories(jira, reqName):
   global HISTORIES
-  if(HISTORIES == None):
-    issue = jira.issue(reqName, expand='changelog')
-    HISTORIES = issue.changelog.histories
+  issue = jira.issue(reqName, expand='changelog')
+  HISTORIES = issue.changelog.histories
 
 '''
 Goal: init all counter for each requirenment. 
@@ -191,10 +205,22 @@ Goal: init all counter for each requirenment.
 def _initCounters():
   global DESCRIPTION_CHANGED_COUNTERS
   global TRANSITION_COUNTERS
+  global START_PROGRESS_TIME
+  global OPEN_END_TIME
+  global OPEN_TIME_TRACKING
+  global STATUS_TRACKING
+  global IS_JUST_OPEN
+  global DATE_RANGE_EACH_STATUS
   DESCRIPTION_CHANGED_COUNTERS = {}
   TRANSITION_COUNTERS = {}
+  START_PROGRESS_TIME = None
+  OPEN_END_TIME = None # PERILS-16
+  OPEN_TIME_TRACKING = STATUS_TRACKING = None # PERILS-3
+  IS_JUST_OPEN = False # PERILS-3
+  DATE_RANGE_EACH_STATUS = collections.OrderedDict() # PERILS-3
+  DATE_RANGE_EACH_STATUS.clear()
+
   for key in config.STATUSES:
-    numCommitsStr = "numCommits" + key.replace(" ", "")
     DESCRIPTION_CHANGED_COUNTERS[key] = 0
   # initailize transitionCounters
   for key in config.TRANSITIONS:
@@ -210,30 +236,33 @@ statusTimeRangeDict's format:
   "Resovled": {"StartTime: 2"}
 }
 '''
-def _getNumCommittEachStatusByDateRange(statusTimeRangesDict, commitDates):
-  # print (statusTimeRangesDict)
-  # print (commitDates)
-  numCommittEachStatus = {}
+def _getNumCommittEachStatusByDateRange(commitDates):
+  print ("DATE_RANGE_EACH_STATUS: ", DATE_RANGE_EACH_STATUS)
+  print ("commitDates: ", commitDates)
+  numCommitEachStatus = {}
   hasRecordedDateDict = {}
   hasRecorded = False
 
   for key in config.STATUSES: # init the counter for each status
-    numCommittEachStatus[key] = 0
+    numCommitEachStatus[key] = 0
+
+  if "numCommits" in commitDates and commitDates['numCommits'] == 0:
+    return numCommitEachStatus
 
   for commitNdx, commitDate in enumerate(commitDates):
-    for key, timeList in statusTimeRangesDict.items():
+    for key, timeList in DATE_RANGE_EACH_STATUS.items():
       for oneDateRange in _formatTimeList(timeList):
         if commitNdx not in hasRecordedDateDict:
           if config.END_TIME not in oneDateRange and gitInfo.gitDateComparator(commitDate, oneDateRange[config.START_TIME]):# Example: a resolved issue that still have commits
-            numCommittEachStatus[key] += 1
+            numCommitEachStatus[key] += 1
             hasRecordedDateDict[commitNdx] = True
           elif gitInfo.gitDateComparator(oneDateRange[config.END_TIME], commitDate):
-            numCommittEachStatus[key] += 1
+            numCommitEachStatus[key] += 1
             hasRecordedDateDict[commitNdx] = True
           elif config.START_TIME not in oneDateRange and gitInfo.gitDateComparator(oneDateRange[config.END_TIME], commitDate):
-            numCommittEachStatus[key] += 1
+            numCommitEachStatus[key] += 1
             hasRecordedDateDict[commitNdx] = True
-  return numCommittEachStatus
+  return numCommitEachStatus
 
 '''
 Goal: A helper for getNumCommittEachStatusByDateRange()
@@ -243,18 +272,18 @@ def _formatTimeList(timeList):
   dateRanges = []
   oneDateRange = {}
   for ndx, val in enumerate(timeList): # formate a pair of startTime and endTime into one dict
+    print (val)
     if config.START_TIME not in oneDateRange and config.START_TIME not in val:
       oneDateRange[config.END_TIME] = val[config.END_TIME]
-    elif config.START_TIME not in oneDateRange:
+    elif config.START_TIME not in oneDateRange and config.START_TIME in val:
       oneDateRange[config.START_TIME] = val[config.START_TIME]
-    elif config.END_TIME not in oneDateRange:
+    elif config.END_TIME not in oneDateRange and config.END_TIME in val:
       oneDateRange[config.END_TIME] = val[config.END_TIME]
-    # print (oneDateRange)
+
     if (ndx + 1) % 2 == 0:
       dateRanges.append(oneDateRange)
       oneDateRange = {}
     elif ndx == (len(timeList) - 1):
       dateRanges.append(oneDateRange)
       oneDateRange = {}
-
   return dateRanges

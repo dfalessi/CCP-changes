@@ -39,7 +39,7 @@ def _getGitLogInfo(reqName, callback):
 Goal: Get developers for this requirement.
 '''
 def _getGitDeveloperForThisReq(logInfo):
-  developers = re.findall(AUTHOR_REGEX, logInfo)
+  developers = re.findall(config.AUTHOR_REGEX, logInfo)
   formattedDevelopers = []
   for dev in developers: #delete the last white space character detected by the regex
     formattedDevelopers.append(dev[:-1])

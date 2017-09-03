@@ -11,9 +11,9 @@ def main():
     'server': config.PROJECT_URL
   })
   # outputCSVFile(jira, 5)
-  print (json.dumps(jiraInfo.getItemHistory(jira, config.REQUIREMENT), indent=2))
+  # print (json.dumps(jiraInfo.getItemHistory(jira, config.REQUIREMENT), indent=2))
   # print (datetime.strptime('Mon Aug 17', "%a %b %y"))
-  # csvGenerator.outputCSVFile(jira, 3)
+  csvGenerator.outputCSVFile(jira, None)
 	
 if __name__ == "__main__":
   main()

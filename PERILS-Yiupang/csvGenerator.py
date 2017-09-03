@@ -2,6 +2,7 @@ import config
 import csv
 import gitInfo
 import jiraInfo
+import jiraInfoRepository # TODO Bad idea!!! csvGenerator should only interact with jiraInfo
 
 COLUMNS_NAMES = [
     'numOpenRequirements',
@@ -65,6 +66,7 @@ def outputCSVFile(jira, limit):
     for indx, req in enumerate(jira.search_issues(config.TIKA_REQ_STR)):
       if limit != None and indx == limit: # limit the search result for debugging purpose.
         break
+      print ('{0} {1}'.format("Writing", req.key))
       results = jiraInfo.getItemHistory(jira, req.key)
       ROW["ticket"] = req.key
       ROW["numDevelopedRequirementsBeforeThisInProgress"] = results["numDevelopedRequirementsBeforeThisInProgress"]
@@ -79,6 +81,7 @@ def outputCSVFile(jira, limit):
       ROW["numReopened"] = results["numReopened"]
       ROW["numResolved"] = results["numResolved"]
       ROW["numClosed"] = results["numClosed"]
+
       for key in results["numDescChangedCounters"]:
         ROW["numDesc" + key.replace(" ", "")] = results["numDescChangedCounters"][key]
       for key in results["transitionCounters"]:
