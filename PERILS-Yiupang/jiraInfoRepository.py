@@ -3,16 +3,18 @@ import collections
 import re
 import gitInfo
 
+### Global variables for storing data while loop history of a requirenment ###
 HISTORIES = None
-DESCRIPTION_CHANGED_COUNTERS = None
+CURRENT_STATUS = None
 
-CURRENT_STATUS = config.OPEN_STR
+### Global variables specific for tickets ###
+DESCRIPTION_CHANGED_COUNTERS = None
 START_PROGRESS_TIME = None # PERILS-7 && PERILS-12 && PERILS-16 
 OPEN_END_TIME = None # PERILS-16
 TRANSITION_COUNTERS = None # PERILS-2
-# PERILS-3
-OPEN_TIME_TRACKING = STATUS_TRACKING = IS_JUST_OPEN = None
-DATE_RANGE_EACH_STATUS = collections.OrderedDict()
+OPEN_TIME_TRACKING = STATUS_TRACKING = None # PERILS-3
+IS_JUST_OPEN = False # PERILS-3
+DATE_RANGE_EACH_STATUS = collections.OrderedDict() # PERILS-3
 
 ###################### PUBLIC APIs ######################
 def numIssueWhileOpenByClause(jira, clause=""):
@@ -105,11 +107,16 @@ def getNumCommitDuringEachReq(jira, reqName):
 
 
 ###################### PRIVATE FUNCTIONS ######################
+'''
+Goal: A template for looping the history of a requirenment.
+'''
 def _getHistoryItems(jira, reqName, callback):
   global CURRENT_STATUS
   _initHistories(jira, reqName)
   _initCounters()
   result = {}
+  if CURRENT_STATUS == None:
+    CURRENT_STATUS = config.OPEN_STR
   for history in HISTORIES:
     createdTime = re.findall(config.JIRA_DATE_REGEX, history.created)[0]
     for indx, item in enumerate(history.items):
@@ -137,6 +144,7 @@ def _initStartInProgressTime(item, createdTime):
 Goal: To resolved PERILS-2
 '''
 def _initNumEachTransition(item, _):
+  global TRANSITION_COUNTERS
   key = CURRENT_STATUS + "|" + item.toString
   TRANSITION_COUNTERS[key] += 1
   return TRANSITION_COUNTERS
@@ -145,13 +153,16 @@ def _initNumEachTransition(item, _):
 Goal: To resolve PERILS-16 - Statuses of other requirements when open
 '''
 def _initFinishedOpenStatusTime(item, createdTime):
-  if CURRENT_STATUS == OPEN_STR and item.toString != OPEN_STR:# Resolved #6
+  if CURRENT_STATUS == config.OPEN_STR and item.toString != config.OPEN_STR:# Resolved #6
     OPEN_END_TIME = createdTime
 
 '''
 Goal: To resolvde PERILS-3 - Work compliance
 '''
-def _initDateRangeEachStatus(item, _):
+def _initDateRangeEachStatus(item, createdTime):
+  global STATUS_TRACKING
+  global DATE_RANGE_EACH_STATUS
+  global IS_JUST_OPEN
   # fromString means one status starts, and toString means one status ends.
   if STATUS_TRACKING == item.fromString: # End one status
     DATE_RANGE_EACH_STATUS[item.fromString].append({config.END_TIME: createdTime})
@@ -178,6 +189,8 @@ def _initHistories(jira, reqName):
 Goal: init all counter for each requirenment. 
 '''
 def _initCounters():
+  global DESCRIPTION_CHANGED_COUNTERS
+  global TRANSITION_COUNTERS
   DESCRIPTION_CHANGED_COUNTERS = {}
   TRANSITION_COUNTERS = {}
   for key in config.STATUSES:
@@ -198,8 +211,8 @@ statusTimeRangeDict's format:
 }
 '''
 def _getNumCommittEachStatusByDateRange(statusTimeRangesDict, commitDates):
-  print (statusTimeRangesDict)
-  print (commitDates)
+  # print (statusTimeRangesDict)
+  # print (commitDates)
   numCommittEachStatus = {}
   hasRecordedDateDict = {}
   hasRecorded = False
@@ -209,14 +222,17 @@ def _getNumCommittEachStatusByDateRange(statusTimeRangesDict, commitDates):
 
   for commitNdx, commitDate in enumerate(commitDates):
     for key, timeList in statusTimeRangesDict.items():
-      oneDateRange = _formatTimeList(timeList)
-      if commitNdx not in hasRecordedDateDict:
-        if config.END_TIME not in oneDateRange and gitInfo.gitDateComparator(oneDateRange[config.START_TIME], commitDate):# Example: a newly opened ticket.
-          numCommittEachStatus[key] += 1
-          hasRecordedDateDict[commitNdx] = True
-        elif gitInfo.gitDateComparator(oneDateRange[END_TIME], commitDate):
-          numCommittEachStatus[key] += 1
-          hasRecordedDateDict[commitNdx] = True
+      for oneDateRange in _formatTimeList(timeList):
+        if commitNdx not in hasRecordedDateDict:
+          if config.END_TIME not in oneDateRange and gitInfo.gitDateComparator(commitDate, oneDateRange[config.START_TIME]):# Example: a resolved issue that still have commits
+            numCommittEachStatus[key] += 1
+            hasRecordedDateDict[commitNdx] = True
+          elif gitInfo.gitDateComparator(oneDateRange[config.END_TIME], commitDate):
+            numCommittEachStatus[key] += 1
+            hasRecordedDateDict[commitNdx] = True
+          elif config.START_TIME not in oneDateRange and gitInfo.gitDateComparator(oneDateRange[config.END_TIME], commitDate):
+            numCommittEachStatus[key] += 1
+            hasRecordedDateDict[commitNdx] = True
   return numCommittEachStatus
 
 '''
@@ -224,6 +240,7 @@ Goal: A helper for getNumCommittEachStatusByDateRange()
 Format [{"startime": "2017-09-13"}, {"endTime": "2017-04-34"}] into {"startTime": "2017-09-13", "endTime": "2017-04-34"}
 '''
 def _formatTimeList(timeList):
+  dateRanges = []
   oneDateRange = {}
   for ndx, val in enumerate(timeList): # formate a pair of startTime and endTime into one dict
     if config.START_TIME not in oneDateRange and config.START_TIME not in val:
@@ -232,4 +249,12 @@ def _formatTimeList(timeList):
       oneDateRange[config.START_TIME] = val[config.START_TIME]
     elif config.END_TIME not in oneDateRange:
       oneDateRange[config.END_TIME] = val[config.END_TIME]
-  return oneDateRange
+    # print (oneDateRange)
+    if (ndx + 1) % 2 == 0:
+      dateRanges.append(oneDateRange)
+      oneDateRange = {}
+    elif ndx == (len(timeList) - 1):
+      dateRanges.append(oneDateRange)
+      oneDateRange = {}
+
+  return dateRanges

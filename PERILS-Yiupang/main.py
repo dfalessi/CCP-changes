@@ -1,18 +1,19 @@
 import config
 import gitInfo # import here for testing
 import jiraInfo # import here for testing
+import jiraInfoRepository # import here for testing
 import csvGenerator
 from jira import JIRA
+import json
 
 def main():
   jira = JIRA({
     'server': config.PROJECT_URL
   })
   # outputCSVFile(jira, 5)
-  # getItemHistory(jira, REQUIREMENT)
+  print (json.dumps(jiraInfo.getItemHistory(jira, config.REQUIREMENT), indent=2))
   # print (datetime.strptime('Mon Aug 17', "%a %b %y"))
-  print (gitInfo.getGitDeveloperForThisReq(config.REQUIREMENT))
-  csvGenerator.outputCSVFile(jira, 2)
+  # csvGenerator.outputCSVFile(jira, 3)
 	
 if __name__ == "__main__":
   main()

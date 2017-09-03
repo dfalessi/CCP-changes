@@ -12,7 +12,8 @@ TIKA_REQ_STR = "project=" + PROJECT_NAME + " AND issueType=\'New Feature\'"
 TIKA_REQ_STR_WHERE = TIKA_REQ_STR + " AND "
 
 ### For datetime library to parse time ###
-GIT_JIRA_DATE_FORMAT = '%Y-%m-%d'
+GIT_JIRA_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
+GIT_DATE_FORMAT = "%a %b %d %H:%M:%S %Y"
 
 ### Statueses ###
 '''

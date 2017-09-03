@@ -2,7 +2,7 @@ import git
 import re
 from datetime import datetime
 from datetime import date
-from config import *
+import config
 
 ###################### PUBLIC APIs ######################
 '''
@@ -21,15 +21,14 @@ def getCommitsDatesForThisReq(reqName):
 Goal: Compare two dates in the format of "YYYY-mm-dd"
 '''
 def gitDateComparator(date1, date2):
-  return datetime.strptime(date1, GIT_JIRA_DATE_FORMAT) >= datetime.strptime(date2, GIT_JIRA_DATE_FORMAT)
-
+  return datetime.strptime(date1, config.GIT_JIRA_DATE_FORMAT) >= datetime.strptime(date2, config.GIT_JIRA_DATE_FORMAT)
 
 ###################### PRIVATE FUNCTIONS ######################
 '''
 Goal: The parent of getting git's logInfo
 '''
 def _getGitLogInfo(reqName, callback):
-  repo = git.Repo(TIKA_LOCAL_REPO)
+  repo = git.Repo(config.TIKA_LOCAL_REPO)
   logInfo = repo.git.log("--all", "-i", "--grep=" + reqName)
   if(len(logInfo) == 0):
     return {"formattedDevelopers": [], "datesForAllCommits": [], "numCommits": 0}
@@ -50,8 +49,8 @@ def _getGitDeveloperForThisReq(logInfo):
 Goal: Get all the commits' dates of this requirement.
 '''
 def _getCommitsDatesForThisReq(logInfo):
-  dates = re.findall(COMMIT_DATE_REGEX, logInfo)
+  dates = re.findall(config.COMMIT_DATE_REGEX, logInfo)
   datesForAllCommits = []
   for date in dates:
-    datesForAllCommits.append(datetime.strptime(date[:-1], "%a %b %d %H:%M:%S %Y").strftime("%Y-%m-%d"))
+    datesForAllCommits.append(datetime.strptime(date[:-1], config.GIT_DATE_FORMAT).strftime(config.GIT_JIRA_DATE_FORMAT))
   return datesForAllCommits
