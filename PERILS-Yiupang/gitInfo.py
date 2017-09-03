@@ -5,11 +5,20 @@ from datetime import date
 import config
 
 ###################### PUBLIC APIs ######################
+
 '''
-Goal: A public function exposed to other scripts
+Goal: Multiple commits might be made by the same developer.
+   This function is to not print the same name multiple times.
 '''
-def getGitDeveloperForThisReq(reqName):
-  return _getGitLogInfo(reqName, _getGitDeveloperForThisReq)
+def getNumUniqueDevelopers(reqName):
+  developers = _getGitLogInfo(reqName, _getGitDeveloperForThisReq)
+  seen = set()
+  uniqueDevelopers = []
+  for dev in developers:
+    if dev not in seen:
+      uniqueDevelopers.append(dev)
+      seen.add(dev)
+  return len(uniqueDevelopers)
 
 '''
 Goal: A public function exposed to other scripts
@@ -22,6 +31,9 @@ Goal: Compare two dates in the format of "YYYY-mm-dd"
 '''
 def gitDateComparator(date1, date2):
   return datetime.strptime(date1, config.GIT_JIRA_DATE_FORMAT) >= datetime.strptime(date2, config.GIT_JIRA_DATE_FORMAT)
+
+
+
 
 ###################### PRIVATE FUNCTIONS ######################
 '''

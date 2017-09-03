@@ -1,0 +1,15 @@
+numOpenRequirements,numInProgressRequirements,ticket,numDevelopers,numDevelopedRequirementsBeforeThisInProgress,numDescOpen,numDescInProgress,numDescResolved,numDescReopened,numDescClosed,numCommitsOpen,numCommitsInProgress,numCommitsResolved,numCommitsReopened,numCommitsClosed,numOpenWhileThisOpen,numInProgressWhileThisOpen,numResolvedWhileThisOpen,numReopenedWhileThisOpen,numClosedWhileThisOpen,numOpenWhenInProgress,numInProgressWhenInProgress,numReopenedWhenInProgress,numResolvedWhenInProgress,numClosedWhenInProgress,In Progress|Open,Resolved|Open,Closed|Open,Open|Resolved,Closed|Reopened,Reopened|In Progress,Resolved|Reopened,Open|Reopened,In Progress|Resolved,Resolved|Closed,Open|In Progress,Reopened|Resolved,Reopened|Open,Open|Closed,Closed|In Progress,Reopened|Closed,Closed|Resolved,In Progress|Reopened,In Progress|Closed,Resolved|In Progress
+197,38,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,TIKA-2332,1,NA,0,0,0,0,0,1,0,0,0,0,197,38,140,14,63,NA,NA,NA,NA,NA,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,,TIKA-2233,3,NA,0,0,0,0,0,0,0,0,0,0,197,38,141,14,63,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,,TIKA-2232,1,NA,0,0,0,0,0,5,0,4,0,0,196,38,136,12,63,NA,NA,NA,NA,NA,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0
+,,TIKA-2084,3,NA,0,0,0,0,0,0,0,0,0,0,197,38,141,14,63,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,,TIKA-2053,3,NA,0,0,0,0,0,0,0,0,0,0,197,38,141,14,63,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,,TIKA-2016,1,146,0,0,0,0,0,1,7,0,0,0,192,37,133,12,63,43,4,1,83,62,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0
+,,TIKA-2000,3,NA,0,0,0,0,0,0,0,0,0,0,197,38,141,14,63,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,,TIKA-1993,1,NA,0,0,0,0,0,3,0,0,0,0,193,38,133,12,63,NA,NA,NA,NA,NA,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,,TIKA-1988,1,NA,0,0,0,0,0,3,0,3,0,0,197,38,139,13,63,NA,NA,NA,NA,NA,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
+,,TIKA-1984,3,NA,0,0,0,0,0,0,0,0,0,0,197,38,141,14,63,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,,TIKA-1962,3,NA,0,0,0,0,0,0,0,0,0,0,197,38,141,14,63,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,,TIKA-1940,3,NA,0,0,0,0,0,0,0,0,0,0,185,35,131,11,62,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+,,TIKA-1913,1,145,0,0,0,0,0,3,0,0,0,0,186,36,132,11,63,38,4,1,83,62,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0

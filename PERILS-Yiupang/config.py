@@ -45,3 +45,6 @@ JIRA_DATE_TIME_REGEX = '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})'
 JIRA_DATE_REGEX = '(\d{4}-\d{2}-\d{2})'
 COMMIT_DATE_REGEX = '(?<=Date:   )([A-Za-z0-9: ]+)'
 AUTHOR_REGEX = '(?<=Author: )([a-zA-Z ]+)'
+
+
+### Configurations for the csv file ###

@@ -22,7 +22,7 @@ DATE_RANGE_EACH_STATUS = None # PERILS-3
 def numIssueWhileOpenByClause(jira, clause=""):
   return len(jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS \'Open\'" + clause, maxResults=config.MAX_RESULTS))
 
-def numIssueWhileInProgressByClause(jira, clause=""):
+def numIssueWhenInProgressByClause(jira, clause=""):
   return len(jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS \'In Progress\'" + clause, maxResults=config.MAX_RESULTS))
 
 def numIssueWhileReopenedByClause(jira, clause=""):
@@ -52,14 +52,14 @@ def getStatuesOfOtherReqWhenThisInProgress(jira, reqName):
   result = {}
   if START_PROGRESS_TIME != None:
     timeClause = " ON " + re.findall(config.JIRA_DATE_REGEX, START_PROGRESS_TIME)[0]
-    result["numOpen"] = numIssueWhileOpenByClause(jira, timeClause)
-    result["numInProgress"] = numIssueWhileInProgressByClause(jira, timeClause)
-    result["numReopened"] = numIssueWhileReopenedByClause(jira, timeClause)
-    result["numResolved"] = numIssueWhileResolvedByClause(jira, timeClause)
-    result["numClosed"] = numIssueWhileClosedByClause(jira, timeClause)
+    result["numOpenWhenInProgress"] = numIssueWhileOpenByClause(jira, timeClause)
+    result["numInProgressWhenInProgress"] = numIssueWhenInProgressByClause(jira, timeClause)
+    result["numReopenedWhenInProgress"] = numIssueWhileReopenedByClause(jira, timeClause)
+    result["numResolvedWhenInProgress"] = numIssueWhileResolvedByClause(jira, timeClause)
+    result["numClosedWhenInProgress"] = numIssueWhileClosedByClause(jira, timeClause)
   else:# The issue hasn't started being developed.
-    result["numOpen"] = result["numReopened"] = result["numInProgress"] = "NA"
-    result["numResolved"] = result["numClosed"] = "NA"
+    result["numOpenWhenInProgress"] = result["numInProgressWhenInProgress"] = result["numReopenedWhenInProgress"] = "NA"
+    result["numResolvedWhenInProgress"] = result["numClosedWhenInProgress"] = "NA"
   return result
 
 '''
@@ -89,7 +89,7 @@ def getNumEachTransition(jira, reqName):
 '''
 Goal: To resolve PERILS-16 - Statuses of other requirements when open
 '''
-def getOtherReqStatusesWhenThisOpen(jira, reqName):
+def getOtherReqStatusesWhileThisOpen(jira, reqName):
   global OPEN_END_TIME
   _getHistoryItems(jira, reqName, _initFinishedOpenStatusTime)
   result = {}
@@ -97,7 +97,7 @@ def getOtherReqStatusesWhenThisOpen(jira, reqName):
   if OPEN_END_TIME != None: # the issue is in open status without activities
     timeClause = " BEFORE " + re.findall(config.JIRA_DATE_REGEX, OPEN_END_TIME)[0]
   result["numOpenWhileThisOpen"] = numIssueWhileOpenByClause(jira, timeClause)
-  result["numInProgressWhileThisOpen"] = numIssueWhileInProgressByClause(jira, timeClause)
+  result["numInProgressWhileThisOpen"] = numIssueWhenInProgressByClause(jira, timeClause)
   result["numReopenedWhileThisOpen"] = numIssueWhileReopenedByClause(jira, timeClause)
   result["numResolvedWhileThisOpen"] = numIssueWhileResolvedByClause(jira, timeClause)
   result["numClosedWhileThisOpen"] = numIssueWhileClosedByClause(jira,timeClause)
@@ -109,11 +109,10 @@ Goal: To resolve PERILS-3 - Workflow compliance
     open, in progress, closed, resolved, reopened.
 '''
 def getNumCommitDuringEachReq(jira, reqName):
-  print ("Before gethistoryitem, DATE_RANGE_EACH_STATUS = ", DATE_RANGE_EACH_STATUS)
-  print ("reqName = " + reqName)
   _getHistoryItems(jira, reqName, _initDateRangeEachStatus)
-  # print ("_initDateRangeEachStatus = " + )
   return _getNumCommittEachStatusByDateRange(gitInfo.getCommitsDatesForThisReq(reqName))
+
+
 
 
 ###################### PRIVATE FUNCTIONS ######################
@@ -130,7 +129,6 @@ def _getHistoryItems(jira, reqName, callback):
     createdTime = re.findall(config.JIRA_DATE_TIME_REGEX, history.created)[0]
     for indx, item in enumerate(history.items):
       if item.field == config.STATE_STR and CURRENT_STATUS != item.toString:
-        print ("item = ", item)
         result = callback(item, createdTime)
         CURRENT_STATUS = item.toString
   return result
@@ -151,7 +149,6 @@ def _initStartInProgressTime(item, createdTime):
   if item.field == config.STATE_STR:
     if (item.toString == config.IN_PROGRESS_STR):
       START_PROGRESS_TIME = createdTime
-      print (START_PROGRESS_TIME)
 
 '''
 Goal: To resolved PERILS-2
@@ -189,7 +186,6 @@ def _initDateRangeEachStatus(item, createdTime):
   else:
     DATE_RANGE_EACH_STATUS[item.toString].append({config.START_TIME: createdTime})
     STATUS_TRACKING = item.toString
-  print ("AFTER _initDateRangeEachStatus, DATE_RANGE_EACH_STATUS = ", DATE_RANGE_EACH_STATUS)
 
 '''
 Goal: A call to JIRA API to get the changelog
@@ -237,8 +233,6 @@ statusTimeRangeDict's format:
 }
 '''
 def _getNumCommittEachStatusByDateRange(commitDates):
-  print ("DATE_RANGE_EACH_STATUS: ", DATE_RANGE_EACH_STATUS)
-  print ("commitDates: ", commitDates)
   numCommitEachStatus = {}
   hasRecordedDateDict = {}
   hasRecorded = False
@@ -256,7 +250,7 @@ def _getNumCommittEachStatusByDateRange(commitDates):
           if config.END_TIME not in oneDateRange and gitInfo.gitDateComparator(commitDate, oneDateRange[config.START_TIME]):# Example: a resolved issue that still have commits
             numCommitEachStatus[key] += 1
             hasRecordedDateDict[commitNdx] = True
-          elif gitInfo.gitDateComparator(oneDateRange[config.END_TIME], commitDate):
+          elif config.END_TIME in oneDateRange and gitInfo.gitDateComparator(oneDateRange[config.END_TIME], commitDate):
             numCommitEachStatus[key] += 1
             hasRecordedDateDict[commitNdx] = True
           elif config.START_TIME not in oneDateRange and gitInfo.gitDateComparator(oneDateRange[config.END_TIME], commitDate):
@@ -272,7 +266,6 @@ def _formatTimeList(timeList):
   dateRanges = []
   oneDateRange = {}
   for ndx, val in enumerate(timeList): # formate a pair of startTime and endTime into one dict
-    print (val)
     if config.START_TIME not in oneDateRange and config.START_TIME not in val:
       oneDateRange[config.END_TIME] = val[config.END_TIME]
     elif config.START_TIME not in oneDateRange and config.START_TIME in val:
