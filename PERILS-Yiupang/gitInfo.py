@@ -32,7 +32,7 @@ def _getGitLogInfo(reqName, callback):
   repo = git.Repo(TIKA_LOCAL_REPO)
   logInfo = repo.git.log("--all", "-i", "--grep=" + reqName)
   if(len(logInfo) == 0):
-    return {"formattedDevelopers": [], "datesForAllCommits": datesForAllCommits, "numCommits": 0}
+    return {"formattedDevelopers": [], "datesForAllCommits": [], "numCommits": 0}
   else:
     return callback(logInfo)
 

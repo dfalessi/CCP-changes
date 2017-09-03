@@ -61,14 +61,14 @@ def outputCSVFile(jira, limit):
   with open(config.CSV_FILE, 'w', newline='') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=COLUMNS_NAMES)
     _initColumnsNamesForTransitions(csvfile, writer)
-    writer.writerow({'numOpenRequirements': len(jiraInfo.getOpenFeatures(jira)), 'numInProgressRequirements': len(jiraInfo.getOpenInProgressFeatures(jira))})
+    writer.writerow({'numOpenRequirements': jiraInfo.getNumOpenFeatures(jira), 'numInProgressRequirements': jiraInfo.getOpenInProgressFeatures(jira)})
     for indx, req in enumerate(jira.search_issues(config.TIKA_REQ_STR)):
       if limit != None and indx == limit: # limit the search result for debugging purpose.
         break
       results = jiraInfo.getItemHistory(jira, req.key)
       ROW["ticket"] = req.key
       ROW["numDevelopedRequirementsBeforeThisInProgress"] = results["numDevelopedRequirementsBeforeThisInProgress"]
-      ROW["numDevelopers"] = len(jiraInfo.getUniqueDevelopers(gitInfo.getGitDeveloperForThisReq(req.key), req.key))
+      ROW["numDevelopers"] = jiraInfo.getNumUniqueDevelopers(gitInfo.getGitDeveloperForThisReq(req.key), req.key)
       ROW["numOpenWhileThisOpen"] = results['numOpenWhileThisOpen']
       ROW["numInProgressWhileThisOpen"] = results['numInProgressWhileThisOpen']
       ROW["numResolvedWhileThisOpen"] = results['numResolvedWhileThisOpen']

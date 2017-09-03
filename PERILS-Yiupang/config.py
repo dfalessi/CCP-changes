@@ -15,6 +15,17 @@ TIKA_REQ_STR_WHERE = TIKA_REQ_STR + " AND "
 GIT_JIRA_DATE_FORMAT = '%Y-%m-%d'
 
 ### Statueses ###
+'''
+Goal: Get all possible transitions
+'''
+def getAllPossibleTransitions():
+  transitions = {}
+  for indx, val in enumerate(STATUSES):
+    for indx2, val2 in enumerate(STATUSES):
+      if indx != indx2:
+        transitions[val+"|"+val2] = [val, val2]
+  return transitions
+
 STATE_STR = "status"
 OPEN_STR = "Open"
 IN_PROGRESS_STR = "In Progress"
@@ -33,13 +44,4 @@ JIRA_DATE_REGEX = '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})'
 COMMIT_DATE_REGEX = '(?<=Date:   )([A-Za-z0-9: ]+)'
 AUTHOR_REGEX = '(?<=Author: )([a-zA-Z ]+)'
 
-'''
-Goal: Get all possible transitions
-'''
-def getAllPossibleTransitions():
-  transitions = {}
-  for indx, val in enumerate(STATUSES):
-    for indx2, val2 in enumerate(STATUSES):
-      if indx != indx2:
-        transitions[val+"|"+val2] = [val, val2]
-  return transitions
+
