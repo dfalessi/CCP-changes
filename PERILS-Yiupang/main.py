@@ -21,7 +21,7 @@ def main():
     csvGenerator.outputCSVFile(jira, numTicket)
   elif len(sys.argv) == 3:
     if sys.argv[1] == "-r":
-      prettyPrintDict (jiraInfo.getItemHistory(jira, sys.argv[2]))
+      prettyPrintDict (jiraInfo.getJIRAItemHistory(jira, sys.argv[2]))
   else:
     csvGenerator.outputCSVFile(jira, None)
   

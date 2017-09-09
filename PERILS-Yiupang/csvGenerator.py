@@ -83,7 +83,7 @@ def outputCSVFile(jira, limit):
       if limit != None and indx == limit: # limit the search result for debugging purpose.
         break
       print ('{0} {1}'.format("Writing", req.key))
-      results = jiraInfo.getItemHistory(jira, req.key)
+      results = jiraInfo.getJIRAItemHistory(jira, req.key)
       ROW["ticket"] = req.key
       ROW["numDevelopedRequirementsBeforeThisInProgress"] = results["numDevelopedRequirementsBeforeThisInProgress"]
       ROW["numDevelopers"] = gitInfo.getNumUniqueDevelopers(req.key)

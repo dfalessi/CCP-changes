@@ -39,7 +39,14 @@ Goal: To resolve PERILS-11 - Changed.
 A public wrapper for _initNumDescriptionChangedCounter()
 '''
 def getNumDescriptionChanged(jira, reqName):
-  _getHistoryItems(jira, reqName, _initNumDescriptionChangedCounter)
+  print ("getNumDescriptionChanged")
+  currentStatus = config.OPEN_STR
+  for history in HISTORIES:
+    for indx, item in enumerate(history.items):
+      if (item.field == "description"):
+        DESCRIPTION_CHANGED_COUNTERS[currentStatus] += 1
+      if (item.field == config.STATE_STR):
+        currentStatus = item.toString
   return DESCRIPTION_CHANGED_COUNTERS
 
 '''
@@ -125,12 +132,15 @@ def _getHistoryItems(jira, reqName, callback):
   _initCounters()
   result = {}
   CURRENT_STATUS = config.OPEN_STR
+  print ("cb: ", callback)
   for history in HISTORIES:
     createdTime = re.findall(config.JIRA_DATE_TIME_REGEX, history.created)[0]
     for indx, item in enumerate(history.items):
-      if item.field == config.STATE_STR and CURRENT_STATUS != item.toString:
+      if (item.field == config.STATE_STR and CURRENT_STATUS != item.toString):
         result = callback(item, createdTime)
+      if (item.field == config.STATE_STR):
         CURRENT_STATUS = item.toString
+
   return result
 
 '''
@@ -138,7 +148,9 @@ Goal: To resolve PERILS-11 - Changed
 '''
 def _initNumDescriptionChangedCounter(item, _):
   global DESCRIPTION_CHANGED_COUNTERS
+  print ("updating field : ", item.field) 
   if item.field == 'description':# Resolve #1
+    print ("updating field : ", CURRENT_STATUS) 
     DESCRIPTION_CHANGED_COUNTERS[CURRENT_STATUS] += 1
   
 '''

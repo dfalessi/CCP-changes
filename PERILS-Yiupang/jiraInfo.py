@@ -30,7 +30,7 @@ Goal: To resolve multiple tickets in the following order:
   PERILS-7
   PERILS-2
 '''
-def getItemHistory(jira, reqName):
+def getJIRAItemHistory(jira, reqName):
   results = {}
   results.update(jiraInfoRepository.getStatuesOfOtherReqBeforeThisInProgress(jira, reqName).items())
   results["numDescChangedCounters"] = jiraInfoRepository.getNumDescriptionChanged(jira, reqName)
