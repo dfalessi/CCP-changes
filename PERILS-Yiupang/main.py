@@ -1,7 +1,6 @@
 import config
 import gitInfo # import here for testing
 import jiraInfo # import here for testing
-import jiraInfoRepository # import here for testing
 import csvGenerator
 from jira import JIRA
 import sys
@@ -27,4 +26,5 @@ def main():
   
 	
 if __name__ == "__main__":
-  main()
+  print(len(gitInfo._getAllPullRequestsByPaging()))
+  # main()

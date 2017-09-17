@@ -1,8 +1,10 @@
 import git
 import re
 from datetime import datetime
-from datetime import date
+import urllib.request
 import config
+import json
+import main
 
 ###################### PUBLIC APIs ######################
 
@@ -27,7 +29,7 @@ def getCommitsDatesForThisReq(reqName):
   return _getGitLogInfo(reqName, _getCommitsDatesForThisReq)
 
 '''
-Goal: Compare two dates in the format of "YYYY-mm-dd"
+Goal: Compare two dates in the format of '%Y-%m-%dT%H:%M:%S'
 '''
 def gitDateComparator(date1, date2):
   return datetime.strptime(date1, config.GIT_JIRA_DATE_FORMAT) >= datetime.strptime(date2, config.GIT_JIRA_DATE_FORMAT)
@@ -37,7 +39,8 @@ def gitDateComparator(date1, date2):
 
 ###################### PRIVATE FUNCTIONS ######################
 '''
-Goal: The parent of getting git's logInfo
+Goal: The parent of getting git's logInfo. 
+      It gets logs of all commits that contain the string of the requirement.
 '''
 def _getGitLogInfo(reqName, callback):
   repo = git.Repo(config.TIKA_LOCAL_REPO)
@@ -66,3 +69,37 @@ def _getCommitsDatesForThisReq(logInfo):
   for date in dates:
     datesForAllCommits.append(datetime.strptime(date[:-1], config.GIT_DATE_FORMAT).strftime(config.GIT_JIRA_DATE_FORMAT))
   return datesForAllCommits
+
+def _convertPullRequestToDict(dictStr):
+  return json.loads(dictStr.decode("utf-8"))
+
+'''
+Goal: The all pull requests by paging
+'''
+def _getAllPullRequestsByPaging():
+  page = 0
+  allPullRequestDict = []
+  while True:
+    pullRequestsOnePageDict = _convertPullRequestToDict(urllib.request.urlopen(config.TIKA_PULL_REQUESTS_BY_PAGE + str(page)).read())
+    if(len(pullRequestsOnePageDict) == 0):
+      break
+    else:
+      allPullRequestDict += pullRequestsOnePageDict
+    page += 1
+  return allPullRequestDict
+
+
+'''
+Goal: Get all the closed pull requests by paging
+'''
+def _getAllClosedPullRequest():
+  page = 0
+  allPullRequestDict = []
+  while True:
+    pullRequestsOnePageDict = _convertPullRequestToDict(urllib.request.urlopen(config.TIKA_CLOSED_PULL_REQUEST_BY_PAGE + str(page)).read())
+    if(len(pullRequestsOnePageDict) == 0):
+      break
+    else:
+      allPullRequestDict += pullRequestsOnePageDict
+    page += 1
+  return allPullRequestDict

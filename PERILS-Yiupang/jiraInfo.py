@@ -39,5 +39,4 @@ def getJIRAItemHistory(jira, reqName):
   results.update(jiraInfoRepository.getStatuesOfOtherReqWhenThisInProgress(jira, reqName).items())
   results["transitionCounters"] = jiraInfoRepository.getNumEachTransition(jira, reqName)
   
-  
   return results

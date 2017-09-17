@@ -181,6 +181,10 @@ def _initFinishedOpenStatusTime(item, createdTime):
 
 '''
 Goal: To resolvde PERILS-3 - Work compliance
+Logic:
+  1. Get the time ranges of each status
+  2. Find all the commits
+  3. Align commits with the time ranges
 '''
 def _initDateRangeEachStatus(item, createdTime):
   global STATUS_TRACKING
@@ -237,12 +241,7 @@ def _initCounters():
 ###################### PERILS-3 STARTS ######################
 '''
 Goal: To get all commits within the time ranges of a status
-Restrains: Two statuses might share the same date, so one commit could count twice.
-
-statusTimeRangeDict's format:
-{"Open": {"startTime": "2017-09-23", "endTime": "2017-09-25"},
-  "Resovled": {"StartTime: 2"}
-}
+Restraints: Two statuses might share the same date, so one commit could count twice.
 '''
 def _getNumCommittEachStatusByDateRange(commitDates):
   numCommitEachStatus = {}
@@ -272,7 +271,6 @@ def _getNumCommittEachStatusByDateRange(commitDates):
 
 '''
 Goal: A helper for getNumCommittEachStatusByDateRange()
-Format [{"startime": "2017-09-13"}, {"endTime": "2017-04-34"}] into {"startTime": "2017-09-13", "endTime": "2017-04-34"}
 '''
 def _formatTimeList(timeList):
   dateRanges = []

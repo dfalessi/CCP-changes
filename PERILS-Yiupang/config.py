@@ -5,6 +5,8 @@ REQUIREMENT = 'TIKA-2232' # for testing purpose, TIKA-1699 has the most committs
 CSV_FILE = 'TIKA-Table.csv'
 TIKA_LOCAL_REPO = r"C:\Users\yiupang\Documents\CCP-REPOS\tika-master"
 PROJECT_URL = 'https://issues.apache.org/jira'
+TIKA_PULL_REQUESTS_BY_PAGE = "https://api.github.com/repos/apache/tika/pulls?state=all&per_page=100&page="
+TIKA_CLOSED_PULL_REQUEST_BY_PAGE = "https://api.github.com/repos/apache/tika/pulls?state=closed&per_page=100&page="
 
 ### A common query for a requirenment ###
 PROJECT_NAME = "TIKA"
