@@ -35,7 +35,11 @@ def gitDateComparator(date1, date2):
   return datetime.strptime(date1, config.GIT_JIRA_DATE_FORMAT) >= datetime.strptime(date2, config.GIT_JIRA_DATE_FORMAT)
 
 
-
+'''
+Goal: Get the percentage of pull requests closed through GitHub
+'''
+def getPortionOfUnmergedPullRequestOnGitHub():
+  return len(_getAllMergedAndClosedPullRequests()) / len(_getAllPullRequestsByPaging())
 
 ###################### PRIVATE FUNCTIONS ######################
 '''
@@ -103,3 +107,15 @@ def _getAllClosedPullRequest():
       allPullRequestDict += pullRequestsOnePageDict
     page += 1
   return allPullRequestDict
+
+
+'''
+Goal: Get merged pull requests
+'''
+def _getAllMergedAndClosedPullRequests():
+  nonMergedPullRequest = []
+  for pullRequest in _getAllClosedPullRequest():
+    if(pullRequest["merged_at"] == None):
+      nonMergedPullRequest.append(pullRequest)
+
+  return nonMergedPullRequest

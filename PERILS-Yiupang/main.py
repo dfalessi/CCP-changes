@@ -26,5 +26,5 @@ def main():
   
 	
 if __name__ == "__main__":
-  print(len(gitInfo._getAllPullRequestsByPaging()))
+  print(gitInfo._getAllClosedPullRequest())
   # main()
