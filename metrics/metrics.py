@@ -15,6 +15,51 @@ def printError():
         + "with the starting index as the earlier commit \n" \
         + "and the ending index as the later commit.)"
 
+def export(projID, f):
+    with open('metrics.csv','wb') as file:
+        file.write("Project ID," \
+            "Class ID," \
+            "Requirement ID," \
+            "Size at beginning of release," \
+            "LOC_touched," \
+            "NR," \
+            "Nfix," \
+            "NAuth," \
+            "LOC_added," \
+            "MAX_LOC_added," \
+            "AVG_LOC_added," \
+            "Churn," \
+            "MAX_Churn," \
+            "AVG_Churn," \
+            "ChgSetSize," \
+            "MAX_ChgSet," \
+            "AVG_ChgSet," \
+            "Age," \
+            "WeightedAge" \
+            "\n"
+            )
+        items = f.files.iteritems()
+        for fileName, stats in items:
+            #items = stats.iteritems()
+            file.write("%s,%s,%s" % (projID, fileName, "REQ_ID"))
+            file.write(",%d" % (stats['size']))
+            file.write(",%d" % (stats['LOC_touched']))
+            file.write(",%d" % (stats['NR']))
+            file.write(",%d" % (stats['Nfix']))
+            file.write(",%s" % (stats['NAuth']))
+            file.write(",%d" % (stats['LOC_added']))
+            file.write(",%d" % (stats['MAX_LOC_added']))
+            file.write(",%.2f" % (stats['AVG_LOC_added']))
+            file.write(",%d" % (stats['Churn']))
+            file.write(",%d" % (stats['MAX_Churn']))
+            file.write(",%.2f" % (stats['AVG_Churn']))
+            file.write(",%d" % (stats['ChgSetSize']))
+            file.write(",%d" % (stats['MAX_ChgSet']))
+            file.write(",%.2f" % (stats['AVG_ChgSet']))
+            file.write(",%d" % (stats['Age']))
+            file.write(",%d" % (stats['WeightedAge']))
+            file.write("\n")
+
 def main(argv):
     if (len(argv) != 4):
         printError()
@@ -25,7 +70,8 @@ def main(argv):
     f = files.Files()
     for i in range (int(argv[2]), int(argv[3]) + 1):
         f.update(commits[i - 1])
-    print f.files
+    #print f.files
+    export("PROJ_ID", f)
 
 def test():
     repoPath = ".."

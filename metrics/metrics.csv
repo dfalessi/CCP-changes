@@ -1,0 +1,12 @@
+Project ID,Class ID,Requirement ID,Size at beginning of release,LOC_touched,NR,Nfix,NAuth,LOC_added,MAX_LOC_added,AVG_LOC_added,Churn,MAX_Churn,AVG_Churn,ChgSetSize,MAX_ChgSet,AVG_ChgSet,Age,WeightedAge
+PROJ_ID,test.csv,REQ_ID,-1,1,1,-1,None,0,0,0.00,-1,-1,-1.00,3,3,3.00,-1,-1
+PROJ_ID,NLP/vectorspace.py,REQ_ID,-1,142,2,-1,None,142,71,71.00,142,142,71.00,10,5,5.00,-1,-1
+PROJ_ID,NLP/vector_space_scores.csv,REQ_ID,-1,1638,2,-1,None,1638,819,819.00,1638,1638,819.00,10,5,5.00,-1,-1
+PROJ_ID,TIKA-Table,REQ_ID,-1,52,1,-1,None,0,0,0.00,-52,-52,-52.00,2,2,2.00,-1,-1
+PROJ_ID,tikaJira.py,REQ_ID,-1,343,3,-1,None,197,153,65.67,51,51,17.00,6,3,2.00,-1,-1
+PROJ_ID,NLP/test2.py,REQ_ID,-1,0,2,-1,None,0,0,0.00,0,0,0.00,10,5,5.00,-1,-1
+PROJ_ID,NLP/preprocess.py,REQ_ID,-1,6,2,-1,None,4,2,2.00,2,2,1.00,10,5,5.00,-1,-1
+PROJ_ID,TIKA-Table.csv,REQ_ID,-1,92,3,-1,None,53,52,17.67,14,14,4.67,6,3,2.00,-1,-1
+PROJ_ID,NLP/test.py,REQ_ID,-1,66,2,-1,None,46,23,23.00,26,26,13.00,10,5,5.00,-1,-1
+PROJ_ID,test2.csv,REQ_ID,-1,2,1,-1,None,0,0,0.00,-2,-2,-2.00,3,3,3.00,-1,-1
+PROJ_ID,NLP/nlp.py,REQ_ID,-1,106,2,-1,None,102,51,51.00,98,98,49.00,10,5,5.00,-1,-1
