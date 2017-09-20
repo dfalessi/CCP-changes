@@ -1,13 +1,24 @@
 import git
+from github import Github
 import re
 from datetime import datetime
 import urllib.request
 import config
 import json
-import main
+import os
+import subprocess
 
 ###################### PUBLIC APIs ######################
 
+repoPyGitHub = None
+def _initRepoObject():
+  global repoPyGitHub
+  if repoPyGitHub == None:
+    gitKey = "f564b19dbef0aabc1e5950a38b25d2b913ca2f01"
+    git = Github(gitKey)
+    org = git.get_organization("apache")
+    repoPyGitHub = org.get_repo(config.PROJECT_NAME)
+# _initRepoObject()
 '''
 Goal: Multiple commits might be made by the same developer.
    This function is to not print the same name multiple times.
@@ -42,6 +53,8 @@ def getPortionOfUnmergedPullRequestOnGitHub():
   return len(_getAllMergedAndClosedPullRequests()) / len(_getAllPullRequestsByPaging())
 
 ###################### PRIVATE FUNCTIONS ######################
+
+
 '''
 Goal: The parent of getting git's logInfo. 
       It gets logs of all commits that contain the string of the requirement.
@@ -74,17 +87,17 @@ def _getCommitsDatesForThisReq(logInfo):
     datesForAllCommits.append(datetime.strptime(date[:-1], config.GIT_DATE_FORMAT).strftime(config.GIT_JIRA_DATE_FORMAT))
   return datesForAllCommits
 
-def _convertPullRequestToDict(dictStr):
+def _convertDictStringToDict(dictStr):
   return json.loads(dictStr.decode("utf-8"))
 
 '''
-Goal: The all pull requests by paging
+Goal: Get all pull requests by paging
 '''
 def _getAllPullRequestsByPaging():
   page = 0
   allPullRequestDict = []
   while True:
-    pullRequestsOnePageDict = _convertPullRequestToDict(urllib.request.urlopen(config.TIKA_PULL_REQUESTS_BY_PAGE + str(page)).read())
+    pullRequestsOnePageDict = _convertDictStringToDict(urllib.request.urlopen(config.TIKA_PULL_REQUESTS_BY_PAGE + str(page)).read())
     if(len(pullRequestsOnePageDict) == 0):
       break
     else:
@@ -100,14 +113,13 @@ def _getAllClosedPullRequest():
   page = 0
   allPullRequestDict = []
   while True:
-    pullRequestsOnePageDict = _convertPullRequestToDict(urllib.request.urlopen(config.TIKA_CLOSED_PULL_REQUEST_BY_PAGE + str(page)).read())
+    pullRequestsOnePageDict = _convertDictStringToDict(urllib.request.urlopen(config.TIKA_CLOSED_PULL_REQUEST_BY_PAGE + str(page)).read())
     if(len(pullRequestsOnePageDict) == 0):
       break
     else:
       allPullRequestDict += pullRequestsOnePageDict
     page += 1
   return allPullRequestDict
-
 
 '''
 Goal: Get merged pull requests
@@ -119,3 +131,41 @@ def _getAllMergedAndClosedPullRequests():
       nonMergedPullRequest.append(pullRequest)
 
   return nonMergedPullRequest
+
+'''
+TODO
+Goal: 
+  Get the percentage of pull requests merged by Heuristic 1
+  H1 - At least one of the commits in the pull request appears in the target project’s master branch.
+Idea:
+  1. Get all the commits of a pull request
+  2. Check if any one of the commits appears in the master
+Pseudocode:
+  # foreach closed and unmerged pull request
+    # foreach commit in the closed and unmerged pull request
+      # execute git-branch -a --contains <sha>
+      # check if the commit is on master
+      # add that pr as h1-merged
+  # return h1-merged-list
+@:return a list of pull requests that are merged and closed through H1
+'''
+def getPercentageByH1():
+  h1Merged = []
+  for pr in _getAllMergedAndClosedPullRequests():
+    commitDict = _convertDictStringToDict(urllib.request.urlopen(pr["commits_url"]).read())
+    for commit in commitDict:
+      cmd = ["git", "branch", "--all", "--contains", commit["sha"]]
+      pr = subprocess.Popen(cmd,
+                            cwd=os.path.dirname("C:/Users/yiupang/Documents/CCP-REPOS/tika-master/"),
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+      (out, error) = pr.communicate()
+      if len(re.findall(config.MASTER_REGEX, out.decode("utf-8"))) > 0:
+        h1Merged.append(pr)
+  return h1Merged
+
+'''
+H3: Use the message's attribute in the commit object.
+'''
+
