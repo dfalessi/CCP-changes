@@ -8,7 +8,7 @@ from sortedcontainers import SortedList, SortedDict, SortedSet
 def addToDict(commit, files):
     stat = commit.stats
     commitFiles = stat.files
-    #print commitFiles
+    print commitFiles
     #print '\n'
     for fileName, stats in commitFiles.items():
         if fileName not in files:
