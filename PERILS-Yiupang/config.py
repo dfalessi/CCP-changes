@@ -48,7 +48,8 @@ JIRA_DATE_REGEX = '(\d{4}-\d{2}-\d{2})'
 COMMIT_DATE_REGEX = '(?<=Date:   )([A-Za-z0-9: ]+)'
 AUTHOR_REGEX = '(?<=Author: )([a-zA-Z ]+)'
 MASTER_REGEX = '(master)'
-
+MERGING_KEYWORDS_REGEX = '(?:merg|appl|pull|push|integrat)(?:ing|i?ed)'
+CLOSING_KEYWORDS_REGEX = '(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)'
 
 ### Configurations for the csv file ###
 # TODO

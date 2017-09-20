@@ -42,7 +42,8 @@ if __name__ == "__main__":
   #  if pr.merged == True:
   #    count = count + 1
   # print(count)
-  print(gitInfo.getPercentageByH1())
+  # print(gitInfo.getPercentageByH1())
+  print (gitInfo._hasMergedKeyword("015c695c7d5a4549c26be247497559d03769f1e4"))
   # print (g)
   #repo = git.Repo(config.TIKA_LOCAL_REPO)
   #c = repo.commit("015c695c7d5a4549c26be247497559d03769f1e4")
