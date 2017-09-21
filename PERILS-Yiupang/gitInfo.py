@@ -124,10 +124,36 @@ def getPercentageByH3():
 Goal: 
   Get the percentage of pull requests merged by Heuristic 4
   H4 - The latest comment (on the master) prior to closing the pull request matches the regular expression.
+  
+Pseudocode:
+  # foreach closed and unmerged pull request
+    # Get the closed time by accessing "closed_at" attribute
+    # Find the latest commit before the closed date by using: git rev-list -1 --before="$DATE" master | xargs -Iz git checkout z
+    # Reset the repo to master
+    # Check the comment of the commit match one of the hasMergedKeywords
+      # if yes:
+        # return true
 '''
 def getPercentageByH4():
-
-  return None
+  for pr in _getAllUnmergedAndClosedPullRequests():
+    prDate = pr["closed_at"]
+    cmd = ["git", "rev-list", "-1", "--before=" + prDate, "maser", "|", "xargs", "-Iz", "git", "checkout", "z"]
+    consoleOuput = subprocess.Popen(cmd,
+                          cwd=os.path.dirname(config.TIKA_LOCAL_REPO),
+                          shell=True,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE)
+    lastestCommitSha = re.findall(config.CHECKOUT_COMMIT_SHA_REGEX, consoleOuput.decode("utf-8"))[0]
+    # git checkout HEAD
+    checkoutMasterCmd = ["git", "checkout", "master"]
+    subprocess.Popen(checkoutMasterCmd,
+                     cwd=os.path.dirname(config.TIKA_LOCAL_REPO),
+                     shell=True,
+                     stdout=subprocess.PIPE,
+                     stderr=subprocess.PIPE)
+    if (_hasMergedKeyword(lastestCommitSha)):
+      return True
+  return False
 
 
 

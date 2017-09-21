@@ -50,6 +50,8 @@ AUTHOR_REGEX = '(?<=Author: )([a-zA-Z ]+)'
 MASTER_REGEX = '(master)'
 MERGING_KEYWORDS_REGEX = '(?:merg|appl|pull|push|integrat)(?:ing|i?ed)'
 CLOSING_KEYWORDS_REGEX = '(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)'
+CHECKOUT_COMMIT_SHA_REGEX = "(?:Note: checking out ')([A-Za-z0-9]+)(')"
+# Note: checking out '4f920c7bc5fd262c2a83fe44a7fb7b7bcb2798b7'.
 
 ### Configurations for the csv file ###
 # TODO
