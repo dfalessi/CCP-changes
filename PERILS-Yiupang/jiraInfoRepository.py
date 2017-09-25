@@ -2,8 +2,6 @@ import config
 import collections
 import re
 import gitInfo
-from datetime import datetime
-from datetime import date
 
 ### Global variables for storing data while loop history of a requirenment ###
 HISTORIES = None
@@ -79,7 +77,10 @@ def getStatuesOfOtherReqBeforeThisInProgress(jira, reqName):
   _getHistoryItems(jira, reqName, _initStartInProgressTime)
   result = {}
   if START_PROGRESS_TIME != None:
-    allIssueBeforeThis = jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS IN (\'Resolved\', \'Closed\') BEFORE " + re.findall(config.JIRA_DATE_REGEX, START_PROGRESS_TIME)[0], maxResults=config.MAX_RESULTS)
+    allIssueBeforeThis = jira.search_issues(config.TIKA_REQ_STR_WHERE +
+                                                "status WAS IN (\'Resolved\', \'Closed\') BEFORE " +
+                                                re.findall(config.JIRA_DATE_REGEX, START_PROGRESS_TIME)[0],
+                                            maxResults=config.MAX_RESULTS)
     numIssueBeforeThis = len(allIssueBeforeThis)
     result["numDevelopedRequirementsBeforeThisInProgress"] = numIssueBeforeThis
   else:# this issue has no "In Progress" phase.
@@ -258,13 +259,16 @@ def _getNumCommittEachStatusByDateRange(commitDates):
     for key, timeList in DATE_RANGE_EACH_STATUS.items():
       for oneDateRange in _formatTimeList(timeList):
         if commitNdx not in hasRecordedDateDict:
-          if config.END_TIME not in oneDateRange and gitInfo.gitDateComparator(commitDate, oneDateRange[config.START_TIME]):# Example: a resolved issue that still have commits
+          if config.END_TIME not in oneDateRange and gitInfo.gitDateComparator(commitDate,
+                                                                               oneDateRange[config.START_TIME]):# Example: a resolved issue that still have commits
             numCommitEachStatus[key] += 1
             hasRecordedDateDict[commitNdx] = True
-          elif config.END_TIME in oneDateRange and gitInfo.gitDateComparator(oneDateRange[config.END_TIME], commitDate):
+          elif config.END_TIME in oneDateRange and gitInfo.gitDateComparator(oneDateRange[config.END_TIME],
+                                                                             commitDate):
             numCommitEachStatus[key] += 1
             hasRecordedDateDict[commitNdx] = True
-          elif config.START_TIME not in oneDateRange and gitInfo.gitDateComparator(oneDateRange[config.END_TIME], commitDate):
+          elif config.START_TIME not in oneDateRange and gitInfo.gitDateComparator(oneDateRange[config.END_TIME],
+                                                                                   commitDate):
             numCommitEachStatus[key] += 1
             hasRecordedDateDict[commitNdx] = True
   return numCommitEachStatus

@@ -2,25 +2,16 @@ import git
 from github import Github
 import re
 from datetime import datetime
-import urllib.request
 import config
 import json
-import os
 import subprocess
+import httpRequest
+import sys
 
 ###################### PUBLIC APIs ######################
 
-repoPyGitHub = None
-def _initRepoObject():
-  global repoPyGitHub
-  if repoPyGitHub == None:
-    gitKey = "f564b19dbef0aabc1e5950a38b25d2b913ca2f01"
-    git = Github(gitKey)
-    org = git.get_organization("apache")
-    repoPyGitHub = org.get_repo(config.PROJECT_NAME)
-# _initRepoObject()
 '''
-Goal: Multiple commits might be made by the same developer.
+Multiple commits might be made by the same developer.
    This function is to not print the same name multiple times.
 '''
 def getNumUniqueDevelopers(reqName):
@@ -34,26 +25,24 @@ def getNumUniqueDevelopers(reqName):
   return len(uniqueDevelopers)
 
 '''
-Goal: A public function exposed to other scripts
+A public function exposed to other scripts
 '''
 def getCommitsDatesForThisReq(reqName):
   return _getGitLogInfo(reqName, _getCommitsDatesForThisReq)
 
 '''
-Goal: Compare two dates in the format of '%Y-%m-%dT%H:%M:%S'
+Compare two dates in the format of '%Y-%m-%dT%H:%M:%S'
 '''
 def gitDateComparator(date1, date2):
   return datetime.strptime(date1, config.GIT_JIRA_DATE_FORMAT) >= datetime.strptime(date2, config.GIT_JIRA_DATE_FORMAT)
 
-
 '''
-Goal: Get the percentage of pull requests closed through GitHub
+Get the percentage of pull requests closed through GitHub
 '''
 def getPortionOfUnmergedPullRequestOnGitHub():
   return len(_getAllUnmergedAndClosedPullRequests()) / len(_getAllPullRequestsByPaging())
 
 '''
-Goal: 
   Get the percentage of pull requests merged by Heuristic 1
   H1 - At least one of the commits in the pull request appears in the target project’s master branch.
 Idea:
@@ -66,19 +55,19 @@ Pseudocode:
       # check if the commit is on master
       # add that pr as h1-merged
   # return h1-merged-list
-@:return a list of pull requests that are merged and closed through H1
+@return a list of pull requests that are merged and closed through H1
 '''
 def getPercentageByH1():
   h1Merged = []
   for pr in _getAllUnmergedAndClosedPullRequests():
-    commitDict = _convertDictStringToDict(urllib.request.urlopen(pr["commits_url"]).read())
+    commitDict = _convertDictStringToDict(httpRequest.gitAPIRequest(pr["commits_url"]))
     for commit in commitDict:
       if _isInMasterBranch(commit["sha"]):
         h1Merged.append(pr)
   return h1Merged
 
 '''
-Goal: 
+
   Get the percentage of pull requests merged by Heuristic 2
   H2 - A commit closes the pull request using its log and that commit appears in the master branch.
       This means that the pull request commits were squashed onto one commit and this commit was merged.
@@ -95,14 +84,14 @@ Pseudocode:
 def getPercentageByH2():
   h2Merged = []
   for pr in _getAllUnmergedAndClosedPullRequests():
-    commitDict = _convertDictStringToDict(urllib.request.urlopen(pr["commits_url"]).read())
+    commitDict = _convertDictStringToDict(httpRequest.gitAPIRequest(pr["commits_url"]))
     for commit in commitDict:
       if _isInMasterBranch(commit["sha"]) and _hasClosingKeyword(commit["sha"]):
         h2Merged.append(pr)
   return h2Merged
 
 '''
-Goal: 
+
   Get the percentage of pull requests merged by Heuristic 3
   H3 - One of the last three discussion comments contain a commit unique identifier.
       This commit appears in the project's master branch, 
@@ -112,16 +101,17 @@ def getPercentageByH3():
   commitCount = 0
   h3Merged = []
   for pr in _getAllUnmergedAndClosedPullRequests():
-    commitDict = _convertDictStringToDict(urllib.request.urlopen(pr["commits_url"]).read())
+    commitDict = _convertDictStringToDict(httpRequest.gitAPIRequest(pr["commits_url"]))
     for commit in commitDict:
-      if _isInMasterBranch(commit["sha"]) and _hasMergedKeyword(commit["sha"]):
+      if (_isInMasterBranch(commit["sha"]) and
+          _hasMergedKeyword(commit["sha"])):
         h3Merged.append(pr)
       if commitCount == 2:
         break
   return h3Merged
 
 '''
-Goal: 
+
   Get the percentage of pull requests merged by Heuristic 4
   H4 - The latest comment (on the master) prior to closing the pull request matches the regular expression.
   
@@ -135,31 +125,23 @@ Pseudocode:
         # return true
 '''
 def getPercentageByH4():
+  mergedByH4 = []
   for pr in _getAllUnmergedAndClosedPullRequests():
-    prDate = pr["closed_at"]
-    cmd = ["git", "rev-list", "-1", "--before=" + prDate, "maser", "|", "xargs", "-Iz", "git", "checkout", "z"]
-    consoleOuput = subprocess.Popen(cmd,
-                          cwd=os.path.dirname(config.TIKA_LOCAL_REPO),
-                          shell=True,
-                          stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE)
-    lastestCommitSha = re.findall(config.CHECKOUT_COMMIT_SHA_REGEX, consoleOuput.decode("utf-8"))[0]
+
+    lastestCommitSha = re.findall(config.CHECKOUT_COMMIT_SHA_REGEX,
+                                  _executeGitShellCommand(["git", "rev-list", "-1", "--before=" + pr["closed_at"],
+                                                           "maser", "|", "xargs", "-Iz", "git", "checkout", "z"]))[0]
     # git checkout HEAD
-    checkoutMasterCmd = ["git", "checkout", "master"]
-    subprocess.Popen(checkoutMasterCmd,
-                     cwd=os.path.dirname(config.TIKA_LOCAL_REPO),
-                     shell=True,
-                     stdout=subprocess.PIPE,
-                     stderr=subprocess.PIPE)
+    _executeGitShellCommand(["git", "checkout", "master"])
     if (_hasMergedKeyword(lastestCommitSha)):
-      return True
-  return False
+      mergedByH4.append(pr)
+  return mergedByH4
 
 
 
 ###################### PRIVATE FUNCTIONS ######################
 '''
-Goal: The parent of getting git's logInfo. 
+The parent of getting git's logInfo. 
       It gets logs of all commits that contain the string of the requirement.
 '''
 def _getGitLogInfo(reqName, callback):
@@ -171,7 +153,7 @@ def _getGitLogInfo(reqName, callback):
     return callback(logInfo)
 
 '''
-Goal: Get developers for this requirement.
+Get developers for this requirement.
 '''
 def _getGitDeveloperForThisReq(logInfo):
   developers = re.findall(config.AUTHOR_REGEX, logInfo)
@@ -182,30 +164,31 @@ def _getGitDeveloperForThisReq(logInfo):
   return {"formattedDevelopers": formattedDevelopers}
 
 '''
-Goal: Get all the commits' dates of this requirement.
+Get all the commits' dates of this requirement.
 '''
 def _getCommitsDatesForThisReq(logInfo):
   dates = re.findall(config.COMMIT_DATE_REGEX, logInfo)
   datesForAllCommits = []
   for date in dates:
-    datesForAllCommits.append(datetime.strptime(date[:-1], config.GIT_DATE_FORMAT).strftime(config.GIT_JIRA_DATE_FORMAT))
+    datesForAllCommits.append(datetime.strptime(date[:-1],
+                                                config.GIT_DATE_FORMAT).strftime(config.GIT_JIRA_DATE_FORMAT))
 
   return datesForAllCommits
 
 '''
-Goal: Convert String of a JSON from the git api to a dictionary.
+Convert String of a JSON from the git api to a dictionary.
 '''
 def _convertDictStringToDict(dictStr):
   return json.loads(dictStr.decode("utf-8"))
 
 '''
-Goal: Get all pull requests by paging
+Get all pull requests by paging
 '''
 def _getAllPullRequestsByPaging():
   page = 0
   allPullRequestDict = []
   while True:
-    pullRequestsOnePageDict = _convertDictStringToDict(urllib.request.urlopen(config.TIKA_PULL_REQUESTS_BY_PAGE + str(page)).read())
+    pullRequestsOnePageDict = _convertDictStringToDict(httpRequest.gitAPIRequest(config.TIKA_PULL_REQUESTS_BY_PAGE + str(page)))
     if(len(pullRequestsOnePageDict) == 0):
       break
     else:
@@ -214,15 +197,14 @@ def _getAllPullRequestsByPaging():
 
   return allPullRequestDict
 
-
 '''
-Goal: Get all the closed pull requests by paging
+Get all the closed pull requests by paging
 '''
-def _getAllClosedPullRequest():
+def _getAllClosedPullRequestByPaging():
   page = 0
   allPullRequestDict = []
   while True:
-    pullRequestsOnePageDict = _convertDictStringToDict(urllib.request.urlopen(config.TIKA_CLOSED_PULL_REQUEST_BY_PAGE + str(page)).read())
+    pullRequestsOnePageDict = _convertDictStringToDict(httpRequest.gitAPIRequest(config.TIKA_CLOSED_PULL_REQUEST_BY_PAGE + str(page)))
     if(len(pullRequestsOnePageDict) == 0):
       break
     else:
@@ -232,44 +214,53 @@ def _getAllClosedPullRequest():
   return allPullRequestDict
 
 '''
-Goal: Get merged pull requests
+Get merged pull requests
 '''
 def _getAllUnmergedAndClosedPullRequests():
   nonMergedPullRequest = []
-  for pullRequest in _getAllClosedPullRequest():
+  for pullRequest in _getAllClosedPullRequestByPaging():
     if(pullRequest["merged_at"] == None):
       nonMergedPullRequest.append(pullRequest)
 
   return nonMergedPullRequest
 
 '''
-Goal: Check if a commit is in the master branch
+Check if a commit is in the master branch
 
-@:return a boolean that indicates if a commit is on the master branch of tika
+@return a boolean that indicates if a commit is on the master branch of tika
 '''
 def _isInMasterBranch(commitSha):
-  cmd = ["git", "branch", "--all", "--contains", commitSha]
-  pr = subprocess.Popen(cmd,
-                        cwd=os.path.dirname(config.TIKA_LOCAL_REPO),
+  return len(re.findall(config.MASTER_REGEX,
+                        _executeGitShellCommand(["git", "branch", "--all", "--contains", commitSha]))) > 0
+
+'''
+A parent function for _hasClosingKeyword and _hasMergedKeyword
+'''
+def _hasKeywordInGitLogByRegex(commitSha, regex):
+  repo = git.Repo(config.TIKA_LOCAL_REPO)
+  return len(re.findall(repo.git.log("--forma=%B", "-n", "1", commitSha), regex)) > 0
+
+'''
+Check if the comment of a commit has one of the closing keywords
+'''
+def _hasClosingKeyword(commitSha):
+  return _hasKeywordInGitLogByRegex(commitSha, config.CLOSING_KEYWORDS_REGEX)
+
+'''
+Check if the comment of a commit has one of the merging keywords.
+'''
+def _hasMergedKeyword(commitSha):
+  return _hasKeywordInGitLogByRegex(commitSha, config.MERGING_KEYWORDS_REGEX)
+
+def _executeGitShellCommand(commandList):
+  pr = subprocess.Popen(commandList,
+                        cwd=config.TIKA_LOCAL_REPO,
                         shell=True,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE)
+  out, err = pr.communicate()
+  decodedErr = err.decode("utf-8")
+  if(decodedErr != ""):
+    sys.exit(decodedErr)
 
-  return len(re.findall(config.MASTER_REGEX, pr.communicate().decode("utf-8"))) > 0
-
-'''
-Goal: Check if the comment of a commit has one of the closing keywords
-'''
-def _hasClosingKeyword(commitSha):
-  repo = git.Repo(config.TIKA_LOCAL_REPO)
-
-  return len(re.findall(repo.git.log("--format=%B", "-n", "1", commitSha), config.CLOSING_KEYWORDS_REGEX)) > 0
-
-'''
-Goal: Check if the comment of a commit has one of the merging keywords.
-'''
-def _hasMergedKeyword(commitSha):
-  repo = git.Repo(config.TIKA_LOCAL_REPO)
-
-  return len(re.findall(repo.git.log("--format=%B", "-n", "1", commitSha), config.MERGING_KEYWORDS_REGEX)) > 0
-
+  return out.decode("utf-8")

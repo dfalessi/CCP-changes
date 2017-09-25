@@ -31,21 +31,8 @@ def main():
   
 	
 if __name__ == "__main__":
-  # gitKey = "f564b19dbef0aabc1e5950a38b25d2b913ca2f01"
-  # count = 0
-  # git = Github(gitKey)
-  # org = git.get_organization("apache")
-  # repoPyGitHub = org.get_repo("tika")
-  # list = repoPyGitHub.get_pulls("all")
-  # print (repoPyGitHub.get_pull(201).merged)
-  # for pr in list:
-  #  if pr.merged == True:
-  #    count = count + 1
-  # print(count)
-  # print(gitInfo.getPercentageByH1())
-  print (gitInfo._hasMergedKeyword("015c695c7d5a4549c26be247497559d03769f1e4"))
-  # print (g)
-  #repo = git.Repo(config.TIKA_LOCAL_REPO)
-  #c = repo.commit("015c695c7d5a4549c26be247497559d03769f1e4")
-  #print (c.author)
+  print (gitInfo.getPercentageByH1())
+  # print (gitInfo.getPercentageByH2())
+  # print (gitInfo.getPercentageByH3())
+  # print (gitInfo.getPercentageByH4())
   # main()

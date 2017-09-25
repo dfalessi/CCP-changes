@@ -1,12 +1,14 @@
+import credentials
 
 ### Local configurations ###
 MAX_RESULTS = 1000
 REQUIREMENT = 'TIKA-2232' # for testing purpose, TIKA-1699 has the most committs and TIKA-2016 or TIKA-2232 have the best transitions
 CSV_FILE = 'TIKA-Table.csv'
-TIKA_LOCAL_REPO = r"C:\Users\yiupang\Documents\CCP-REPOS\tika-master"
+TIKA_LOCAL_REPO = "C:/Users/yiupang/Documents/CCP-REPOS/tika-master"
 PROJECT_URL = 'https://issues.apache.org/jira'
-TIKA_PULL_REQUESTS_BY_PAGE = "https://api.github.com/repos/apache/tika/pulls?state=all&per_page=100&page="
-TIKA_CLOSED_PULL_REQUEST_BY_PAGE = "https://api.github.com/repos/apache/tika/pulls?state=closed&per_page=100&page="
+_TIKA_URL = "https://api.github.com/repos/apache/tika/pulls?state={}&per_page=100&page="
+TIKA_PULL_REQUESTS_BY_PAGE = _TIKA_URL.format("all")
+TIKA_CLOSED_PULL_REQUEST_BY_PAGE = _TIKA_URL.format("closed")
 
 ### A common query for a requirenment ###
 PROJECT_NAME = "TIKA"
