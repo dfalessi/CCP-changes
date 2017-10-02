@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import git
 import re
 from datetime import datetime
