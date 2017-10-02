@@ -37,7 +37,6 @@ Goal: To resolve PERILS-11 - Changed.
 A public wrapper for _initNumDescriptionChangedCounter()
 '''
 def getNumDescriptionChanged(jira, reqName):
-  print ("getNumDescriptionChanged")
   currentStatus = config.OPEN_STR
   for history in HISTORIES:
     for indx, item in enumerate(history.items):
@@ -133,7 +132,6 @@ def _getHistoryItems(jira, reqName, callback):
   _initCounters()
   result = {}
   CURRENT_STATUS = config.OPEN_STR
-  print ("cb: ", callback)
   for history in HISTORIES:
     createdTime = re.findall(config.JIRA_DATE_TIME_REGEX, history.created)[0]
     for indx, item in enumerate(history.items):
