@@ -50,6 +50,8 @@ JIRA_DATE_REGEX = '(\d{4}-\d{2}-\d{2})'
 COMMIT_DATE_REGEX = '(?<=Date:   )([A-Za-z0-9: ]+)'
 AUTHOR_REGEX = '(?<=Author: )([a-zA-Z ]+)'
 MASTER_REGEX = '(master)'
+NO_SUCH_COMMIT_REGX = '(no such commit)'
+IS_CHECKOUT_COMMAND_REGEX = '(HEAD is now at )([a-zA-Z0-9]+)'
 MERGING_KEYWORDS_REGEX = '(?:merg|appl|pull|push|integrat)(?:ing|i?ed)'
 CLOSING_KEYWORDS_REGEX = '(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)'
 CHECKOUT_COMMIT_SHA_REGEX = "(?:Note: checking out ')([A-Za-z0-9]+)(')"

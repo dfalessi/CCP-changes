@@ -3,13 +3,8 @@ import jiraInfo # import here for testing
 import csvGenerator
 from jira import JIRA
 import sys
-import re
 import json
 import gitInfo
-import git
-from github import Github
-import os
-import subprocess
 
 def prettyPrintDict(dict):
   print (json.dumps(dict, indent=2))
@@ -31,8 +26,10 @@ def main():
   
 	
 if __name__ == "__main__":
+  # h1 = gitInfo.getPercentageByH1()
+  # print (gitInfo.getPortionOfUnmergedPullRequestOnGitHub())
   print (gitInfo.getPercentageByH1())
-  # print (gitInfo.getPercentageByH2())
-  # print (gitInfo.getPercentageByH3())
-  # print (gitInfo.getPercentageByH4())
+  print (gitInfo.getPercentageByH2())
+  print (gitInfo.getPercentageByH3())
+  print (gitInfo.getPercentageByH4())
   # main()

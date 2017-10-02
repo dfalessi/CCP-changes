@@ -1,7 +1,7 @@
 from urllib.request import Request, urlopen
-import credentials
+import credentials # this file contains personal credentials on github, it's not being committed on purpose.
 
-def gitAPIRequest(url):
+def requestByGitAPI(url):
   request = Request(url)
   request.add_header("Authorization", "token %s" % credentials.personal_access_tokens)
   response = urlopen(request)

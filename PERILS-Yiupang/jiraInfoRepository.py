@@ -118,7 +118,7 @@ Goal: To resolve PERILS-3 - Workflow compliance
 '''
 def getNumCommitDuringEachReq(jira, reqName):
   _getHistoryItems(jira, reqName, _initDateRangeEachStatus)
-  return _getNumCommittEachStatusByDateRange(gitInfo.getCommitsDatesForThisReq(reqName))
+  return _getNumCommitEachStatusByDateRange(gitInfo.getCommitsDatesForThisReq(reqName))
 
 
 
@@ -244,7 +244,7 @@ def _initCounters():
 Goal: To get all commits within the time ranges of a status
 Restraints: Two statuses might share the same date, so one commit could count twice.
 '''
-def _getNumCommittEachStatusByDateRange(commitDates):
+def _getNumCommitEachStatusByDateRange(commitDates):
   numCommitEachStatus = {}
   hasRecordedDateDict = {}
   hasRecorded = False
