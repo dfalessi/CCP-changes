@@ -12,6 +12,7 @@ def prettyPrintDict(dict):
 def main():
   projectNames = config.PROJECT_NAMES
   for i in range(0, len(projectNames)):
+    print ("[EXECUTING] Project's name = ", projectNames[i])
     config.PROJECT_NAME = projectNames[i]
     jira = JIRA({
       'server': config.APACHE_JIRA_PROJECT_URL
@@ -26,11 +27,11 @@ def main():
         prettyPrintDict (jiraInfo.getJIRAItemHistory(jira, sys.argv[2]))
     else:
       csvGenerator.outputCSVFile(jira, None)
-    print ("The percentage of pull requests that are not merged through Github = ", gitInfo.getPortionOfUnmergedPullRequestOnGitHub())
-    print ("The percentage of pull requests that are merged through h1 = ", gitInfo.getPercentageByH1())
-    print ("The percentage of pull requests that are merged through h2 = ", gitInfo.getPercentageByH2())
-    print ("The percentage of pull requests that are merged through h3 = ", gitInfo.getPercentageByH3())
-    print ("The percentage of pull requests that are merged through h4 = ", gitInfo.getPercentageByH4())
+    print ("\tThe percentage of pull requests that are not merged through Github = ", gitInfo.getPortionOfUnmergedPullRequestOnGitHub())
+    print ("\tThe percentage of pull requests that are merged through h1 = ", gitInfo.getPercentageByH1())
+    print ("\tThe percentage of pull requests that are merged through h2 = ", gitInfo.getPercentageByH2())
+    print ("\tThe percentage of pull requests that are merged through h3 = ", gitInfo.getPercentageByH3())
+    print ("\tThe percentage of pull requests that are merged through h4 = ", gitInfo.getPercentageByH4())
 
 	
 if __name__ == "__main__":

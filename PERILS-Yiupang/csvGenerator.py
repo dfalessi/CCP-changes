@@ -105,3 +105,4 @@ def outputCSVFile(jira, limit):
         ROW["numCommits" + key.replace(" ", "")] = results["numCommitsEachStatus"][key]
 
       writer.writerow(ROW)
+      csvfile.close()
