@@ -5,7 +5,7 @@ import jiraInfoRepository
 Goal: Get all requirenments for looping.
 '''
 def getAllRequirenments(jira):
-  return jira.search_issues(config.TIKA_REQ_STR)
+  return jira.search_issues(config.JIRA_REQ_WHERE_CLAUSE)
 
 '''
 Goal: To resolve this question (No related ticket in JIRA):

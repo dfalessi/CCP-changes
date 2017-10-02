@@ -1,23 +1,27 @@
-import credentials
-
-### Local configurations ###
-MAX_RESULTS = 1000
-REQUIREMENT = 'TIKA-2232' # for testing purpose, TIKA-1699 has the most committs and TIKA-2016 or TIKA-2232 have the best transitions
-CSV_FILE = 'TIKA-Table.csv'
-TIKA_LOCAL_REPO = "C:/Users/yiupang/Documents/CCP-REPOS/tika-master"
-PROJECT_URL = 'https://issues.apache.org/jira'
-_TIKA_URL = "https://api.github.com/repos/apache/tika/pulls?state={}&per_page=100&page="
-TIKA_PULL_REQUESTS_BY_PAGE = _TIKA_URL.format("all")
-TIKA_CLOSED_PULL_REQUEST_BY_PAGE = _TIKA_URL.format("closed")
+APACHE_JIRA_PROJECT_URL = 'https://issues.apache.org/jira'
 
 ### A common query for a requirenment ###
 PROJECT_NAME = "TIKA"
-TIKA_REQ_STR = "project=" + PROJECT_NAME + " AND issueType=\'New Feature\'"
-TIKA_REQ_STR_WHERE = TIKA_REQ_STR + " AND "
+JIRA_REQ_WHERE_CLAUSE = "project=" + PROJECT_NAME + " AND issueType=\'New Feature\'"
+JIRA_REQ_CONT_WHERE_CLAUSE = JIRA_REQ_WHERE_CLAUSE + " AND "
+
+
+_Git_API_URL = "https://api.github.com/repos/apache/{}/pulls?state={}&per_page=100&page="
+PULL_REQUESTS_BY_PAGE = _Git_API_URL.format(PROJECT_NAME, "all")
+CLOSED_PULL_REQUEST_BY_PAGE = _Git_API_URL.format(PROJECT_NAME, "closed")
+
+### url to the local repositories ###
+_LOCAL_REPO = "C:/Users/yiupang/Documents/CCP-REPOS/{}"
+LOCAL_REPO = _LOCAL_REPO.format(PROJECT_NAME.lower())
 
 ### For datetime library to parse time ###
 GIT_JIRA_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
 GIT_DATE_FORMAT = "%a %b %d %H:%M:%S %Y"
+
+### Local configurations ###
+MAX_RESULTS = 1000
+TEST_REQUIREMENT = 'TIKA-2232' # for testing purpose, TIKA-1699 has the most committs and TIKA-2016 or TIKA-2232 have the best transitions
+CSV_FILE = PROJECT_NAME + '-Table.csv'
 
 ### Statueses ###
 '''
@@ -40,7 +44,7 @@ CLOSED_STR = "Closed"
 STATUSES = [OPEN_STR, IN_PROGRESS_STR, REOPENED_STR, RESOLVED_STR, CLOSED_STR]
 TRANSITIONS = getAllPossibleTransitions()#a <transition>|<transition2> of dictionary
 
-### Strings used by dictionary ### 
+### Strings used by dictionary ###
 END_TIME = "endTime"
 START_TIME = "startTime"
 

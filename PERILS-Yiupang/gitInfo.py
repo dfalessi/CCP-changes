@@ -1,5 +1,4 @@
 import git
-from github import Github
 import re
 from datetime import datetime
 import config
@@ -152,7 +151,7 @@ The parent of getting git's logInfo.
       It gets logs of all commits that contain the string of the requirement.
 '''
 def _getGitLogInfo(reqName, callback):
-  repo = git.Repo(config.TIKA_LOCAL_REPO)
+  repo = git.Repo(config.LOCAL_REPO)
   logInfo = repo.git.log("--all", "-i", "--grep=" + reqName)
   if(len(logInfo) == 0):
     return {"formattedDevelopers": [], "datesForAllCommits": [], "numCommits": 0}
@@ -195,7 +194,7 @@ def _getAllPullRequestsByPaging():
   page = 0
   allPullRequestDict = []
   while True:
-    pullRequestsOnePageDict = _convertDictStringToDict(httpRequest.requestByGitAPI(config.TIKA_PULL_REQUESTS_BY_PAGE + str(page)))
+    pullRequestsOnePageDict = _convertDictStringToDict(httpRequest.requestByGitAPI(config.PULL_REQUESTS_BY_PAGE + str(page)))
     if(len(pullRequestsOnePageDict) == 0):
       break
     else:
@@ -211,7 +210,7 @@ def _getAllClosedPullRequestByPaging():
   page = 0
   allPullRequestDict = []
   while True:
-    pullRequestsOnePageDict = _convertDictStringToDict(httpRequest.requestByGitAPI(config.TIKA_CLOSED_PULL_REQUEST_BY_PAGE + str(page)))
+    pullRequestsOnePageDict = _convertDictStringToDict(httpRequest.requestByGitAPI(config.CLOSED_PULL_REQUEST_BY_PAGE + str(page)))
     if(len(pullRequestsOnePageDict) == 0):
       break
     else:
@@ -236,7 +235,7 @@ def _getAllUnmergedAndClosedPullRequests():
 '''
 Check if a commit is in the master branch
 
-@return a boolean that indicates if a commit is on the master branch of tika
+@return a boolean that indicates if a commit is on the master branch of the project
 '''
 def _isInMasterBranch(commitSha):
   return len(re.findall(config.MASTER_REGEX,
@@ -274,7 +273,7 @@ Execute git command by using Tika's local repo.
 '''
 def _executeGitShellCommand(commandList):
   pr = subprocess.Popen(commandList,
-                        cwd=config.TIKA_LOCAL_REPO,
+                        cwd=config.LOCAL_REPO,
                         shell=True,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE)

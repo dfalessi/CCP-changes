@@ -18,19 +18,19 @@ DATE_RANGE_EACH_STATUS = None # PERILS-3
 
 ###################### PUBLIC APIs ######################
 def numIssueWhileOpenByClause(jira, clause=""):
-  return len(jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS \'Open\'" + clause, maxResults=config.MAX_RESULTS))
+  return len(jira.search_issues(config.JIRA_REQ_CONT_WHERE_CLAUSE + "status WAS \'Open\'" + clause, maxResults=config.MAX_RESULTS))
 
 def numIssueWhenInProgressByClause(jira, clause=""):
-  return len(jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS \'In Progress\'" + clause, maxResults=config.MAX_RESULTS))
+  return len(jira.search_issues(config.JIRA_REQ_CONT_WHERE_CLAUSE + "status WAS \'In Progress\'" + clause, maxResults=config.MAX_RESULTS))
 
 def numIssueWhileReopenedByClause(jira, clause=""):
-  return len(jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS \'Reopened\'" + clause, maxResults=config.MAX_RESULTS))
+  return len(jira.search_issues(config.JIRA_REQ_CONT_WHERE_CLAUSE + "status WAS \'Reopened\'" + clause, maxResults=config.MAX_RESULTS))
 
 def numIssueWhileResolvedByClause(jira, clause=""):
-  return len(jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS \'Resolved\'" + clause, maxResults=config.MAX_RESULTS))
+  return len(jira.search_issues(config.JIRA_REQ_CONT_WHERE_CLAUSE + "status WAS \'Resolved\'" + clause, maxResults=config.MAX_RESULTS))
 
 def numIssueWhileClosedByClause(jira, clause=""):
-  return len(jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS \'Closed\'" + clause, maxResults=config.MAX_RESULTS))
+  return len(jira.search_issues(config.JIRA_REQ_CONT_WHERE_CLAUSE + "status WAS \'Closed\'" + clause, maxResults=config.MAX_RESULTS))
 
 '''
 Goal: To resolve PERILS-11 - Changed.
@@ -77,9 +77,9 @@ def getStatuesOfOtherReqBeforeThisInProgress(jira, reqName):
   _getHistoryItems(jira, reqName, _initStartInProgressTime)
   result = {}
   if START_PROGRESS_TIME != None:
-    allIssueBeforeThis = jira.search_issues(config.TIKA_REQ_STR_WHERE +
+    allIssueBeforeThis = jira.search_issues(config.JIRA_REQ_CONT_WHERE_CLAUSE +
                                                 "status WAS IN (\'Resolved\', \'Closed\') BEFORE " +
-                                                re.findall(config.JIRA_DATE_REGEX, START_PROGRESS_TIME)[0],
+                                            re.findall(config.JIRA_DATE_REGEX, START_PROGRESS_TIME)[0],
                                             maxResults=config.MAX_RESULTS)
     numIssueBeforeThis = len(allIssueBeforeThis)
     result["numDevelopedRequirementsBeforeThisInProgress"] = numIssueBeforeThis
