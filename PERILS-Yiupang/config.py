@@ -2,6 +2,7 @@ APACHE_JIRA_PROJECT_URL = 'https://issues.apache.org/jira'
 
 ### A common query for a requirenment ###
 PROJECT_NAME = "TIKA"
+PROJECT_NAMES = ["TIKA", "ACCUMULO", "Reef", "CALCITE", "ORC"]
 JIRA_REQ_WHERE_CLAUSE = "project=" + PROJECT_NAME + " AND issueType=\'New Feature\'"
 JIRA_REQ_CONT_WHERE_CLAUSE = JIRA_REQ_WHERE_CLAUSE + " AND "
 
@@ -12,6 +13,7 @@ CLOSED_PULL_REQUEST_BY_PAGE = _Git_API_URL.format(PROJECT_NAME, "closed")
 
 ### url to the local repositories ###
 _LOCAL_REPO = "C:/Users/yiupang/Documents/CCP-REPOS/{}"
+CSL_LOCAL_REPO = "//home/ychan01/workspace/CSC400/"
 LOCAL_REPO = _LOCAL_REPO.format(PROJECT_NAME.lower())
 
 ### For datetime library to parse time ###

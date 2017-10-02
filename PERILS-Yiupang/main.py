@@ -10,7 +10,7 @@ def prettyPrintDict(dict):
   print (json.dumps(dict, indent=2))
 
 def main():
-  projectNames = ["TIKA", "ACCUMULO", "Reef", "CALCITE", "ORC"]
+  projectNames = config.PROJECT_NAMES
   for i in range(0, len(projectNames)):
     config.PROJECT_NAME = projectNames[i]
     jira = JIRA({
