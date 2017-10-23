@@ -82,7 +82,7 @@ def outputCSVFile(jira, limit):
     for indx, req in enumerate(jiraInfo.getAllRequirenments(jira)):
       if limit != None and indx == limit: # limit the search result for debugging purpose.
         break
-      print ('{0} {1}'.format("Writing", req.key))
+      print ('{0} {1}'.format("Writing requirement to csv: ", req.key))
       results = jiraInfo.getJIRAItemHistory(jira, req.key)
       ROW["ticket"] = req.key
       ROW["numDevelopedRequirementsBeforeThisInProgress"] = results["numDevelopedRequirementsBeforeThisInProgress"]
@@ -105,3 +105,4 @@ def outputCSVFile(jira, limit):
         ROW["numCommits" + key.replace(" ", "")] = results["numCommitsEachStatus"][key]
 
       writer.writerow(ROW)
+    csvfile.close()

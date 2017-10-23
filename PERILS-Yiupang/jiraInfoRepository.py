@@ -2,8 +2,6 @@ import config
 import collections
 import re
 import gitInfo
-from datetime import datetime
-from datetime import date
 
 ### Global variables for storing data while loop history of a requirenment ###
 HISTORIES = None
@@ -20,26 +18,25 @@ DATE_RANGE_EACH_STATUS = None # PERILS-3
 
 ###################### PUBLIC APIs ######################
 def numIssueWhileOpenByClause(jira, clause=""):
-  return len(jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS \'Open\'" + clause, maxResults=config.MAX_RESULTS))
+  return len(jira.search_issues(config.JIRA_REQ_CONT_WHERE_CLAUSE + "status WAS \'Open\'" + clause, maxResults=config.MAX_RESULTS))
 
 def numIssueWhenInProgressByClause(jira, clause=""):
-  return len(jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS \'In Progress\'" + clause, maxResults=config.MAX_RESULTS))
+  return len(jira.search_issues(config.JIRA_REQ_CONT_WHERE_CLAUSE + "status WAS \'In Progress\'" + clause, maxResults=config.MAX_RESULTS))
 
 def numIssueWhileReopenedByClause(jira, clause=""):
-  return len(jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS \'Reopened\'" + clause, maxResults=config.MAX_RESULTS))
+  return len(jira.search_issues(config.JIRA_REQ_CONT_WHERE_CLAUSE + "status WAS \'Reopened\'" + clause, maxResults=config.MAX_RESULTS))
 
 def numIssueWhileResolvedByClause(jira, clause=""):
-  return len(jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS \'Resolved\'" + clause, maxResults=config.MAX_RESULTS))
+  return len(jira.search_issues(config.JIRA_REQ_CONT_WHERE_CLAUSE + "status WAS \'Resolved\'" + clause, maxResults=config.MAX_RESULTS))
 
 def numIssueWhileClosedByClause(jira, clause=""):
-  return len(jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS \'Closed\'" + clause, maxResults=config.MAX_RESULTS))
+  return len(jira.search_issues(config.JIRA_REQ_CONT_WHERE_CLAUSE + "status WAS \'Closed\'" + clause, maxResults=config.MAX_RESULTS))
 
 '''
 Goal: To resolve PERILS-11 - Changed.
 A public wrapper for _initNumDescriptionChangedCounter()
 '''
 def getNumDescriptionChanged(jira, reqName):
-  print ("getNumDescriptionChanged")
   currentStatus = config.OPEN_STR
   for history in HISTORIES:
     for indx, item in enumerate(history.items):
@@ -79,7 +76,10 @@ def getStatuesOfOtherReqBeforeThisInProgress(jira, reqName):
   _getHistoryItems(jira, reqName, _initStartInProgressTime)
   result = {}
   if START_PROGRESS_TIME != None:
-    allIssueBeforeThis = jira.search_issues(config.TIKA_REQ_STR_WHERE + "status WAS IN (\'Resolved\', \'Closed\') BEFORE " + re.findall(config.JIRA_DATE_REGEX, START_PROGRESS_TIME)[0], maxResults=config.MAX_RESULTS)
+    allIssueBeforeThis = jira.search_issues(config.JIRA_REQ_CONT_WHERE_CLAUSE +
+                                                "status WAS IN (\'Resolved\', \'Closed\') BEFORE " +
+                                            re.findall(config.JIRA_DATE_REGEX, START_PROGRESS_TIME)[0],
+                                            maxResults=config.MAX_RESULTS)
     numIssueBeforeThis = len(allIssueBeforeThis)
     result["numDevelopedRequirementsBeforeThisInProgress"] = numIssueBeforeThis
   else:# this issue has no "In Progress" phase.
@@ -117,7 +117,7 @@ Goal: To resolve PERILS-3 - Workflow compliance
 '''
 def getNumCommitDuringEachReq(jira, reqName):
   _getHistoryItems(jira, reqName, _initDateRangeEachStatus)
-  return _getNumCommittEachStatusByDateRange(gitInfo.getCommitsDatesForThisReq(reqName))
+  return _getNumCommitEachStatusByDateRange(gitInfo.getCommitsDatesForThisReq(reqName))
 
 
 
@@ -132,7 +132,6 @@ def _getHistoryItems(jira, reqName, callback):
   _initCounters()
   result = {}
   CURRENT_STATUS = config.OPEN_STR
-  print ("cb: ", callback)
   for history in HISTORIES:
     createdTime = re.findall(config.JIRA_DATE_TIME_REGEX, history.created)[0]
     for indx, item in enumerate(history.items):
@@ -243,7 +242,7 @@ def _initCounters():
 Goal: To get all commits within the time ranges of a status
 Restraints: Two statuses might share the same date, so one commit could count twice.
 '''
-def _getNumCommittEachStatusByDateRange(commitDates):
+def _getNumCommitEachStatusByDateRange(commitDates):
   numCommitEachStatus = {}
   hasRecordedDateDict = {}
   hasRecorded = False
@@ -258,13 +257,16 @@ def _getNumCommittEachStatusByDateRange(commitDates):
     for key, timeList in DATE_RANGE_EACH_STATUS.items():
       for oneDateRange in _formatTimeList(timeList):
         if commitNdx not in hasRecordedDateDict:
-          if config.END_TIME not in oneDateRange and gitInfo.gitDateComparator(commitDate, oneDateRange[config.START_TIME]):# Example: a resolved issue that still have commits
+          if config.END_TIME not in oneDateRange and gitInfo.gitDateComparator(commitDate,
+                                                                               oneDateRange[config.START_TIME]):# Example: a resolved issue that still have commits
             numCommitEachStatus[key] += 1
             hasRecordedDateDict[commitNdx] = True
-          elif config.END_TIME in oneDateRange and gitInfo.gitDateComparator(oneDateRange[config.END_TIME], commitDate):
+          elif config.END_TIME in oneDateRange and gitInfo.gitDateComparator(oneDateRange[config.END_TIME],
+                                                                             commitDate):
             numCommitEachStatus[key] += 1
             hasRecordedDateDict[commitNdx] = True
-          elif config.START_TIME not in oneDateRange and gitInfo.gitDateComparator(oneDateRange[config.END_TIME], commitDate):
+          elif config.START_TIME not in oneDateRange and gitInfo.gitDateComparator(oneDateRange[config.END_TIME],
+                                                                                   commitDate):
             numCommitEachStatus[key] += 1
             hasRecordedDateDict[commitNdx] = True
   return numCommitEachStatus

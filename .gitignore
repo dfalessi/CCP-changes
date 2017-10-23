@@ -3,3 +3,8 @@
 CCP-changes.iml
 /target
 /__pychache__
+.vscode
+/PERILS-Yiupang/__pychache__/*
+/PERILS-Yiupang/credentials.py
+/PERILS-Yiupang/*.pyc
+/PERILS-Yiupang/*.csv
