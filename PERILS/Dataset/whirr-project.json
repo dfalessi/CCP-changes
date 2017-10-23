@@ -1,0 +1,63 @@
+{
+  "attic-whirr": {
+  "bug-database": "https://issues.apache.org/jira/browse/WHIRR",
+  "category": "network-server, retired",
+  "created": "2011-11-21",
+  "description": "Apache Whirr is a set of libraries for running cloud services\n\nWhirr provides:\n1. A cloud-neutral way to run services. You don't have to worry about the idiosyncrasies of each provider.\n2. A common service API. The details of provisioning are particular to the service.\n3. Smart defaults for services. You can get a properly configured system running quickly, while still being able to override settings as needed.\n\nYou can also use Whirr as a command line tool for deploying clusters.",
+  "doap": "http://svn.apache.org/repos/asf/whirr/trunk/doap_Whirr.rdf",
+  "download-page": "http://www.apache.org/dyn/closer.cgi/whirr/",
+  "homepage": "http://whirr.apache.org",
+  "license": "http://usefulinc.com/doap/licenses/asl20",
+  "mailing-list": "http://whirr.apache.org/mail-lists.html",
+  "maintainer": [
+  {
+  "mbox": "mailto:dev@whirr.apache.org",
+  "name": "Apache Whirr Development Team"
+  }
+  ],
+  "name": "Apache Whirr",
+  "pmc": "attic",
+  "programming-language": "Java, Bash",
+  "release": [
+  {
+  "created": "2011-12-20",
+  "name": "Whirr 0.7.0",
+  "revision": "0.7.0"
+  },
+  {
+  "created": "2011-08-27",
+  "name": "Whirr 0.6.0-incubating",
+  "revision": "0.6.0-incubating"
+  },
+  {
+  "created": "2011-06-03",
+  "name": "Whirr 0.5.0-incubating",
+  "revision": "0.5.0-incubating"
+  },
+  {
+  "created": "2011-03-30",
+  "name": "Whirr 0.4.0-incubating",
+  "revision": "0.4.0-incubating"
+  },
+  {
+  "created": "2011-01-30",
+  "name": "Whirr 0.3.0-incubating",
+  "revision": "0.3.0-incubating"
+  },
+  {
+  "created": "2010-11-15",
+  "name": "Whirr 0.2.0-incubating",
+  "revision": "0.2.0-incubating"
+  },
+  {
+  "created": "2010-09-20",
+  "name": "Whirr 0.1.0-incubating",
+  "revision": "0.1.0-incubating"
+  }
+  ],
+  "repository": [
+  "http://svn.apache.org/repos/asf/whirr/"
+  ],
+  "shortdesc": "Apache Whirr is a set of libraries for running cloud services"
+  }
+}
