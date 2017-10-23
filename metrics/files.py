@@ -2,7 +2,9 @@
 # http://www.grantjenks.com/docs/sortedcontainers/
 # https://github.com/gitpython-developers/GitPython
 
+import itertools
 import sys
+import time
 from git import *
 #from sortedcontainers import SortedList, SortedDict, SortedSet
 
@@ -10,6 +12,21 @@ class Files:
     
     def __init__(self):
         self.files = dict()
+        
+    def updateCommits(self, repoPath, start, finish):
+        #repoPath = argv[1]
+        repo = Repo(repoPath)
+        assert not repo.bare
+        commits = list(reversed(list(repo.iter_commits('master'))))
+        #f = files.Files()
+        for i in range (start, finish + 1):
+            #print time.gmtime(commits[i].committed_date)
+            #print commits[i].message
+            self.update(commits[i])
+        #for i in range (0, start + 1):
+        self.update_BeginningSize(commits, start)
+        #print f.files
+        #export("PROJ_ID", self)
     
     def update(self, commit):
         stat = commit.stats
@@ -24,7 +41,7 @@ class Files:
     
     def addNew(self, fileName, stats, chgSetSize):
         entry = {
-            'size' : -1,
+            'size' : 0,
             'LOC_touched' : stats['lines'],
             'NR' : 1,
             'Nfix' : -1,
@@ -69,3 +86,14 @@ class Files:
             entry['MAX_ChgSet'] = chgSetSize
         entry['AVG_ChgSet'] = float(entry['ChgSetSize']) / entry['NR']
         
+    def update_BeginningSize(self, commits, start):
+        #stat = commit.stats
+        #commitFiles = stat.files
+        #for fileName, stats in itertools.islice(commitFiles.items(), 0, start):
+        for commit in itertools.islice(commits, 0, start):
+            stat = commit.stats
+            commitFiles = stat.files
+            for fileName, stats in commitFiles.items():
+                if fileName in self.files:
+                    entry = self.files[fileName]
+                    entry['size'] += (stats['insertions'] - stats['deletions'])

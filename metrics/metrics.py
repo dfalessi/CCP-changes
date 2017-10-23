@@ -63,14 +63,15 @@ def export(projID, f):
 def main(argv):
     if (len(argv) != 4):
         printError()
-    repoPath = argv[1]
-    repo = Repo(repoPath)
+    #repoPath = argv[1]
+    '''repo = Repo(repoPath)
     assert not repo.bare
-    commits = list(repo.iter_commits('master'))
+    commits = list(repo.iter_commits('master'))'''
     f = files.Files()
-    for i in range (int(argv[2]), int(argv[3]) + 1):
+    '''for i in range (int(argv[2]), int(argv[3]) + 1):
         f.update(commits[i - 1])
-    #print f.files
+    #print f.files'''
+    f.updateCommits(argv[1], int(argv[2]), int(argv[3]))
     export("PROJ_ID", f)
 
 def test():
