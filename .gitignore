@@ -4,7 +4,12 @@ CCP-changes.iml
 /target
 /__pychache__
 .vscode
-/PERILS-Yiupang/__pychache__/*
-/PERILS-Yiupang/credentials.py
-/PERILS-Yiupang/*.pyc
-/PERILS-Yiupang/*.csv
+/PERILS/Git/credentials.py
+/PERILS/CCP-REPOS/
+/PERILS/Git/__pycache__/
+/PERILS/Jira/__pycache__/
+/PERILS/__pycache__/
+/PERILS/output/
+/PERILS/CSV/__pycache__/
+/PERILS/Uitility/__pycache__/
+/PERILS/
