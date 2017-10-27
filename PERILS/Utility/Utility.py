@@ -31,7 +31,7 @@ def convertDictStringToDict(dictStr):
 
 def prettyPrintJSON(dict):
     try:
-        print (json.dumps(dict, indent=2))
+        print (json.dumps(dict.decode("utf-8"), indent=2))
     except:
         print ("Failed on dump ", dict)
 

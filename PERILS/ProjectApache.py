@@ -85,15 +85,20 @@ class ProjectApache:
     return the row dict to al CSV project
   '''
   def __initCSVRows(self):
+    count = 0
     perilsDataForAllIssues = []
     row = {key : None for key in self.__initCSVHeaders()}
+
     # initialize a dictionary for calculate portions
     for issue in self.jiraApache.getAllIssuesApache():
+      if (count == 3):
+        break
       perilsForIssue = {key : None for key in self.__initCSVHeaders()}
       perilsResults = issue.getPerilsResults(self.localRepos)
       totalNumDevelopersInAllRepos = 0
       for gitApache in self.gitsApache:
         totalNumDevelopersInAllRepos += gitApache.getNumUniqueDevelopers(issue.reqName)
+      print ("number of unique developers = ", totalNumDevelopersInAllRepos)
       perilsForIssue["numDevelopers"] = totalNumDevelopersInAllRepos
       perilsForIssue["numDevelopedRequirementsBeforeThisInProgress"] = perilsResults["numDevelopedRequirementsBeforeThisInProgress"]
       perilsForIssue["numOpenWhileThisOpen"] = perilsResults['numOpenWhileThisOpen']
@@ -181,8 +186,15 @@ class ProjectApache:
   @param colNames - the columns of a peril that colName belongs to
   '''
   def __getRatioForOneColumnOfPERIL(self, colName, colNames, perilsDataForAllIssues):
+    print ("perilsDataForAllIssues\n")
+    Utility.prettyPrintJSON(perilsDataForAllIssues);
     allColumnSum = self.__getPERILSum(colNames, perilsDataForAllIssues)
-    return 0 if allColumnSum == 0 else self.__getColumnSum(colName, perilsDataForAllIssues) / allColumnSum
+    allColumnFunc = self.__getColumnSum(colName, perilsDataForAllIssues) 
+    print ("allColumnSum var ", allColumnSum)
+    print ("allColumnSum func", allColumnFunc)
+    if len(colNames) == 1: # handles perils6-numDevelopers and perils12-numDevelopedRequirementThisInProgress
+      return allColumnFunc
+    return 0 if allColumnSum == 0 else allColumnFunc / allColumnSum
 
 
   '''

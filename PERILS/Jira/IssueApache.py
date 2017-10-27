@@ -237,7 +237,6 @@ class IssueApache:
                             hasRecordedDateDict[commitNdx] = True
                         elif self.END_TIME_STR in oneDateRange and \
                                 GitOperations.compareGitDates(oneDateRange[self.END_TIME_STR], commitDate):
-                            print ("reqname = ", self.reqName)
                             numCommitEachStatus[key] += 1
                             hasRecordedDateDict[commitNdx] = True
                         elif self.START_TIME_STR not in oneDateRange and \
