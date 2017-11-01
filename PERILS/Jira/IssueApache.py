@@ -172,12 +172,22 @@ class IssueApache:
             key = self.currentStatus + "|" + item.toString
             self.transitionCounters[key] += 1
 
+    def __replaceNonPredefinedStatus(self, items):
+        for item in items:
+          if item.field == "status":
+            if item.fromString not in Utility.STATUSES:
+              item.fromString = Utility.ANOTHER_STR
+            if item.toString not in Utility.STATUSES:
+              item.toString = Utility.ANOTHER_STR
+
+
     def __getHistoryItems(self, callback):
         self.__initHistories()
         self.__initCounters()
         result = {}
         self.currentStatus = Utility.OPEN_STR
         for history in self.histories:
+            self.__replaceNonPredefinedStatus(history.items)
             createdTime = re.findall('(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})', history.created)[0]
             for indx, item in enumerate(history.items):
                 if item.field == Utility.STATE_STR and self.currentStatus != item.toString:

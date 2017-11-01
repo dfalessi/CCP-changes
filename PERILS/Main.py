@@ -34,7 +34,7 @@ def __getValidGitRepo(eachRepo):
 It loops all the projects in apache-project.json.
 '''
 def main():
-  with open("./Dataset/tika-project.json", encoding="utf8") as dataFile:
+  with open("./Dataset/whirr-project.json", encoding="utf8") as dataFile:
     projectData = json.load(dataFile, object_pairs_hook=OrderedDict)
     # loop through all the projects in apache-project.json
     for projectName, info in projectData.items():

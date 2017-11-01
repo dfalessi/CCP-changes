@@ -12,4 +12,4 @@ CCP-changes.iml
 /PERILS/output/
 /PERILS/CSV/__pycache__/
 /PERILS/Utility/__pycache__/
-*/.swap*
+*.swap
