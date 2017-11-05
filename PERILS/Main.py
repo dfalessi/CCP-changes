@@ -1,4 +1,6 @@
 import json
+from CSV import CSV
+import Perils
 from Git import GitOperations
 import re
 from Utility import Utility
@@ -9,6 +11,10 @@ from collections import OrderedDict
 _APACHE_GITHUB = "https://github.com/apache/{}"
 _APACHE_GITHUB_GIT_CLONE = "git@github.com:apache/{}.git"
 
+'''
+1. Fix bad url from the json provided by Apache.
+2. If a project uses svn, get mirror on github. 
+'''
 def __getValidGitRepo(eachRepo):
   print("Validating repo's url = ", eachRepo)
   gitUrlByRegex = re.findall("(:?.*)\/(.*).git", eachRepo)
@@ -34,7 +40,8 @@ def __getValidGitRepo(eachRepo):
 It loops all the projects in apache-project.json.
 '''
 def main():
-  with open("./Dataset/whirr-project.json", encoding="utf8") as dataFile:
+  csvRows = []
+  with open("./Dataset/tika-whirr-project.json", encoding="utf8") as dataFile:
     projectData = json.load(dataFile, object_pairs_hook=OrderedDict)
     # loop through all the projects in apache-project.json
     for projectName, info in projectData.items():
@@ -58,10 +65,12 @@ def main():
         print("Missing Git repositories.")
         continue
 
-      proj = ProjectApache(urlInfo["jira"], urlInfo["repository"], config.CSV_URL, localRepos)
+      proj = ProjectApache(urlInfo["jira"], urlInfo["repository"], localRepos)
+      csvRows.append(proj.csvRows)
       Utility.prettyPrintJSON(Utility.getCurrentRateLimit())
-      proj.toCSVFile()
-    dataFile.close()
+
+    finalTable = CSV(config.CSV_URL, Perils.initCSVHeaders(), csvRows)
+    finalTable.outputCSVFile()
 
 if __name__ == "__main__":
   main()

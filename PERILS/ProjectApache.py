@@ -1,5 +1,5 @@
-f
-om Git.GitApache import GitApache
+import Perils
+from Git.GitApache import GitApache
 from Jira.JiraApache import JiraApache
 from CSV import CSV
 import re
@@ -7,72 +7,22 @@ from Utility import Utility
 import sys
 
 class ProjectApache:
+  csvRows = None
   localRepos = None
   jiraApache = None
   gitsApache = []
-  csv = None
-  columns = None
   generalProjectInfo = None
-  oldperils9 = None
-  perils6 = None
-  perils12 = None
-  perils11 = None
-  perils3 = None
-  perils16 = None
-  perils7 = None
-  perils2 = None
 
-
-  def __init__(self, jiraURL, gitURLs, csvURL, localRepos):
+  def __init__(self, jiraURL, gitURLs, localRepos):
     print("initializing jiraURL in ProjectApache = ", jiraURL)
     print("initializing gitURLS in ProjectApache = ", gitURLs)
-    print("initializing csvURL in ProjectApache = ", csvURL)
     print("initializing localRepos in ProjectApache = ", localRepos)
-    self.generalProjectInfo = ["project",
-                               "numOpenRequirements",
-                               "numInProgressRequirements"]
-    self.oldperils9 = ["PRMergedByNonGithub"]
-    self.perils6 = ["numDevelopers"]
-    self.perils12 = ["numDevelopedRequirementsBeforeThisInProgress"]
-    self.perils11 = ["numDescOpen",
-                     "numDescInProgress",
-                     "numDescResolved",
-                     "numDescReopened",
-                     "numDescClosed"]
-    self.perils3 = ["numCommitsOpen",
-                    "numCommitsInProgress",
-                    "numCommitsResolved",
-                    "numCommitsReopened",
-                    "numCommitsClosed"]
-    self.perils16 = ["numOpenWhileThisOpen",
-                     "numInProgressWhileThisOpen",
-                     "numResolvedWhileThisOpen",
-                     "numReopenedWhileThisOpen",
-                     "numClosedWhileThisOpen"]
-    self.perils7 = ["numOpenWhileThisOpen",
-                    "numInProgressWhileThisOpen",
-                    "numResolvedWhileThisOpen",
-                    "numReopenedWhileThisOpen",
-                    "numClosedWhileThisOpen"]
-    self.perils2 = [key for key in Utility.getAllPossibleTransitions()]
     self.localRepos = localRepos
-    self.columns = self.__initCSVHeaders()
     self.jiraApache = JiraApache(re.findall(".*/(.*)", jiraURL)[0])
     for index, gitUrl in enumerate(gitURLs):
       gitProjectName = re.findall(".*/(.*).git", gitUrl)[0]
       self.gitsApache.append(GitApache(gitUrl, localRepos[index], gitProjectName))
-    self.csv = CSV.CSV(csvURL, self.__initCSVHeaders(), self.__initCSVRows())
-
-
-  # it initializes a list of strings of the headers
-  def __initCSVHeaders(self):
-    columnsNames = []
-    columnsNames += self.generalProjectInfo
-    columnsNames += self.oldperils9
-    columnsNames += self.perils6 + self.perils12 + self.perils11 + self.perils3
-    columnsNames += self.perils16 + self.perils7 + self.perils2
-    return columnsNames
-
+    self.csvRows = self.__initCSVRows()
 
   '''
     for each issue in issues of jiraApache
@@ -87,18 +37,18 @@ class ProjectApache:
   def __initCSVRows(self):
     count = 0
     perilsDataForAllIssues = []
-    row = {key : None for key in self.__initCSVHeaders()}
+    row = {key : None for key in Perils.initCSVHeaders()}
 
     # initialize a dictionary for calculate portions
     for issue in self.jiraApache.getAllIssuesApache():
-      #if (count == 3):
-      #  break
-      perilsForIssue = {key : None for key in self.__initCSVHeaders()}
+      if (count == 3):
+        break
+      perilsForIssue = {key : None for key in Perils.initCSVHeaders()}
       perilsResults = issue.getPerilsResults(self.localRepos)
       totalNumDevelopersInAllRepos = 0
       for gitApache in self.gitsApache:
         totalNumDevelopersInAllRepos += gitApache.getNumUniqueDevelopers(issue.reqName)
-      print ("number of unique developers = ", totalNumDevelopersInAllRepos)
+      # print ("number of unique developers = ", totalNumDevelopersInAllRepos)
       perilsForIssue["numDevelopers"] = totalNumDevelopersInAllRepos
       perilsForIssue["numDevelopedRequirementsBeforeThisInProgress"] = perilsResults["numDevelopedRequirementsBeforeThisInProgress"]
       perilsForIssue["numOpenWhileThisOpen"] = perilsResults['numOpenWhileThisOpen']
@@ -121,7 +71,7 @@ class ProjectApache:
 
     # Calculates portion of each peril.
     for key in row:
-      if key not in self.generalProjectInfo and not key in self.oldperils9: # generalProjectInfo have not sumed metrics
+      if key not in Perils.generalProjectInfo and not key in Perils.oldperils9: # generalProjectInfo have not sumed metrics
           row[key] = self.__getRatioForOneColumnOfPERIL(key,
                                                         self.__getPERILSList(key),
                                                         perilsDataForAllIssues) # getMappingFrom column to perils
@@ -141,20 +91,20 @@ class ProjectApache:
   It finds the peril that passed key belongs to.
   '''
   def __getPERILSList(self, key):
-    if key in self.perils6:
-      return self.perils6
-    elif key in self.perils12:
-      return self.perils12
-    elif key in self.perils11:
-      return self.perils11
-    elif key in self.perils3:
-      return self.perils3
-    elif key in self.perils16:
-      return self.perils16
-    elif key in self.perils7:
-      return self.perils7
-    elif key in self.perils2:
-      return self.perils2
+    if key in Perils.perils6:
+      return Perils.perils6
+    elif key in Perils.perils12:
+      return Perils.perils12
+    elif key in Perils.perils11:
+      return Perils.perils11
+    elif key in Perils.perils3:
+      return Perils.perils3
+    elif key in Perils.perils16:
+      return Perils.perils16
+    elif key in Perils.perils7:
+      return Perils.perils7
+    elif key in Perils.perils2:
+      return Perils.perils2
     else:
       print (key, "is not found in any perils.")
       sys.exit()
@@ -192,14 +142,4 @@ class ProjectApache:
     if len(colNames) == 1: # handles perils6-numDevelopers and perils12-numDevelopedRequirementThisInProgress
       return allColumnFunc
     return 0 if allColumnSum == 0 else round(allColumnFunc / allColumnSum, 2)
-
-
-  '''
-  It output all metrics to a csv file.
-  '''
-  def toCSVFile(self):
-    # fd = open('document.csv', 'a')
-    # fd.write(myCsvrow)
-    # fd.close()
-    return self.csv.outputCSVFile()
 

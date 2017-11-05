@@ -15,5 +15,5 @@ class CSV:
         with open(self.csvURL, 'w', newline='') as csvFile:
           writer = csv.DictWriter(csvFile, fieldnames=self.columnDict)
           writer.writeheader()
-          writer.writerow(self.rowDict)
+          writer.writerows(self.rowDict)
         csvFile.close()
