@@ -1,5 +1,5 @@
 import json
-from CSV import CSV
+from CSV.CSV import CSV
 import Perils
 from Git import GitOperations
 import re
@@ -41,7 +41,7 @@ It loops all the projects in apache-project.json.
 '''
 def main():
   csvRows = []
-  with open("./Dataset/tika-whirr-project.json", encoding="utf8") as dataFile:
+  with open("./Dataset/tika-project.json", encoding="utf8") as dataFile:
     projectData = json.load(dataFile, object_pairs_hook=OrderedDict)
     # loop through all the projects in apache-project.json
     for projectName, info in projectData.items():

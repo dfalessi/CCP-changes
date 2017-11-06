@@ -35,14 +35,11 @@ class ProjectApache:
     return the row dict to al CSV project
   '''
   def __initCSVRows(self):
-    count = 0
     perilsDataForAllIssues = []
     row = {key : None for key in Perils.initCSVHeaders()}
 
     # initialize a dictionary for calculate portions
     for issue in self.jiraApache.getAllIssuesApache():
-      if (count == 3):
-        break
       perilsForIssue = {key : None for key in Perils.initCSVHeaders()}
       perilsResults = issue.getPerilsResults(self.localRepos)
       totalNumDevelopersInAllRepos = 0
@@ -77,9 +74,16 @@ class ProjectApache:
                                                         perilsDataForAllIssues) # getMappingFrom column to perils
     # Calculates metrics that don't need SUM.
     row["PRMergedByNonGithub"] = 0
+    h1 = gitApache.getPercentageByH1()
+    h2 = gitApache.getPercentageByH2()
+    h3 = gitApache.getPercentageByH3()
+    h4 = gitApache.getPercentageByH4()
+    print ("h1 = ", h1) 
+    print ("h2 = ", h2) 
+    print ("h3 = ", h3) 
+    print ("h4 = ", h4) 
     for gitApache in self.gitsApache:
-      row["PRMergedByNonGithub"] += gitApache.getPercentageByH1() + gitApache.getPercentageByH2() +\
-                                    gitApache.getPercentageByH3() + gitApache.getPercentageByH4()
+      row["PRMergedByNonGithub"] += h1 + h2 + h3 + h4
     row["project"] = self.jiraApache.jiraProjectName
     row["numOpenRequirements"] = self.jiraApache.getNumOpenFeatures()
     row["numInProgressRequirements"] = self.jiraApache.getNumInProgressFeatures()

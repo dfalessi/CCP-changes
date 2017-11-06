@@ -72,7 +72,7 @@ def executeGitShellCommand(localRepo, commandList):
         sys.exit(decodedErr)
       return out.decode("ISO-8859-1")
   except:
-      print ("comandList = ", commandList)
+      print ("commandList = ", commandList)
       print ("local repo = ", localRepo)
       traceback.print_exc(file=sys.stdout)
 

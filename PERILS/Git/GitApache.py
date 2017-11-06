@@ -110,7 +110,7 @@ class GitApache:
     mergedByH4 = []
     for pr in self.__getAllUnmergedAndClosedPullRequests():
       out = GitOperations.executeGitShellCommand(self.localRepo,
-                                                 ["git", "rev-list", "-1", "--before=" + pr["closed_at"], "master"])
+                                                 ["git rev-list -1 --before=" + pr["closed_at"] + " master"])
       if (self.__hasMergedKeyword(out)):
         mergedByH4.append(pr)
     return len(mergedByH4) / len(self.allUnmergedAndClosedPullRequests)
@@ -184,16 +184,15 @@ class GitApache:
   @return a boolean that indicates if a commit is on the master branch of the project
   '''
   def __isInMasterBranch(self, commitSha):
-    return len(re.findall('(master)',
-                          GitOperations.executeGitShellCommand(self.localRepo,
-                                                               ["git", "branch", "--all", "--contains", commitSha]))) > 0
+    out =  GitOperations.executeGitShellCommand(self.localRepo, ["git branch --all --contains", commitSha])
+    return len(re.findall('(master)', out)) > 0
 
   '''
   A parent function for _hasClosingKeyword and _hasMergedKeyword
   '''
   def __hasKeywordInGitLogByRegex(self, commitSha, regex):
     consoleOut = GitOperations.executeGitShellCommand(self.localRepo,
-                                                  ["git", "show", commitSha])
+                                                  ["git show", commitSha])
     pattern = re.compile(regex)
     return pattern.match(consoleOut) != None
 
@@ -208,5 +207,4 @@ class GitApache:
   Check if the comment of a commit has one of the merging keywords.
   '''
   def __hasMergedKeyword(self, commitSha):
-    return self.__hasKeywordInGitLogByRegex(commitSha,
-                                            "(?:Note: checking out ')([A-Za-z0-9]+)(')")
+    return self.__hasKeywordInGitLogByRegex(commitSha, "(?:Note: checking out ')([A-Za-z0-9]+)(')")
