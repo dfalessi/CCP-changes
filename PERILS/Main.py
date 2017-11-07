@@ -20,12 +20,17 @@ def __getValidGitRepo(eachRepo):
   print("Validating repo's url = ", eachRepo)
   gitUrlByRegex = re.findall("(:?.*)\/(.*).git", eachRepo)
   truncatedGitUrl = re.findall("(:?git:)(.*)", eachRepo)
+  print ("gitUrlByRegx = ", gitUrlByRegex)
+  print ("truncatedGitUrl = ", truncatedGitUrl)
   if len(truncatedGitUrl) > 0:
     # Valid git clone url, such as git://.*.
     return eachRepo
-  elif len(gitUrlByRegex) > 0 and "git" in gitUrlByRegex[0]:
+  elif len(gitUrlByRegex) > 0 and "git" in gitUrlByRegex[0][0]:
     # git clone url with https, such as https://.*.git
-    return gitUrlByRegex[0]
+    # For example: https://git-wip-us.apache.org/repos/asf?p=ambari.git
+    # gitUrlByRegex constains a array of tuple. gitUrlByRegex[0][0] = the originial url
+    #                                           gitUrlByRegex[0][1] = the parsed git repo's name
+    return _APACHE_GITHUB_GIT_CLONE.format(gitUrlByRegex[0][1])
   elif eachRepo.find("svn") > 0:
     # svn mirror, such as http://svn.apache.org/.*/trunk/, and "http://svn.apache.org/.*/"
     svnNameInASF = re.findall(".*/asf/(.*)(?:/)", eachRepo)
@@ -42,8 +47,9 @@ It loops all the projects in apache-project.json.
 '''
 def main():
   csvRows = []
-  if (len(sys.argv) == 1):
-    print ("Please specifice the json you would like to run.")
+  if (len(sys.argv) < 2):
+    print ("Usage: python3 Main.py <project.json> <output.csv>")
+    sys.exit(-1)
   with open(sys.argv[1], encoding="utf8") as dataFile:
     projectData = json.load(dataFile, object_pairs_hook=OrderedDict)
     # loop through all the projects in apache-project.json
@@ -72,7 +78,7 @@ def main():
       csvRows.append(proj.csvRows)
       Utility.prettyPrintJSON(Utility.getCurrentRateLimit())
 
-    finalTable = CSV(config.CSV_URL, Perils.initCSVHeaders(), csvRows)
+    finalTable = CSV(sys.argv[2], Perils.initCSVHeaders(), csvRows)
     finalTable.outputCSVFile()
 
 if __name__ == "__main__":

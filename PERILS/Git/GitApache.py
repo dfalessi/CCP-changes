@@ -19,8 +19,8 @@ class GitApache:
   '''
   def __init__(self, gitCloneURL, localRepo, gitProjectName):
     print ("initializing gitProjectName = ", gitProjectName)
-    print ("initializing git url = ", gitCloneURL)
-    print ("initializing local repository = ", localRepo)
+    print ("initializing gitCloneURL = ", gitCloneURL)
+    print ("initializing localRepo = ", localRepo)
     GitOperations.cloneAndPull(localRepo, Utility.getGoodWindowFileName(gitProjectName), gitCloneURL)
     self.gitCloneURL = gitCloneURL
     self.localRepo = localRepo

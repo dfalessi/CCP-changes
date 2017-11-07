@@ -145,7 +145,6 @@ class ProjectApache:
   @param colNames - the columns of a peril that colName belongs to
   '''
   def __getRatioForOneColumnOfPERIL(self, colName, colNames, perilsDataForAllIssues):
-    Utility.prettyPrintJSON(perilsDataForAllIssues);
     allColumnSum = self.__getPERILSum(colNames, perilsDataForAllIssues)
     allColumnFunc = self.__getColumnSum(colName, perilsDataForAllIssues) 
     if len(colNames) == 1: # handles perils6-numDevelopers and perils12-numDevelopedRequirementThisInProgress
