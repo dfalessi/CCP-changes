@@ -41,9 +41,5 @@ class JiraApache:
     return self.issuesApache
 
   def __setAllIssuesApache(self):
-    i = 0
     for req in JiraQuery.getAllIssues(self.jiraAPI, self.jiraProjectName):
-      if (i == 1):
-        break
       self.issuesApache.append(IssueApache(req.key, self.jiraAPI, self.jiraProjectName))
-      i += 1

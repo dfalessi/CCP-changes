@@ -1,3 +1,4 @@
+import sys
 import json
 from CSV.CSV import CSV
 import Perils
@@ -41,7 +42,9 @@ It loops all the projects in apache-project.json.
 '''
 def main():
   csvRows = []
-  with open("./Dataset/tika-project.json", encoding="utf8") as dataFile:
+  if (len(sys.argv) == 1):
+    print ("Please specifice the json you would like to run.")
+  with open(sys.argv[1], encoding="utf8") as dataFile:
     projectData = json.load(dataFile, object_pairs_hook=OrderedDict)
     # loop through all the projects in apache-project.json
     for projectName, info in projectData.items():
