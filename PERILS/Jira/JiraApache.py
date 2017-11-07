@@ -43,7 +43,7 @@ class JiraApache:
   def __setAllIssuesApache(self):
     i = 0
     for req in JiraQuery.getAllIssues(self.jiraAPI, self.jiraProjectName):
-      if i == 1:
+      if (i == 1):
         break
-      i += 1
       self.issuesApache.append(IssueApache(req.key, self.jiraAPI, self.jiraProjectName))
+      i += 1

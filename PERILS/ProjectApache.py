@@ -87,6 +87,9 @@ class ProjectApache:
     row["project"] = self.jiraApache.jiraProjectName
     row["numOpenRequirements"] = self.jiraApache.getNumOpenFeatures()
     row["numInProgressRequirements"] = self.jiraApache.getNumInProgressFeatures()
+    row["numBranches"] = 0
+    for gitApache in self.gitsApache:
+      row["numBranches"] += gitApache.getNumberBranches()
 
     return row
 
@@ -109,6 +112,8 @@ class ProjectApache:
       return Perils.perils7
     elif key in Perils.perils2:
       return Perils.perils2
+    elif key in Perils.perils27:
+      return Perils.perils27
     else:
       print (key, "is not found in any perils.")
       sys.exit()

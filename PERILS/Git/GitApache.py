@@ -111,7 +111,7 @@ class GitApache:
     for pr in self.__getAllUnmergedAndClosedPullRequests():
       out = GitOperations.executeGitShellCommand(self.localRepo,
                                                  ["git rev-list -1 --before=" + pr["closed_at"] + " master"])
-      if (self.__hasMergedKeyword(out)):
+      if (self.__hasMasterBranch() != 0 and self.__hasMergedKeyword(out)):
         mergedByH4.append(pr)
     return len(mergedByH4) / len(self.allUnmergedAndClosedPullRequests)
 
@@ -120,6 +120,26 @@ class GitApache:
   '''
   def getPortionOfUnmergedPullRequestOnGitHub(self):
     return len(self.__getAllUnmergedAndClosedPullRequests()) / len(self.__getAllPullRequestsByPaging())
+
+  '''
+  For PERIL-27, repos that don't have master branches
+  '''
+  def getNumberBranches(self):
+    numBranch = None
+    if self.__hasMasterBranch() == 0:
+      return 0
+    else:
+      numBranch = GitOperations.executeGitShellCommand(self.localRepo,
+                                                       ["git branch -a | grep \'remote\' | wc -l"])
+      return int(re.sub(r'\s+', '', numBranch))
+    
+  '''
+  Check if a repo has a master. If it doesn't return 0.
+  '''
+  def __hasMasterBranch(self):
+    numBranch = GitOperations.executeGitShellCommand(self.localRepo, 
+                                                ["git branch -a | grep \'master\' | wc -l"])
+    return int(re.sub(r'\s+', '', numBranch))
 
   '''
   Get unmerged and closed pull requests

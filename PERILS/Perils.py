@@ -4,9 +4,7 @@ from Utility import Utility
 It's bad practice :(. Global variables are evils.
 it initializes a list of strings of the headers. It's used in Main.py and ProjectApache.py
 '''
-generalProjectInfo = ["project",
-					  "numOpenRequirements",
-					  "numInProgressRequirements"]
+generalProjectInfo = ["project", "numOpenRequirements", "numInProgressRequirements"]
 oldperils9 = ["PRMergedByNonGithub"]
 perils6 = ["numDevelopers"]
 perils12 = ["numDevelopedRequirementsBeforeThisInProgress"]
@@ -30,6 +28,7 @@ perils7 = ["numOpenWhileThisOpen",
 			"numResolvedWhileThisOpen",
 			"numReopenedWhileThisOpen",
 			"numClosedWhileThisOpen"]
+perils27 = ["numBranches"]
 perils2 = [key for key in Utility.getAllPossibleTransitions()]
 
 	
@@ -38,5 +37,5 @@ def initCSVHeaders():
   columnsNames += generalProjectInfo
   columnsNames += oldperils9
   columnsNames += perils6 + perils12 + perils11 + perils3
-  columnsNames += perils16 + perils7 + perils2
+  columnsNames += perils16 + perils7 + perils2 + perils27
   return columnsNames
