@@ -13,8 +13,13 @@ _APACHE_GITHUB = "https://github.com/apache/{}"
 _APACHE_GITHUB_GIT_CLONE = "git@github.com:apache/{}.git"
 
 '''
-1. Fix bad url from the json provided by Apache.
-2. If a project uses svn, get mirror on github. 
+This function handles three cases:
+
+  1. Fixes bad url from the json provided by Apache.
+  2. If a project uses svn, get mirror on Github. 
+  3. Parses Apache.org's git url into Github's url
+
+@return the url for cloning the project. If the project doesn't have a Github, return False.
 '''
 def __getValidGitRepo(eachRepo):
   print("Validating repo's url = ", eachRepo)
