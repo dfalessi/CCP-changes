@@ -1,0 +1,42 @@
+{
+"ant-antunit": {
+"bug-database": "http://issues.apache.org/bugzilla/buglist.cgi?product=Ant",
+"category": "build-management, testing",
+"created": "2006-09-13",
+"description": "The Ant Library provides Ant tasks for testing Ant\n      task, it can also be used to drive functional and integration tests\n      of arbitrary applications with Ant.",
+"doap": "https://ant.apache.org/antlibs/antunit/doap_AntUnit.rdf",
+"download-page": "http://ant.apache.org/antlibs/bindownload.cgi",
+"homepage": "http://ant.apache.org/antlibs/antunit/",
+"license": "http://usefulinc.com/doap/licenses/asl20",
+"mailing-list": "http://ant.apache.org/mail.html",
+"name": "Apache AntUnit",
+"pmc": "ant",
+"programming-language": "Java",
+"release": [
+{
+"created": "2014-05-14",
+"name": "Apache AntUnit 1.3",
+"revision": "1.3"
+},
+{
+"created": "2011-08-16",
+"name": "Apache AntUnit 1.2",
+"revision": "1.2"
+},
+{
+"created": "2008-09-26",
+"name": "Apache AntUnit 1.1",
+"revision": "1.1"
+},
+{
+"created": "2007-01-08",
+"name": "Apache AntUnit 1.0",
+"revision": "1.0"
+}
+],
+"repository": [
+"https://git-wip-us.apache.org/repos/asf/ant-antlibs-antunit.git"
+],
+"shortdesc": "Test-Framework for Testing Ant Tasks and Types"
+}
+}

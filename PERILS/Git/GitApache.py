@@ -32,17 +32,15 @@ class GitApache:
   Multiple commits might be made by the same developer.
      This function is to not print the same name multiple times.
   '''
-  def getNumUniqueDevelopers(self, reqName):
+  def getUniqueDevelopers(self, reqName):
     developers = GitOperations.getGitLogInfo(self.localRepo,
                                              reqName,
                                              self.__getGitDeveloperForThisReq)
-    seen = set()
-    uniqueDevelopers = []
-    for dev in developers:
-      if dev not in seen:
-        uniqueDevelopers.append(dev)
-        seen.add(dev)
-    return len(uniqueDevelopers)
+    developerSet = set()
+    print ("developers = ", developers)
+    for dev in developers["formattedDevelopers"]:
+      developerSet.add(dev)
+    return developerSet
 
   '''
   Get the percentage of pull requests merged by Heuristic 1

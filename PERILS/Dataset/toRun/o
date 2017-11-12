@@ -1,0 +1,28 @@
+{
+"ant-ivy": {
+"bug-database": "https://issues.apache.org/jira/browse/IVY",
+"category": "build-management",
+"created": "2010-11-16",
+"description": "Apache Ivy is a very powerful dependency manager oriented toward Java dependency management, even though it could be used to manage dependencies of any kind.",
+"doap": "http://svn.apache.org/repos/asf/ant/ivy/core/trunk/doap_Ivy.rdf",
+"download-page": "http://ant.apache.org/ivy/download.cgi",
+"homepage": "http://ant.apache.org/ivy/",
+"license": "http://usefulinc.com/doap/licenses/asl20",
+"mailing-list": "http://ant.apache.org/ivy/mailing-lists.html",
+"name": "Apache Ivy",
+"pmc": "ant",
+"programming-language": "Java",
+"release": [
+{
+"created": "2013-01-20",
+"name": "Apache Ivy 2.3.0",
+"revision": "2.3.0"
+}
+],
+"repository": [
+"https://svn.apache.org/repos/asf/ant/ivy/core/trunk/"
+],
+"shortdesc": "Apache Ivy is a very powerful dependency manager oriented toward Java dependency management, even though it could be used to manage dependencies of any kind."
+}
+
+}

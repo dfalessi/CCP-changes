@@ -42,22 +42,25 @@ class ProjectApache:
     for issue in self.jiraApache.getAllIssuesApache():
       perilsForIssue = {key : None for key in Perils.initCSVHeaders()}
       perilsResults = issue.getPerilsResults(self.localRepos)
-      totalNumDevelopersInAllRepos = 0
+      allDevelopersInAllRepos = set()
       for gitApache in self.gitsApache:
-        totalNumDevelopersInAllRepos += gitApache.getNumUniqueDevelopers(issue.reqName)
-      # print ("number of unique developers = ", totalNumDevelopersInAllRepos)
-      perilsForIssue["numDevelopers"] = totalNumDevelopersInAllRepos
-      perilsForIssue["numDevelopedRequirementsBeforeThisInProgress"] = perilsResults["numDevelopedRequirementsBeforeThisInProgress"]
-      perilsForIssue["numOpenWhileThisOpen"] = perilsResults['numOpenWhileThisOpen']
-      perilsForIssue["numInProgressWhileThisOpen"] = perilsResults['numInProgressWhileThisOpen']
-      perilsForIssue["numResolvedWhileThisOpen"] = perilsResults['numResolvedWhileThisOpen']
-      perilsForIssue["numReopenedWhileThisOpen"] = perilsResults['numReopenedWhileThisOpen']
-      perilsForIssue["numClosedWhileThisOpen"] = perilsResults['numClosedWhileThisOpen']
-      perilsForIssue["numOpenWhenInProgress"] = perilsResults['numOpenWhenInProgress']
-      perilsForIssue["numInProgressWhenInProgress"] = perilsResults["numInProgressWhenInProgress"]
-      perilsForIssue["numReopenedWhenInProgress"] = perilsResults["numReopenedWhenInProgress"]
-      perilsForIssue["numResolvedWhenInProgress"] = perilsResults["numResolvedWhenInProgress"]
-      perilsForIssue["numClosedWhenInProgress"] = perilsResults["numClosedWhenInProgress"]
+        each = gitApache.getUniqueDevelopers(issue.reqName)
+        print ("developers for each issue = ", each)
+        allDevelopersInAllRepos = allDevelopersInAllRepos | each
+        print ("allDeveloeprsInAllRepos after developers for each issue = ", each)
+      print ("allDevelopersInAllRepos = ", allDevelopersInAllRepos)
+      perilsForIssue["numDevelopers"] = len(allDevelopersInAllRepos)
+      # perilsForIssue["numDevelopedRequirementsBeforeThisInProgress"] = perilsResults["numDevelopedRequirementsBeforeThisInProgress"]
+      # perilsForIssue["numOpenWhileThisOpen"] = perilsResults['numOpenWhileThisOpen']
+      # perilsForIssue["numInProgressWhileThisOpen"] = perilsResults['numInProgressWhileThisOpen']
+      # perilsForIssue["numResolvedWhileThisOpen"] = perilsResults['numResolvedWhileThisOpen']
+      # perilsForIssue["numReopenedWhileThisOpen"] = perilsResults['numReopenedWhileThisOpen']
+      # perilsForIssue["numClosedWhileThisOpen"] = perilsResults['numClosedWhileThisOpen']
+      # perilsForIssue["numOpenWhenInProgress"] = perilsResults['numOpenWhenInProgress']
+      # perilsForIssue["numInProgressWhenInProgress"] = perilsResults["numInProgressWhenInProgress"]
+      # perilsForIssue["numReopenedWhenInProgress"] = perilsResults["numReopenedWhenInProgress"]
+      # perilsForIssue["numResolvedWhenInProgress"] = perilsResults["numResolvedWhenInProgress"]
+      # perilsForIssue["numClosedWhenInProgress"] = perilsResults["numClosedWhenInProgress"]
       for key in perilsResults["numDescChangedCounters"]:
         perilsForIssue["numDesc{}".format(key.replace(" ", ""))] = perilsResults["numDescChangedCounters"][key]
       for key in perilsResults["transitionCounters"]:

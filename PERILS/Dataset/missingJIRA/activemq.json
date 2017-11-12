@@ -1,0 +1,23 @@
+{
+"activemq": {
+"bug-database": "http://issues.apache.org/activemq/browse/AMQ",
+"category": "network-server, network-client",
+"created": "2006-03-27",
+"description": "ActiveMQ is a fast and powerful Message Broker which supports many Cross Language Clients and Protocols and many advanced features while fully supporting JMS 1.1 and J2EE 1.4.",
+"doap": "http://svn.apache.org/repos/asf/activemq/trunk/doap.rdf",
+"download-page": "http://activemq.apache.org/download.html",
+"homepage": "http://activemq.apache.org/",
+"license": "http://usefulinc.com/doap/licenses/asl20",
+"mailing-list": "http://activemq.apache.org/mailing-lists.html",
+"maintainer": [
+{
+"mbox": "mailto:chirino@apache.org",
+"name": "Hiram Chirino"
+}
+],
+"name": "Apache ActiveMQ",
+"pmc": "activemq",
+"programming-language": "Java, C, C++, Ruby, Perl, Python, PHP, C#",
+"shortdesc": "ActiveMQ is the most popular and powerful open source Message Broker."
+}
+}

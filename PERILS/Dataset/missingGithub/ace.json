@@ -1,0 +1,33 @@
+{
+"ace": {
+"bug-database": "https://issues.apache.org/jira/browse/ace",
+"category": "osgi",
+"created": "2012-04-14",
+"description": "When assembling software out of reusable components, the task of deploying software onto an ever increasing number of targets is not trivial to solve. This becomes even harder when these targets require different components based on who's using them.\n\nApache ACE allows you to group those components and assign them to a managed set of targets. This allows you to distribute updates and new components easily, while keeping a full history of what was installed where during what period. It also helps you setup an automated development, QA/testing, staging and production environment.",
+"doap": "http://svn.apache.org/repos/asf/ace/doap.rdf",
+"download-page": "http://ace.apache.org/downloads.html",
+"homepage": "http://ace.apache.org",
+"license": "http://usefulinc.com/doap/licenses/asl20",
+"mailing-list": "http://ace.apache.org/get-involved/mailing-lists.html",
+"maintainer": [
+{
+"mbox": "mailto:dev@ace.apache.org",
+"name": "Apache ACE PMC"
+}
+],
+"name": "Apache ACE",
+"pmc": "ace",
+"programming-language": "Java",
+"release": [
+{
+"created": "2011-12-13",
+"name": "Apache ACE 0.8.1",
+"revision": "0.8.1"
+}
+],
+"repository": [
+"http://svn.apache.org/repos/asf/ace"
+],
+"shortdesc": "Apache ACE is a distribution framework that allows you to centrally manage and distribute software components, configuration data and other artifacts to target systems. It is built using OSGi and can be deployed in different topologies. The target systems are usually also OSGi based, but don't have to be."
+}
+}
