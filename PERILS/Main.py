@@ -52,7 +52,7 @@ Updates status of a project
 '''
 def updateProjectStatus(projectName, status):
   projectData = None
-  with open ("./Dataset/project-names.json", 'r+') as outfile:
+  with open ("./Dataset/project-status.json", 'r+') as outfile:
     projectData = json.load(outfile)
     outfile.seek(0)
     outfile.truncate()
