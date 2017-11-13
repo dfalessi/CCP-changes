@@ -12,7 +12,7 @@
     "ant-dotent": "NoJIRA",
     "ant-dotnet": false,
     "ant-ivy": false,
-    "ant-ivyde": false,
+    "ant-ivyde": true,
     "ant-props": false,
     "ant-vss": false,
     "any23": false,
