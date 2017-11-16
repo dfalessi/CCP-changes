@@ -13,3 +13,6 @@ CCP-changes.iml
 /PERILS/CSV/__pycache__/
 /PERILS/Utility/__pycache__/
 *.swap
+.DS_Store
+PERILS/.DS_Store
+PERILS/Git/.DS_Store
