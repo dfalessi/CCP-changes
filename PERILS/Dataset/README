@@ -1,4 +1,3 @@
+# This file documents the urls to get json for testing
 # url for an issue's data
-https://issues.apache.org/jira/rest/api/2/issue/TIKA-2233?expand=changelog
-
-# 
+https://issues.apache.org/jira/rest/api/2/issue/<ticket's name>?expand=changelog
