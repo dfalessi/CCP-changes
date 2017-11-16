@@ -69,37 +69,41 @@ def main():
     print ("Usage: python3 Main.py <project.json> <output.csv>")
     sys.exit(-1)
   with open(sys.argv[1], encoding="utf8") as dataFile:
-    projectData = json.load(dataFile, object_pairs_hook=OrderedDict)
-    # loop through all the projects in apache-project.json
-    for projectName, info in projectData.items():
-      urlInfo = {"repository":[], "jira":""}
-      bugDatabase = info["bug-database"] if "bug-database" in info else ""  # get information about the bug database
-      urlInfo["jira"] = bugDatabase if bugDatabase.find("jira") >= 0 else None
-      repos = info["repository"] if "repository" in info else []  # get information about the repositories
-      localRepos = []
-      for eachRepo in repos:
-        goodGitRepo = __getValidGitRepo(eachRepo)
-        if goodGitRepo:
-          print("Validated git repo in Main = ", goodGitRepo)
-          urlInfo["repository"].append(goodGitRepo)
-          localRepos.append(config.LOCAL_REPO.format(projectName))
-      updateStatus = None
-      # either of jira or git repo is not available.
-      if urlInfo["jira"] is None:
-        print("Missing JIRA database.")
-        updateProjectStatus(projectName, "NoJIRA")
-        continue
-      elif len(urlInfo["repository"]) == 0:
-        print("Missing Git repositories.")
-        updateProjectStatus(projectName, "NoGit")
-        continue
-      updateProjectStatus(projectName, True)
-      proj = ProjectApache(urlInfo["jira"], urlInfo["repository"], localRepos)
-      csvRows.append(proj.csvRows)
-      Utility.prettyPrintJSON(Utility.getCurrentRateLimit())
-
-    finalTable = CSV(sys.argv[2], Perils.initCSVHeaders(), csvRows)
-    finalTable.outputCSVFile()
+    try: 
+      projectData = json.load(dataFile, object_pairs_hook=OrderedDict)
+      # loop through all the projects in apache-project.json
+      for projectName, info in projectData.items():
+        urlInfo = {"repository":[], "jira":""}
+        bugDatabase = info["bug-database"] if "bug-database" in info else ""  # get information about the bug database
+        urlInfo["jira"] = bugDatabase if bugDatabase.find("jira") >= 0 else None
+        repos = info["repository"] if "repository" in info else []  # get information about the repositories
+        localRepos = []
+        for eachRepo in repos:
+          goodGitRepo = __getValidGitRepo(eachRepo)
+          if goodGitRepo:
+            print("Validated git repo in Main = ", goodGitRepo)
+            urlInfo["repository"].append(goodGitRepo)
+            localRepos.append(config.LOCAL_REPO.format(projectName))
+        updateStatus = None
+        # either of jira or git repo is not available.
+        if urlInfo["jira"] is None:
+          print("Missing JIRA database.")
+          updateProjectStatus(projectName, "NoJIRA")
+          continue
+        elif len(urlInfo["repository"]) == 0:
+          print("Missing Git repositories.")
+          updateProjectStatus(projectName, "NoGit")
+          continue
+        updateProjectStatus(projectName, True)
+        proj = ProjectApache(urlInfo["jira"], urlInfo["repository"], localRepos)
+        csvRows.append(proj.csvRows)
+        Utility.prettyPrintJSON(Utility.getCurrentRateLimit())
+    except Exception as e:
+      print (e)
+    finally:
+      finalTable = CSV(sys.argv[2], Perils.initCSVHeaders(), csvRows)
+      finalTable.outputCSVFile()
+     
 
 if __name__ == "__main__":
   main()
