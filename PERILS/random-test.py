@@ -104,22 +104,41 @@ w = GitOperations.executeGitShellCommand(calpolyC, ["git when-merged -l {}".form
 dd = "/Users/yiupangchan/Documents/github/dd-TranscriptionTool-3.0"
 shadd = "32eadf9b3a2dc07c549e154e44b2e1ac58b8ae0b"
 #w = GitOperations.executeGitShellCommand(dd, ["git when-merged -l {}".format(shadd)])
-
+'''
 print (w)
 from_master = len(re.findall("(master                      Commit is directly on this branch.)", w)) > 0 or len(re.findall("(Merge branch 'master')", w)) > 0
 print (len(re.findall("(master                      Commit is directly on this branch.)", w)))
 print (len(re.findall("(Merge branch 'master')", w)))
 print (from_master)
+'''
 
 '''
 In commit class
 '''
-def isCommittedThroughMaster(self, sha):
-    consoleOutput = GitOperations.executeGitShellCommand(self.localRepo, ["git when-merged -l {}".format(sha)])
-    return len(re.findall("(master                      Commit is directly on this branch.)", consoleOutput)) > 0 or len(re.findall("(Merge branch 'master')", consoleOutput)) > 0
+def isCommittedThroughMaster(sha):
+    consoleOutput = GitOperations.executeGitShellCommand(calpolyC, ["git when-merged -l {}".format(sha)])
+    print (consoleOutput)
+    isDirectCommit = len(re.findall("(master                      Commit is directly on this branch.)", consoleOutput)) > 0
+    isMergedMaster = len(re.findall("(Merge branch 'master')", consoleOutput)) > 0
+    print ("isDirectCommit = ", isDirectCommit)
+    print ("isMergedMaster = ", isMergedMaster)
+    return isDirectCommit or isMergedMaster
 
 '''
 In main
 '''
 def getPortionOfCommitsThroughMasterBranch():
+    totalNumCommitOnMaster = int (GitOperations.executeGitShellCommand(calpolyC, ["git rev-list --count master"]))
+    allShaOnMaster = GitOperations.executeGitShellCommand(calpolyC, ["git log --pretty=format:'%H'"]).split("\n")
+    totalNumCommitThroughMaster = 0
+    for sha in allShaOnMaster:
+        if isCommittedThroughMaster(sha):
+            totalNumCommitThroughMaster += 1
+        else:
+            print ("not committed through master = ", sha)
+
+    print ("totalNumCommitOnMaster = ", totalNumCommitOnMaster)
+    print ("totalNumCommitThroughMaster = ", totalNumCommitThroughMaster)
     return 0
+
+getPortionOfCommitsThroughMasterBranch()
