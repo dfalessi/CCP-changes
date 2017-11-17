@@ -42,7 +42,7 @@
     "attic-shindig": false,
     "attic-stratos": false,
     "attic-tuscany": false,
-    "attic-whirr": false,
+    "attic-whirr": true,
     "attic-wink": false,
     "attic-wookie": false,
     "attic-xindice": false,

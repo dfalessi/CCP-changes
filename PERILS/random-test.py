@@ -88,9 +88,38 @@ class Issue:
         return result
 
 
-oneIssue = Issue("TIKA-1699",
-                 JIRA({'server': 'https://issues.apache.org/jira'}),
-                 "tika")
+#oneIssue = Issue("TIKA-1699",
+#                 JIRA({'server': 'https://issues.apache.org/jira'}),
+#                 "tika")
 
+qwe = "Merge branch 'master' of https://github.com/leopangchan/Cal-Poly-Courses"
+# print (re.findall("(Merge branch 'master')", qwe))
+# print (re.findall("(Merge branch 'master')", "    Tt 2017 11 001: Hearing List page"))
 
-print(oneIssue.getNumEachTransition())
+calpolyC = "/Users/yiupangchan/Documents/github/Cal-Poly-Courses"
+shaC = "75811b9cbc5ceaae66f6b9d2b9e2fb373ec556c0"
+shaC2 = "c6a12e6082dda6a9af903a1c7934e3bb39cfe143"
+w = GitOperations.executeGitShellCommand(calpolyC, ["git when-merged -l {}".format(shaC2)])
+
+dd = "/Users/yiupangchan/Documents/github/dd-TranscriptionTool-3.0"
+shadd = "32eadf9b3a2dc07c549e154e44b2e1ac58b8ae0b"
+#w = GitOperations.executeGitShellCommand(dd, ["git when-merged -l {}".format(shadd)])
+
+print (w)
+from_master = len(re.findall("(master                      Commit is directly on this branch.)", w)) > 0 or len(re.findall("(Merge branch 'master')", w)) > 0
+print (len(re.findall("(master                      Commit is directly on this branch.)", w)))
+print (len(re.findall("(Merge branch 'master')", w)))
+print (from_master)
+
+'''
+In commit class
+'''
+def isCommittedThroughMaster(self, sha):
+    consoleOutput = GitOperations.executeGitShellCommand(self.localRepo, ["git when-merged -l {}".format(sha)])
+    return len(re.findall("(master                      Commit is directly on this branch.)", consoleOutput)) > 0 or len(re.findall("(Merge branch 'master')", consoleOutput)) > 0
+
+'''
+In main
+'''
+def getPortionOfCommitsThroughMasterBranch():
+    return 0
