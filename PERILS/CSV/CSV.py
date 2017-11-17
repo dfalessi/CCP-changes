@@ -13,7 +13,7 @@ class CSV:
 
     def outputCSVFile(self):
         with open(self.csvURL, 'w', newline='') as csvFile:
-          writer = csv.DictWriter(csvFile, fieldnames=self.columnDict)
-          writer.writeheader()
-          writer.writerows(self.rowDict)
+            writer = csv.DictWriter(csvFile, fieldnames=self.columnDict)
+            writer.writeheader()
+            writer.writerows(self.rowDict)
         csvFile.close()
