@@ -1,8 +1,9 @@
+import collections
 from Git import GitOperations
 from Git.GitApache import GitApache
 from Utility import Utility
 from jira import JIRA
-import collections
+
 import re
 
 
@@ -88,7 +89,7 @@ class Issue:
         return result
 
 
-#oneIssue = Issue("TIKA-1699",
+# oneIssue = Issue("TIKA-1699",
 #                 JIRA({'server': 'https://issues.apache.org/jira'}),
 #                 "tika")
 
@@ -99,7 +100,8 @@ qwe = "Merge branch 'master' of https://github.com/leopangchan/Cal-Poly-Courses"
 calpolyC = "/Users/yiupangchan/Documents/github/Cal-Poly-Courses"
 shaC = "75811b9cbc5ceaae66f6b9d2b9e2fb373ec556c0"
 shaC2 = "c6a12e6082dda6a9af903a1c7934e3bb39cfe143"
-w = GitOperations.executeGitShellCommand(calpolyC, ["git when-merged -l {}".format(shaC2)])
+w = GitOperations.executeGitShellCommand(
+    calpolyC, ["git when-merged -l {}".format(shaC2)])
 
 dd = "/Users/yiupangchan/Documents/github/dd-TranscriptionTool-3.0"
 shadd = "32eadf9b3a2dc07c549e154e44b2e1ac58b8ae0b"
@@ -115,30 +117,41 @@ print (from_master)
 '''
 In commit class
 '''
+
+
 def isCommittedThroughMaster(sha):
-    consoleOutput = GitOperations.executeGitShellCommand(calpolyC, ["git when-merged -l {}".format(sha)])
-    print (consoleOutput)
-    isDirectCommit = len(re.findall("(master                      Commit is directly on this branch.)", consoleOutput)) > 0
-    isMergedMaster = len(re.findall("(Merge branch 'master')", consoleOutput)) > 0
-    print ("isDirectCommit = ", isDirectCommit)
-    print ("isMergedMaster = ", isMergedMaster)
+    consoleOutput = GitOperations.executeGitShellCommand(
+        calpolyC, ["git when-merged -l {}".format(sha)])
+    print(consoleOutput)
+    isDirectCommit = len(re.findall(
+        "(master                      Commit is directly on this branch.)", consoleOutput)) > 0
+    isMergedMaster = len(re.findall(
+        "(Merge branch 'master')", consoleOutput)) > 0
+    print("isDirectCommit = ", isDirectCommit)
+    print("isMergedMaster = ", isMergedMaster)
     return isDirectCommit or isMergedMaster
+
 
 '''
 In main
 '''
+
+
 def getPortionOfCommitsThroughMasterBranch():
-    totalNumCommitOnMaster = int (GitOperations.executeGitShellCommand(calpolyC, ["git rev-list --count master"]))
-    allShaOnMaster = GitOperations.executeGitShellCommand(calpolyC, ["git log --pretty=format:'%H'"]).split("\n")
+    totalNumCommitOnMaster = int(GitOperations.executeGitShellCommand(
+        calpolyC, ["git rev-list --count master"]))
+    allShaOnMaster = GitOperations.executeGitShellCommand(
+        calpolyC, ["git log --pretty=format:'%H'"]).split("\n")
     totalNumCommitThroughMaster = 0
     for sha in allShaOnMaster:
         if isCommittedThroughMaster(sha):
             totalNumCommitThroughMaster += 1
         else:
-            print ("not committed through master = ", sha)
+            print("not committed through master = ", sha)
 
-    print ("totalNumCommitOnMaster = ", totalNumCommitOnMaster)
-    print ("totalNumCommitThroughMaster = ", totalNumCommitThroughMaster)
+    print("totalNumCommitOnMaster = ", totalNumCommitOnMaster)
+    print("totalNumCommitThroughMaster = ", totalNumCommitThroughMaster)
     return 0
+
 
 getPortionOfCommitsThroughMasterBranch()
