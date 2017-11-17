@@ -11,6 +11,17 @@ def dump():
         f.close()
 
 
+def countNumFalse():
+    i = 0
+    total = 0
+    with open("./Dataset/project-status.json", 'r+') as outfile:
+       prjData = json.load(outfile)
+       for key, val in prjData.items():
+         if val == False:
+           i += 1
+         total += 1
+    return (i, total)
+
 def updateProjectStatus(projectName):
     projectData = None
     with open("./Dataset/project-status.json", 'r+') as outfile:
@@ -24,4 +35,5 @@ def updateProjectStatus(projectName):
         outfile.close()
 
 
-updateProjectStatus("")
+# updateProjectStatus("")
+print(countNumFalse())
