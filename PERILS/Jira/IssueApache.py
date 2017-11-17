@@ -5,6 +5,7 @@ import collections
 from Utility import Utility
 from collections import Counter
 
+
 class IssueApache:
     END_TIME_STR = "endTime"
     START_TIME_STR = "startTime"
@@ -14,20 +15,20 @@ class IssueApache:
     histories = None
     currentStatus = None
     descriptionChangedCounters = 0
-    startProgressTime = None # PERILS-7 && PERILS-12 && PERILS-16
-    openEndingTime = None # PERILS-16
-    transitionCounters = None # PERILS-2
-    openTimeTracking = None # PERILS-3
-    statusTracking = None # PERILS-3
-    isJustOpen = False # PERILS-3
-    dateRangeEachState = None # PERILS-3
+    startProgressTime = None  # PERILS-7 && PERILS-12 && PERILS-16
+    openEndingTime = None  # PERILS-16
+    transitionCounters = None  # PERILS-2
+    openTimeTracking = None  # PERILS-3
+    statusTracking = None  # PERILS-3
+    isJustOpen = False  # PERILS-3
+    dateRangeEachState = None  # PERILS-3
     reqName = None
     jiraAPI = None
     jiraProjectName = None
 
     def __init__(self, reqName, jiraAPI, jiraProjectName):
-        print ("initializing issue = ", reqName)
-        print ("initializing jiraProjectName = ", jiraProjectName)
+        print("initializing issue = ", reqName)
+        print("initializing jiraProjectName = ", jiraProjectName)
         self.reqName = reqName
         self.jiraAPI = jiraAPI
         self.jiraProjectName = jiraProjectName
@@ -50,11 +51,13 @@ class IssueApache:
     To init data for PERILS-7 - Statuses of other existing requirements
     A public wrapper for _getStatuesOfOtherReqWhenThisInProgress()
     '''
+
     def getStatuesOfOtherReqWhenThisInProgress(self):
         self.__getHistoryItems(self.__initStartInProgressTime)
         result = {}
         if self.startProgressTime != None:
-            timeClause = " ON " + re.findall('(\d{4}-\d{2}-\d{2})', self.startProgressTime)[0]
+            timeClause = " ON " + \
+                re.findall('(\d{4}-\d{2}-\d{2})', self.startProgressTime)[0]
             result["numOpenWhenInProgress"] = JiraQuery.getNumIssueWhileOpenByClause(self.jiraAPI,
                                                                                      self.jiraProjectName,
                                                                                      timeClause)
@@ -70,7 +73,7 @@ class IssueApache:
             result["numClosedWhenInProgress"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI,
                                                                                             self.jiraProjectName,
                                                                                             timeClause)
-        else: # The issue hasn't started being developed.
+        else:  # The issue hasn't started being developed.
             result["numOpenWhenInProgress"] = result["numInProgressWhenInProgress"] = result[
                 "numReopenedWhenInProgress"] = "NA"
             result["numResolvedWhenInProgress"] = result["numClosedWhenInProgress"] = "NA"
@@ -79,6 +82,7 @@ class IssueApache:
     '''
     To resolve PERILS-2: transitions
     '''
+
     def getNumEachTransition(self):
         self.__getHistoryItems(self.__initNumEachTransition)
         return self.transitionCounters
@@ -86,13 +90,15 @@ class IssueApache:
     '''
     To resolve PERILS-16 - Statuses of other requirements when open
     '''
+
     def getOtherReqStatusesWhileThisOpen(self):
         self.__getHistoryItems(self.__initFinishedOpenStatusTime)
         result = {}
         timeClause = ""
         if self.openEndingTime != None:  # the issue is in open status without activities
             # convert to the time format which is used by jql.
-            timeClause = " BEFORE " + re.findall('(\d{4}-\d{2}-\d{2})', self.openEndingTime)[0]
+            timeClause = " BEFORE " + \
+                re.findall('(\d{4}-\d{2}-\d{2})', self.openEndingTime)[0]
         result["numOpenWhileThisOpen"] = JiraQuery.getNumIssueWhileOpenByClause(self.jiraAPI,
                                                                                 self.jiraProjectName,
                                                                                 timeClause)
@@ -115,6 +121,7 @@ class IssueApache:
       How many times a commit related to the requirement happened while the requirement was: 
         open, in progress, closed, resolved, reopened.
     '''
+
     def getNumCommitDuringEachStatus(self, localRepo):
         self.__getHistoryItems(self.__initDateRangeEachStatus)
         return self.__getNumCommitEachStatusByDateRange(GitOperations.getCommitsDatesForThisReq(localRepo, self.reqName))
@@ -123,6 +130,7 @@ class IssueApache:
     To resolve PERILS-11 - Changed.
     A public wrapper for _initNumDescriptionChangedCounter()
     '''
+
     def getNumDescriptionChanged(self):
         currentStatus = Utility.OPEN_STR
         for history in self.histories:
@@ -142,13 +150,16 @@ class IssueApache:
       PERILS-7
       PERILS-2
     '''
+
     def getPerilsResults(self, localRepos):
         results = {}
         results.update(self.getStatusOfOtherReqBeforeThisInProgress().items())
         results["numDescChangedCounters"] = self.getNumDescriptionChanged()
-        numCommitDuringEachStatusDict = Counter({key : 0 for key in Utility.STATUSES})
+        numCommitDuringEachStatusDict = Counter(
+            {key: 0 for key in Utility.STATUSES})
         for localRepo in localRepos:  # if multiple repos exist
-            numCommitDuringEachStatusDict.update(self.getNumCommitDuringEachStatus(localRepo))  # this line removes all keys
+            numCommitDuringEachStatusDict.update(
+                self.getNumCommitDuringEachStatus(localRepo))  # this line removes all keys
         results["numCommitsEachStatus"] = numCommitDuringEachStatusDict
         results.update(self.getOtherReqStatusesWhileThisOpen().items())
         results.update(self.getStatuesOfOtherReqWhenThisInProgress().items())
@@ -159,14 +170,16 @@ class IssueApache:
     '''
     To resolve PERILS-12
     '''
+
     def __initStartInProgressTime(self, item, createdTime):
         if item.field == Utility.STATE_STR:
-            if (item.toString == Utility.IN_PROGRESS_STR):
+            if item.toString == Utility.IN_PROGRESS_STR:
                 self.startProgressTime = createdTime
 
     '''
     To resolved PERILS-2
     '''
+
     def __initNumEachTransition(self, item, _):
         if item.toString in Utility.STATUSES:
             key = self.currentStatus + "|" + item.toString
@@ -174,12 +187,11 @@ class IssueApache:
 
     def __replaceNonPredefinedStatus(self, items):
         for item in items:
-          if item.field == "status":
-            if item.fromString not in Utility.STATUSES:
-              item.fromString = Utility.ANOTHER_STR
-            if item.toString not in Utility.STATUSES:
-              item.toString = Utility.ANOTHER_STR
-
+            if item.field == "status":
+                if item.fromString not in Utility.STATUSES:
+                    item.fromString = Utility.ANOTHER_STR
+                if item.toString not in Utility.STATUSES:
+                    item.toString = Utility.ANOTHER_STR
 
     def __getHistoryItems(self, callback):
         self.__initHistories()
@@ -188,17 +200,21 @@ class IssueApache:
         self.currentStatus = Utility.OPEN_STR
         for history in self.histories:
             self.__replaceNonPredefinedStatus(history.items)
-            createdTime = re.findall('(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})', history.created)[0]
+            createdTime = re.findall(
+                '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})', history.created)[0]
             for indx, item in enumerate(history.items):
                 if item.field == Utility.STATE_STR and self.currentStatus != item.toString:
+                    print("self.currentStatus = ", self.currentStatus)
+                    print("item.toString = ", item.toString)
                     result = callback(item, createdTime)
-                if item.field == Utility.STATE_STR and item.field in Utility.STATUSES:
+                if item.field == Utility.STATE_STR and item.toString in Utility.STATUSES:
                     self.currentStatus = item.toString
         return result
 
     '''
     To resolve PERILS-16 - Statuses of other requirements when open
     '''
+
     def __initFinishedOpenStatusTime(self, item, createdTime):
         if self.currentStatus == Utility.OPEN_STR and item.toString != Utility.OPEN_STR:  # Resolved #6
             self.openEndingTime = createdTime
@@ -210,26 +226,33 @@ class IssueApache:
       2. Find all the commits
       3. Align commits with the time ranges
     '''
+
     def __initDateRangeEachStatus(self, item, createdTime):
-      # fromString means one status starts, and toString means one status ends.
-      if self.statusTracking == item.fromString: # End one status
-        self.dateRangeEachState[item.fromString].append({self.END_TIME_STR: createdTime})
-      elif item.fromString == Utility.OPEN_STR and self.isJustOpen == False:# A newly open ticket has no transition so I have to record the endTime of "Open" in a edge case.
-        self.dateRangeEachState[item.fromString] = [{self.END_TIME_STR: createdTime}]
-        self.isJustOpen = True
-      if item.toString not in self.dateRangeEachState:
-        self.dateRangeEachState[item.toString] = [{self.START_TIME_STR: createdTime}] # start one new status
-        self.statusTracking = item.toString
-      else:
-        self.dateRangeEachState[item.toString].append({self.START_TIME_STR: createdTime})
-        self.statusTracking = item.toString
+        # fromString means one status starts, and toString means one status ends.
+        if self.statusTracking == item.fromString:  # End one status
+            self.dateRangeEachState[item.fromString].append(
+                {self.END_TIME_STR: createdTime})
+        # A newly open ticket has no transition so I have to record the endTime of "Open" in a edge case.
+        elif item.fromString == Utility.OPEN_STR and self.isJustOpen == False:
+            self.dateRangeEachState[item.fromString] = [
+                {self.END_TIME_STR: createdTime}]
+            self.isJustOpen = True
+        if item.toString not in self.dateRangeEachState:
+            self.dateRangeEachState[item.toString] = [
+                {self.START_TIME_STR: createdTime}]  # start one new status
+            self.statusTracking = item.toString
+        else:
+            self.dateRangeEachState[item.toString].append(
+                {self.START_TIME_STR: createdTime})
+            self.statusTracking = item.toString
 
     '''
     To get all commits within the time ranges of a status
     Restraints: Two statuses might share the same date, so one commit could count twice.
     '''
+
     def __getNumCommitEachStatusByDateRange(self, commitDates):
-        numCommitEachStatus = {key : 0 for key in Utility.STATUSES}
+        numCommitEachStatus = {key: 0 for key in Utility.STATUSES}
         hasRecordedDateDict = {}
 
         if "numCommits" in commitDates and commitDates['numCommits'] == 0:
@@ -241,7 +264,7 @@ class IssueApache:
                     if commitNdx not in hasRecordedDateDict:
                         if self.END_TIME_STR not in oneDateRange and \
                                 GitOperations.compareGitDates(commitDate,
-                                oneDateRange[self.START_TIME_STR]):
+                                                              oneDateRange[self.START_TIME_STR]):
                             # Example: a resolved issue that still have commits
                             numCommitEachStatus[key] += 1
                             hasRecordedDateDict[commitNdx] = True
@@ -259,11 +282,13 @@ class IssueApache:
     '''
     A helper for getNumCommittEachStatusByDateRange()
     '''
+
     def __formatTimeList(self, timeList):
         dateRanges = []
         oneDateRange = {}
 
-        for ndx, val in enumerate(timeList):  # format a pair of startTime and endTime into one dict
+        # format a pair of startTime and endTime into one dict
+        for ndx, val in enumerate(timeList):
             if self.START_TIME_STR not in oneDateRange and self.START_TIME_STR not in val:
                 oneDateRange[self.END_TIME_STR] = val[self.END_TIME_STR]
             elif self.START_TIME_STR not in oneDateRange and self.START_TIME_STR in val:
@@ -283,6 +308,7 @@ class IssueApache:
     '''
     A call to JIRA API to get the changelog
     '''
+
     def __initHistories(self):
         issue = self.jiraAPI.issue(self.reqName, expand='changelog')
         self.histories = issue.changelog.histories
@@ -290,6 +316,7 @@ class IssueApache:
     '''
     init all counter for each requirenment. 
     '''
+
     def __initCounters(self):
         self.descriptionChangedCounters = {}
         self.transitionCounters = {}
@@ -299,5 +326,5 @@ class IssueApache:
         self.isJustOpen = False  # PERILS-3
         self.dateRangeEachState = collections.OrderedDict()  # PERILS-3
         self.dateRangeEachState.clear()
-        self.descriptionChangedCounters = {key : 0 for key in Utility.STATUSES}
+        self.descriptionChangedCounters = {key: 0 for key in Utility.STATUSES}
         self.transitionCounters = {key: 0 for key in self.TRANSITIONS}
