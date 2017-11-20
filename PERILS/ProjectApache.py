@@ -54,16 +54,16 @@ class ProjectApache:
             print("allDevelopersInAllRepos = ", allDevelopersInAllRepos)
             perilsForIssue["numDevelopers"] = len(allDevelopersInAllRepos)
             perilsForIssue["numDevelopedRequirementsBeforeThisInProgress"] = perilsResults["numDevelopedRequirementsBeforeThisInProgress"]
-            perilsForIssue["numOpenWhileThisOpen"] = perilsResults['numOpenWhileThisOpen']
-            perilsForIssue["numInProgressWhileThisOpen"] = perilsResults['numInProgressWhileThisOpen']
-            perilsForIssue["numResolvedWhileThisOpen"] = perilsResults['numResolvedWhileThisOpen']
-            perilsForIssue["numReopenedWhileThisOpen"] = perilsResults['numReopenedWhileThisOpen']
-            perilsForIssue["numClosedWhileThisOpen"] = perilsResults['numClosedWhileThisOpen']
-            perilsForIssue["numOpenWhenInProgress"] = perilsResults['numOpenWhenInProgress']
-            perilsForIssue["numInProgressWhenInProgress"] = perilsResults["numInProgressWhenInProgress"]
-            perilsForIssue["numReopenedWhenInProgress"] = perilsResults["numReopenedWhenInProgress"]
-            perilsForIssue["numResolvedWhenInProgress"] = perilsResults["numResolvedWhenInProgress"]
-            perilsForIssue["numClosedWhenInProgress"] = perilsResults["numClosedWhenInProgress"]
+            perilsForIssue["portionOpenWhileThisOpen"] = perilsResults['portionOpenWhileThisOpen']
+            perilsForIssue["portionInProgressWhileThisOpen"] = perilsResults['portionInProgressWhileThisOpen']
+            perilsForIssue["portionResolvedWhileThisOpen"] = perilsResults['portionResolvedWhileThisOpen']
+            perilsForIssue["portionReopenedWhileThisOpen"] = perilsResults['portionReopenedWhileThisOpen']
+            perilsForIssue["portionClosedWhileThisOpen"] = perilsResults['portionClosedWhileThisOpen']
+            perilsForIssue["portionOpenWhenThisInProgress"] = perilsResults['portionOpenWhenThisInProgress']
+            perilsForIssue["portionInProgressWhenThisInProgress"] = perilsResults["portionInProgressWhenThisInProgress"]
+            perilsForIssue["portionReopenedWhenInProgress"] = perilsResults["portionReopenedWhenInProgress"]
+            perilsForIssue["portionResolvedWhenInProgress"] = perilsResults["portionResolvedWhenInProgress"]
+            perilsForIssue["portionClosedWhenInProgress"] = perilsResults["portionClosedWhenInProgress"]
             for key in perilsResults["numDescChangedCounters"]:
                 perilsForIssue["numDesc{}".format(key.replace(
                     " ", ""))] = perilsResults["numDescChangedCounters"][key]

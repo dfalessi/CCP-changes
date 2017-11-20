@@ -9,26 +9,26 @@ generalProjectInfo = ["project",
 oldperils9 = ["PRMergedByNonGithub"]
 perils6 = ["numDevelopers"]
 perils12 = ["numDevelopedRequirementsBeforeThisInProgress"]
-perils11 = ["numDescOpen",
-            "numDescInProgress",
-            "numDescResolved",
-            "numDescReopened",
-            "numDescClosed"]
-perils3 = ["numCommitsOpen",
-           "numCommitsInProgress",
-           "numCommitsResolved",
-           "numCommitsReopened",
-           "numCommitsClosed"]
-perils16 = ["numOpenWhileThisOpen",
-            "numInProgressWhileThisOpen",
-            "numResolvedWhileThisOpen",
-            "numReopenedWhileThisOpen",
-            "numClosedWhileThisOpen"]
-perils7 = ["numOpenWhileThisOpen",
-           "numInProgressWhileThisOpen",
-           "numResolvedWhileThisOpen",
-           "numReopenedWhileThisOpen",
-           "numClosedWhileThisOpen"]
+perils11 = ["portionDescOpen",
+            "portionDescInProgress",
+            "portionDescResolved",
+            "portionDescReopened",
+            "portionDescClosed"]
+perils3 = ["portionCommitsOpen",
+           "portionCommitsInProgress",
+           "portionCommitsResolved",
+           "portionCommitsReopened",
+           "portionCommitsClosed"]
+perils16 = ["portionOpenWhileThisOpen",
+            "portionInProgressWhileThisOpen",
+            "portionResolvedWhileThisOpen",
+            "portionReopenedWhileThisOpen",
+            "portionClosedWhileThisOpen"]
+perils7 = ["portionOpenWhenThisInProgress",
+           "portionInProgressWhenThisInProgress",
+           "portionResolvedWhenThisInProgress",
+           "portionReopenedWhenThisInProgress",
+           "portionClosedWhenThisInProgress"]
 perils27 = ["numBranches"]
 perils2 = [key for key in Utility.getAllPossibleTransitions()]
 
