@@ -30,6 +30,7 @@ perils7 = ["portionOpenWhenThisInProgress",
            "portionReopenedWhenThisInProgress",
            "portionClosedWhenThisInProgress"]
 perils27 = ["numBranches"]
+perils30 = ["getPortionOfCommitsWithUnassignedTask"]
 perils2 = [key for key in Utility.getAllPossibleTransitions()]
 
 
@@ -38,5 +39,5 @@ def initCSVHeaders():
     columnsNames += generalProjectInfo
     columnsNames += oldperils9
     columnsNames += perils6 + perils12 + perils11 + perils3
-    columnsNames += perils16 + perils7 + perils2 + perils27
+    columnsNames += perils16 + perils7 + perils2 + perils27 + perils30
     return columnsNames

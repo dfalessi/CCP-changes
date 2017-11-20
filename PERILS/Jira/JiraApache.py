@@ -2,7 +2,6 @@ from jira import JIRA
 from Jira.IssueApache import IssueApache
 from Jira import JiraQuery
 
-import jira
 
 
 class JiraApache:

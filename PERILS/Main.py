@@ -100,13 +100,13 @@ def main():
                 # either of jira or git repo is not available.
                 if urlInfo["jira"] is None:
                     print("Missing JIRA database.")
-                    updateProjectStatus(projectName, "NoJIRA")
+                    # updateProjectStatus(projectName, "NoJIRA")
                     continue
                 elif len(urlInfo["repository"]) == 0:
                     print("Missing Git repositories.")
-                    updateProjectStatus(projectName, "NoGit")
+                    # updateProjectStatus(projectName, "NoGit")
                     continue
-                updateProjectStatus(projectName, True)
+                # updateProjectStatus(projectName, True)
                 proj = ProjectApache(
                     urlInfo["jira"], urlInfo["repository"], localRepos)
                 csvRows.append(proj.csvRows)

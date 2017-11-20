@@ -160,18 +160,28 @@ def totalNumCommitsOnAllBrances(localRepo):
         localRepo, ["git log --all --pretty=format:'%H' | wc -l"])
     return int (allSha.replace(" ", ""))
 
-if __name__ == "__main__":
-    # getPortionOfCommitsThroughMasterBranch()
+def getPortionOfCommitsWithUnassignedTask(projectName):
     loaclRepo = "./CCP-REPOS/tika"
-    repo = git.Repo(loaclRepo)
+    totalNumCommits = 0
+    numUnassignedTaskWithCommits = 0
 
     unassignedIssues = JiraQuery.getUnassignedIssues(JIRA({
             'server': 'https://issues.apache.org/jira'
-        }), "tika")
-    numUnassignedTaskWithCommits = 0
-    print (len(unassignedIssues))
+        }), projectName)
+
+    allSha = GitOperations.executeGitShellCommand(
+        loaclRepo, ["git log --all --pretty=format:'%H' | wc -l"])
+    totalNumCommits += int (allSha.replace(" ", ""))
+
+    repo = git.Repo(loaclRepo)
     for issue in unassignedIssues:
         logInfo = repo.git.log("--all", "-i", "--grep=" + issue)
         if logInfo != "":
             numUnassignedTaskWithCommits += 1
-    print (round(numUnassignedTaskWithCommits / totalNumCommitsOnAllBrances(loaclRepo), 2))
+
+    return round(numUnassignedTaskWithCommits / totalNumCommits, 2)
+
+
+if __name__ == "__main__":
+    # getPortionOfCommitsThroughMasterBranch()
+   print(getPortionOfCommitsWithUnassignedTask("tika"))

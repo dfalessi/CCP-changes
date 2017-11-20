@@ -102,6 +102,7 @@ class ProjectApache:
         row["project"] = self.jiraApache.jiraProjectName
         row["numOpenRequirements"] = self.jiraApache.getNumOpenFeatures()
         row["numInProgressRequirements"] = self.jiraApache.getNumInProgressFeatures()
+        row["portionOfCommitsWithUnassignedTask"] = self.getPortionOfCommitsWithUnassignedTask()
         row["numBranches"] = 0
         for gitApache in self.gitsApache:
             row["numBranches"] += gitApache.getNumberBranches()
@@ -113,7 +114,7 @@ class ProjectApache:
     Get the percentage of commits with unassigned tasks
     PERILS-30
     '''
-    def getPercentageOfCommitsWithUnassignedTaks(self):
+    def getPortionOfCommitsWithUnassignedTask(self):
         totalNumCommits = 0
         numUnassignedTaskWithCommits = 0
 
