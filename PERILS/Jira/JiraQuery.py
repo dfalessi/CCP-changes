@@ -44,4 +44,4 @@ def getAllFinishedIssueBeforeThisInProgress(jira, jiraProjectName, startProgress
 def getUnassignedIssues(jira, jiraProjectName):
     return [issue.key 
             for issue in 
-                jira.search_issues(JIRA_REQ_CONT_WHERE_CLAUSE.format(jiraProjectName) + "assignee = null")]
+                jira.search_issues(JIRA_REQ_CONT_WHERE_CLAUSE.format(jiraProjectName) + "assignee = null", maxResults=MAX_RESULTS)]

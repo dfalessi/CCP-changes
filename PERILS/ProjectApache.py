@@ -5,7 +5,12 @@ from CSV import CSV
 import re
 from Utility import Utility
 import sys
+from Jira import JiraQuery
 
+from Git import GitOperations
+
+import git
+from jira import JIRA
 
 class ProjectApache:
     csvRows = None
@@ -109,7 +114,27 @@ class ProjectApache:
     PERILS-30
     '''
     def getPercentageOfCommitsWithUnassignedTaks(self):
-        print ("TODO")
+        totalNumCommits = 0
+        numUnassignedTaskWithCommits = 0
+
+        unassignedIssues = JiraQuery.getUnassignedIssues(JIRA({
+                'server': 'https://issues.apache.org/jira'
+            }), self.jiraApache.jiraProjectName)
+
+        for localRepo in self.localRepos:
+            allSha = GitOperations.executeGitShellCommand(
+                localRepo, ["git log --all --pretty=format:'%H' | wc -l"])
+            totalNumCommits += int (allSha.replace(" ", ""))
+
+        for localRepo in self.localRepos:
+            repo = git.Repo(localRepo)
+            for issue in unassignedIssues:
+                logInfo = repo.git.log("--all", "-i", "--grep=" + issue)
+                if logInfo != "":
+                    numUnassignedTaskWithCommits += 1
+
+        return round(numUnassignedTaskWithCommits / totalNumCommits, 2)
+
 
     '''
   It finds the peril that passed key belongs to.

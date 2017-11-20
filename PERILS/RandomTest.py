@@ -5,6 +5,7 @@ from Utility import Utility
 from jira import JIRA
 from Jira import JiraQuery
 
+import git
 import re
 
 
@@ -154,10 +155,23 @@ def getPortionOfCommitsThroughMasterBranch():
     print("totalNumCommitThroughMaster = ", totalNumCommitThroughMaster)
     return 0
 
+def totalNumCommitsOnAllBrances(localRepo):
+    allSha = GitOperations.executeGitShellCommand(
+        localRepo, ["git log --all --pretty=format:'%H' | wc -l"])
+    return int (allSha.replace(" ", ""))
+
 if __name__ == "__main__":
     # getPortionOfCommitsThroughMasterBranch()
-    repo = git.Repo(localRepo)
-    logInfo = repo.git.log("--all", "-i", "--grep=" + reqName)
-    print (JiraQuery.getUnassignedIssues(JIRA({
+    loaclRepo = "./CCP-REPOS/tika"
+    repo = git.Repo(loaclRepo)
+
+    unassignedIssues = JiraQuery.getUnassignedIssues(JIRA({
             'server': 'https://issues.apache.org/jira'
-        }), "tika"))
+        }), "tika")
+    numUnassignedTaskWithCommits = 0
+    print (len(unassignedIssues))
+    for issue in unassignedIssues:
+        logInfo = repo.git.log("--all", "-i", "--grep=" + issue)
+        if logInfo != "":
+            numUnassignedTaskWithCommits += 1
+    print (round(numUnassignedTaskWithCommits / totalNumCommitsOnAllBrances(loaclRepo), 2))
