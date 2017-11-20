@@ -61,9 +61,9 @@ class ProjectApache:
             perilsForIssue["portionClosedWhileThisOpen"] = perilsResults['portionClosedWhileThisOpen']
             perilsForIssue["portionOpenWhenThisInProgress"] = perilsResults['portionOpenWhenThisInProgress']
             perilsForIssue["portionInProgressWhenThisInProgress"] = perilsResults["portionInProgressWhenThisInProgress"]
-            perilsForIssue["portionReopenedWhenInProgress"] = perilsResults["portionReopenedWhenInProgress"]
-            perilsForIssue["portionResolvedWhenInProgress"] = perilsResults["portionResolvedWhenInProgress"]
-            perilsForIssue["portionClosedWhenInProgress"] = perilsResults["portionClosedWhenInProgress"]
+            perilsForIssue["portionReopenedWhenThisInProgress"] = perilsResults["portionReopenedWhenThisInProgress"]
+            perilsForIssue["portionResolvedWhenThisInProgress"] = perilsResults["portionResolvedWhenThisInProgress"]
+            perilsForIssue["portionClosedWhenThisInProgress"] = perilsResults["portionClosedWhenThisInProgress"]
             for key in perilsResults["numDescChangedCounters"]:
                 perilsForIssue["numDesc{}".format(key.replace(
                     " ", ""))] = perilsResults["numDescChangedCounters"][key]

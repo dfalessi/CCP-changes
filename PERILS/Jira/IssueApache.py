@@ -64,19 +64,19 @@ class IssueApache:
             result["portionInProgressWhenThisInProgress"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI,
                                                                                                 self.jiraProjectName,
                                                                                                 timeClause)
-            result["portionReopenedWhenInProgress"] = JiraQuery.getNumIssueWhileReopenedByClause(self.jiraAPI,
+            result["portionReopenedWhenThisInProgress"] = JiraQuery.getNumIssueWhileReopenedByClause(self.jiraAPI,
                                                                                              self.jiraProjectName,
                                                                                              timeClause)
-            result["portionResolvedWhenInProgress"] = JiraQuery.getNumIssueWhileResolvedByClause(self.jiraAPI,
+            result["portionResolvedWhenThisInProgress"] = JiraQuery.getNumIssueWhileResolvedByClause(self.jiraAPI,
                                                                                              self.jiraProjectName,
                                                                                              timeClause)
-            result["portionClosedWhenInProgress"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI,
+            result["portionClosedWhenThisInProgress"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI,
                                                                                             self.jiraProjectName,
                                                                                             timeClause)
         else:  # The issue hasn't started being developed.
             result["portionOpenWhenThisInProgress"] = result["portionInProgressWhenThisInProgress"] = result[
-                "portionReopenedWhenInProgress"] = "NA"
-            result["portionResolvedWhenInProgress"] = result["portionClosedWhenInProgress"] = "NA"
+                "portionReopenedWhenThisInProgress"] = "NA"
+            result["portionResolvedWhenThisInProgress"] = result["portionClosedWhenThisInProgress"] = "NA"
         return result
 
     '''
