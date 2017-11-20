@@ -103,6 +103,14 @@ class ProjectApache:
 
         return row
 
+
+    '''
+    Get the percentage of commits with unassigned tasks
+    PERILS-30
+    '''
+    def getPercentageOfCommitsWithUnassignedTaks(self):
+        print ("TODO")
+
     '''
   It finds the peril that passed key belongs to.
   '''

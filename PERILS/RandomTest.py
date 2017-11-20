@@ -3,6 +3,7 @@ from Git import GitOperations
 from Git.GitApache import GitApache
 from Utility import Utility
 from jira import JIRA
+from Jira import JiraQuery
 
 import re
 
@@ -153,5 +154,10 @@ def getPortionOfCommitsThroughMasterBranch():
     print("totalNumCommitThroughMaster = ", totalNumCommitThroughMaster)
     return 0
 
-
-getPortionOfCommitsThroughMasterBranch()
+if __name__ == "__main__":
+    # getPortionOfCommitsThroughMasterBranch()
+    repo = git.Repo(localRepo)
+    logInfo = repo.git.log("--all", "-i", "--grep=" + reqName)
+    print (JiraQuery.getUnassignedIssues(JIRA({
+            'server': 'https://issues.apache.org/jira'
+        }), "tika"))
