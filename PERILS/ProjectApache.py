@@ -158,6 +158,8 @@ class ProjectApache:
             return Perils.perils2
         elif key in Perils.perils27:
             return Perils.perils27
+        elif key in Perils.perils30:
+            return Perils.perils30
         else:
             print(key, "is not found in any perils.")
             sys.exit()
