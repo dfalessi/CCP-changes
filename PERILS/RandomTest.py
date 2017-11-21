@@ -35,8 +35,8 @@ class Issue:
         self.TRANSITIONS = Utility.getAllPossibleTransitions()
 
     '''
-  To resolve PERILS-2: transitions
-  '''
+    To resolve PERILS-2: transitions
+    '''
 
     def getNumEachTransition(self):
         self.__getHistoryItems(self.__initNumEachTransition)
@@ -67,8 +67,8 @@ class Issue:
                 if item.toString not in Utility.STATUSES:
                     item.toString = Utility.ANOTHER_STR
     '''
-  A call to JIRA API to get the changelog
-  '''
+    A call to JIRA API to get the changelog
+    '''
 
     def __initHistories(self):
         issue = self.jiraAPI.issue(self.reqName, expand='changelog')
@@ -126,24 +126,19 @@ def isCommittedThroughMaster(sha):
         calpolyC, ["git when-merged -l {}".format(sha)])
     print(consoleOutput)
     isDirectCommit = len(re.findall(
-        "(master                      Commit is directly on this branch.)", consoleOutput)) > 0
+        "(master                      Commit is directly on this branch.)",
+        consoleOutput)) > 0
     isMergedMaster = len(re.findall(
         "(Merge branch 'master')", consoleOutput)) > 0
     print("isDirectCommit = ", isDirectCommit)
     print("isMergedMaster = ", isMergedMaster)
     return isDirectCommit or isMergedMaster
 
-
-'''
-In main
-'''
-
-
-def getPortionOfCommitsThroughMasterBranch():
+def getPortionOfCommitsThroughMasterBranch(localRepo):
     totalNumCommitOnMaster = int(GitOperations.executeGitShellCommand(
-        calpolyC, ["git rev-list --count master"]))
+        localRepo, ["git rev-list --count master"]))
     allShaOnMaster = GitOperations.executeGitShellCommand(
-        calpolyC, ["git log --pretty=format:'%H'"]).split("\n")
+        localRepo, ["git log --pretty=format:'%H'"]).split("\n")
     totalNumCommitThroughMaster = 0
     for sha in allShaOnMaster:
         if isCommittedThroughMaster(sha):
@@ -153,7 +148,7 @@ def getPortionOfCommitsThroughMasterBranch():
 
     print("totalNumCommitOnMaster = ", totalNumCommitOnMaster)
     print("totalNumCommitThroughMaster = ", totalNumCommitThroughMaster)
-    return 0
+    return (totalNumCommitOnMaster, totalNumCommitThroughMaster)
 
 def totalNumCommitsOnAllBrances(localRepo):
     allSha = GitOperations.executeGitShellCommand(
@@ -184,4 +179,4 @@ def getPortionOfCommitsWithUnassignedTask(projectName):
 
 if __name__ == "__main__":
     # getPortionOfCommitsThroughMasterBranch()
-   print(getPortionOfCommitsWithUnassignedTask("tika"))
+   print(getPortionOfCommitsThroughMasterBranch(calpolyC))

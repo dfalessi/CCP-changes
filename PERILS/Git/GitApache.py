@@ -13,10 +13,10 @@ class GitApache:
     CLOSED_PULL_REQUEST_BY_PAGE = None
 
     '''
-  gitCloneURL - an url for http calls
-  localRepos - a local copy of a project
-  gitProjectName - for formatting a url of git api.
-  '''
+    gitCloneURL - an url for http calls
+    localRepos - a local copy of a project
+    gitProjectName - for formatting a url of git api.
+    '''
 
     def __init__(self, gitCloneURL, localRepo, gitProjectName):
         print("initializing gitProjectName = ", gitProjectName)
@@ -33,9 +33,9 @@ class GitApache:
             gitProjectName, "closed")
 
     '''
-  Multiple commits might be made by the same developer.
-     This function is to not print the same name multiple times.
-  '''
+    Multiple commits might be made by the same developer.
+        This function is to not print the same name multiple times.
+    '''
 
     def getUniqueDevelopers(self, reqName):
         developers = GitOperations.getGitLogInfo(self.localRepo,
@@ -48,12 +48,12 @@ class GitApache:
         return developerSet
 
     '''
-  Get the percentage of pull requests merged by Heuristic 1
-  H1 - At least one of the commits in the pull request appears in the target project’s master branch.
-  Idea:
-    1. Get all the commits of a pull request
-    2. Check if any one of the commits appears in the master
-  '''
+    Get the percentage of pull requests merged by Heuristic 1
+    H1 - At least one of the commits in the pull request appears in the target project’s master branch.
+    Idea:
+        1. Get all the commits of a pull request
+        2. Check if any one of the commits appears in the master
+    '''
 
     def getPercentageByH1(self):
         h1Merged = []
@@ -68,10 +68,10 @@ class GitApache:
         return len(h1Merged) / len(self.allUnmergedAndClosedPullRequests)
 
     '''
-  Get the percentage of pull requests merged by Heuristic 2
-  H2 - A commit closes the pull request using its log and that commit appears in the master branch.
-      This means that the pull request commits were squashed onto one commit and this commit was merged.
-  '''
+    Get the percentage of pull requests merged by Heuristic 2
+    H2 - A commit closes the pull request using its log and that commit appears in the master branch.
+        This means that the pull request commits were squashed onto one commit and this commit was merged.
+    '''
 
     def getPercentageByH2(self):
         h2Merged = []
@@ -88,11 +88,11 @@ class GitApache:
         return len(h2Merged) / len(self.allUnmergedAndClosedPullRequests)
 
     '''
-  Get the percentage of pull requests merged by Heuristic 3
-  H3 - One of the last three discussion comments contain a commit unique identifier.
-      This commit appears in the project's master branch, 
-      and the corresponding comment can be matched by the following regular expression.
-  '''
+    Get the percentage of pull requests merged by Heuristic 3
+    H3 - One of the last three discussion comments contain a commit unique identifier.
+        This commit appears in the project's master branch, 
+        and the corresponding comment can be matched by the following regular expression.
+    '''
 
     def getPercentageByH3(self):
         commitCount = 0
@@ -114,7 +114,7 @@ class GitApache:
     '''
     Get the percentage of pull requests merged by Heuristic 4
     H4 - The latest comment (on the master) prior to closing the pull request matches the regular expression.
-  '''
+    '''
 
     def getPercentageByH4(self):
         mergedByH4 = []
@@ -126,15 +126,15 @@ class GitApache:
         return len(mergedByH4) / len(self.allUnmergedAndClosedPullRequests)
 
     '''
-  Get the percentage of pull requests closed through GitHub
-  '''
+    Get the percentage of pull requests closed through GitHub
+    '''
 
     def getPortionOfUnmergedPullRequestOnGitHub(self):
         return len(self.__getAllUnmergedAndClosedPullRequests()) / len(self.__getAllPullRequestsByPaging())
 
     '''
-  For PERIL-27, repos that don't have master branches
-  '''
+    For PERIL-27, repos that don't have master branches
+    '''
 
     def getNumberBranches(self):
         numBranch = None
@@ -146,8 +146,8 @@ class GitApache:
             return int(re.sub(r'\s+', '', numBranch))
 
     '''
-  Check if a repo has a master. If it doesn't return 0.
-  '''
+    Check if a repo has a master. If it doesn't return 0.
+    '''
 
     def __hasMasterBranch(self):
         numBranch = GitOperations.executeGitShellCommand(self.localRepo,
@@ -155,8 +155,8 @@ class GitApache:
         return int(re.sub(r'\s+', '', numBranch))
 
     '''
-  Get unmerged and closed pull requests
-  '''
+    Get unmerged and closed pull requests
+    '''
 
     def __getAllUnmergedAndClosedPullRequests(self):
         if len(self.allUnmergedAndClosedPullRequests) == 0:
@@ -168,8 +168,8 @@ class GitApache:
         return self.allUnmergedAndClosedPullRequests
 
     '''
-  Get developers for this requirement.
-  '''
+    Get developers for this requirement.
+    '''
 
     def __getGitDeveloperForThisReq(self, logInfo):
         developers = re.findall('(?<=Author: )([a-zA-Z ]+)', logInfo)
@@ -180,8 +180,8 @@ class GitApache:
         return {"formattedDevelopers": formattedDevelopers}
 
     '''
-  Get all pull requests by paging
-  '''
+    Get all pull requests by paging
+    '''
 
     def __getAllPullRequestsByPaging(self):
         page = 0
@@ -198,8 +198,8 @@ class GitApache:
         return allPullRequestDict
 
     '''
-  Get all the closed pull requests by paging
-  '''
+    Get all the closed pull requests by paging
+    '''
 
     def __getAllClosedPullRequestByPaging(self):
         page = 0
@@ -216,10 +216,10 @@ class GitApache:
         return allPullRequestDict
 
     '''
-  Check if a commit is in the master branch
+    Check if a commit is in the master branch
 
-  @return a boolean that indicates if a commit is on the master branch of the project
-  '''
+    @return a boolean that indicates if a commit is on the master branch of the project
+    '''
 
     def __isInMasterBranch(self, commitSha):
         out = GitOperations.executeGitShellCommand(
@@ -227,8 +227,8 @@ class GitApache:
         return len(re.findall('(master)', out)) > 0
 
     '''
-  A parent function for _hasClosingKeyword and _hasMergedKeyword
-  '''
+    A parent function for _hasClosingKeyword and _hasMergedKeyword
+    '''
 
     def __hasKeywordInGitLogByRegex(self, commitSha, regex):
         consoleOut = GitOperations.executeGitShellCommand(self.localRepo,
@@ -237,16 +237,16 @@ class GitApache:
         return pattern.match(consoleOut) != None
 
     '''
-  Check if the comment of a commit has one of the closing keywords
-  '''
+    Check if the comment of a commit has one of the closing keywords
+    '''
 
     def __hasClosingKeyword(self, commitSha):
         return self.__hasKeywordInGitLogByRegex(commitSha,
                                                 '(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)')
 
     '''
-  Check if the comment of a commit has one of the merging keywords.
-  '''
+    Check if the comment of a commit has one of the merging keywords.
+    '''
 
     def __hasMergedKeyword(self, commitSha):
         return self.__hasKeywordInGitLogByRegex(commitSha, "(?:Note: checking out ')([A-Za-z0-9]+)(')")

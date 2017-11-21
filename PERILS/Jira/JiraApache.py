@@ -10,9 +10,9 @@ class JiraApache:
     issuesApache = []
 
     '''
-  jiraURL - to create an object of jiraAPI
-  jiraProjectQuery - to select a project when executing queries
-  '''
+    jiraURL - to create an object of jiraAPI
+    jiraProjectQuery - to select a project when executing queries
+    '''
 
     def __init__(self, jiraProjectName):
         print("initializing jiraProjectName = ", jiraProjectName)
@@ -23,24 +23,24 @@ class JiraApache:
         self.__setAllIssuesApache()
 
     '''
-  To resolve this question (No related ticket in JIRA):
-    The number of requirenments that are in progress.
-  '''
+    To resolve this question (No related ticket in JIRA):
+        The number of requirenments that are in progress.
+    '''
 
     def getNumInProgressFeatures(self):
         return JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI, self.jiraProjectName)
 
     '''		
-  To resolve this question (No related ticket in JIRA):
-    how many requirements are already defined in Jira but their implementation has not started yet.		
-  '''
+    To resolve this question (No related ticket in JIRA):
+        how many requirements are already defined in Jira but their implementation has not started yet.		
+    '''
 
     def getNumOpenFeatures(self):
         return JiraQuery.getNumIssueWhileOpenByClause(self.jiraAPI, self.jiraProjectName)
 
     '''
-  Return all issues of in this jira
-  '''
+    Return all issues of in this jira
+    '''
 
     def getAllIssuesApache(self):
         return self.issuesApache

@@ -72,10 +72,13 @@ It loops all the projects in apache-project.json.
 
 
 def main():
+    isTestRun = False # Don't update ProjectStatus if isTestRun is set.
     csvRows = []
     if len(sys.argv) < 2:
-        print("Usage: python3 Main.py <project.json> <output.csv>")
+        print("Usage: python3 Main.py <project.json> <output.csv> [isTestRun]")
         sys.exit(-1)
+    if len(sys.argv) == 3:
+        isTestRun = True
     with open(sys.argv[1], encoding="utf8") as dataFile:
         try:
             projectData = json.load(dataFile, object_pairs_hook=OrderedDict)
@@ -100,13 +103,16 @@ def main():
                 # either of jira or git repo is not available.
                 if urlInfo["jira"] is None:
                     print("Missing JIRA database.")
-                    # updateProjectStatus(projectName, "NoJIRA")
+                    if isTestRun:
+                        updateProjectStatus(projectName, "NoJIRA")
                     continue
                 elif len(urlInfo["repository"]) == 0:
                     print("Missing Git repositories.")
-                    # updateProjectStatus(projectName, "NoGit")
+                    if isTestRun:
+                        updateProjectStatus(projectName, "NoGit")
                     continue
-                # updateProjectStatus(projectName, True)
+                if isTestRun:
+                    updateProjectStatus(projectName, True)
                 proj = ProjectApache(
                     urlInfo["jira"], urlInfo["repository"], localRepos)
                 csvRows.append(proj.csvRows)
@@ -116,6 +122,7 @@ def main():
         finally:
             finalTable = CSV(sys.argv[2], Perils.initCSVHeaders(), csvRows)
             finalTable.outputCSVFile()
+            dataFile.close()
 
 
 if __name__ == "__main__":

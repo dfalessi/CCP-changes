@@ -40,7 +40,7 @@ class ProjectApache:
       row[numInProgressRequirements] = jiraApache.getNumInProgressFeatures
       row[numDevelopers] = self.gitsApache.getNumUniqueDevelopers(issue.reqNAme)
     return the row dict to al CSV project
-  '''
+    '''
 
     def __initCSVRows(self):
         perilsDataForAllIssues = []
@@ -70,12 +70,12 @@ class ProjectApache:
             perilsForIssue["portionResolvedWhenThisInProgress"] = perilsResults["portionResolvedWhenThisInProgress"]
             perilsForIssue["portionClosedWhenThisInProgress"] = perilsResults["portionClosedWhenThisInProgress"]
             for key in perilsResults["numDescChangedCounters"]:
-                perilsForIssue["numDesc{}".format(key.replace(
+                perilsForIssue["portionDesc{}".format(key.replace(
                     " ", ""))] = perilsResults["numDescChangedCounters"][key]
             for key in perilsResults["transitionCounters"]:
                 perilsForIssue[key] = perilsResults["transitionCounters"][key]
             for key in perilsResults["numCommitsEachStatus"]:
-                perilsForIssue["numCommits{}".format(key.replace(
+                perilsForIssue["portionCommits{}".format(key.replace(
                     " ", ""))] = perilsResults["numCommitsEachStatus"][key]
             perilsDataForAllIssues.append(perilsForIssue)
 
@@ -126,7 +126,7 @@ class ProjectApache:
         for localRepo in self.localRepos:
             allSha = GitOperations.executeGitShellCommand(
                 localRepo, ["git log --all --pretty=format:'%H' | wc -l"])
-            totalNumCommits += int (allSha.replace(" ", ""))
+            totalNumCommits += int(allSha.replace(" ", ""))
 
         for localRepo in self.localRepos:
             repo = git.Repo(localRepo)
@@ -140,8 +140,8 @@ class ProjectApache:
 
 
     '''
-  It finds the peril that passed key belongs to.
-  '''
+    It finds the peril that passed key belongs to.
+    '''
 
     def __getPERILSList(self, key):
         if key in Perils.perils6:
@@ -167,9 +167,9 @@ class ProjectApache:
             sys.exit()
 
     '''
-  It calculates the sum of all values in a column for colName.
-  @param colName - the name of a column for which the sum is calculated
-  '''
+    It calculates the sum of all values in a column for colName.
+    @param colName - the name of a column for which the sum is calculated
+    '''
 
     def __getColumnSum(self, colName, perilsDataForAllIssues):
         r = [item[colName]
@@ -177,9 +177,9 @@ class ProjectApache:
         return sum(r)
 
     '''
-  It loops a list of colName to the sum of values of columns for a peril. 
-  @param colNames - a list of colNames for a peril
-  '''
+    It loops a list of colName to the sum of values of columns for a peril. 
+    @param colNames - a list of colNames for a peril
+    '''
 
     def __getPERILSum(self, colNames, perilsDataForAllIssues):
         allColumnsSum = 0
@@ -189,10 +189,10 @@ class ProjectApache:
         return allColumnsSum
 
     '''
-  Calculate the ratio of colName's sum / allColumnsSum
-  @param colName - the column for which a ratio is calculated
-  @param colNames - the columns of a peril that colName belongs to
-  '''
+    Calculate the ratio of colName's sum / allColumnsSum
+    @param colName - the column for which a ratio is calculated
+    @param colNames - the columns of a peril that colName belongs to
+    '''
 
     def __getRatioForOneColumnOfPERIL(self, colName, colNames, perilsDataForAllIssues):
         allColumnSum = self.__getPERILSum(colNames, perilsDataForAllIssues)
