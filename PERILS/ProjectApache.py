@@ -107,6 +107,7 @@ class ProjectApache:
         for gitApache in self.gitsApache:
             row["numBranches"] += gitApache.getNumberBranches()
 
+        print("perilsForIssue = ", perilsForIssue)
         return row
 
 
@@ -133,7 +134,8 @@ class ProjectApache:
                 logInfo = repo.git.log("--all", "-i", "--grep=" + issue)
                 if logInfo != "":
                     numUnassignedTaskWithCommits += 1
-
+        print ("numUnassignedTaskWithCommits = ", numUnassignedTaskWithCommits)
+        print ("totalNumCommits = ", totalNumCommits)
         return round(numUnassignedTaskWithCommits / totalNumCommits, 2)
 
 
