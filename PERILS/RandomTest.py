@@ -120,18 +120,21 @@ print (from_master)
 In commit class
 '''
 
-
-def isCommittedThroughMaster(sha):
+message = set()
+def isCommittedThroughMaster(sha, localRepo):
     consoleOutput = GitOperations.executeGitShellCommand(
-        calpolyC, ["git when-merged -l {}".format(sha)])
-    print(consoleOutput)
-    isDirectCommit = len(re.findall(
-        "(master                      Commit is directly on this branch.)",
-        consoleOutput)) > 0
-    isMergedMaster = len(re.findall(
-        "(Merge branch 'master')", consoleOutput)) > 0
-    print("isDirectCommit = ", isDirectCommit)
-    print("isMergedMaster = ", isMergedMaster)
+        localRepo, ["git when-merged -l {}".format(sha)])
+    message.add(consoleOutput)
+    isDirectCommit = 0
+    isMergedMaster = 0
+    if (consoleOutput != None):
+        isDirectCommit = len(re.findall(
+            "(master                      Commit is directly on this branch.)",
+            consoleOutput)) > 0
+        isMergedMaster = len(re.findall(
+            "(Merge branch 'master')", consoleOutput)) > 0
+        print("isDirectCommit = ", isDirectCommit)
+        print("isMergedMaster = ", isMergedMaster)
     return isDirectCommit or isMergedMaster
 
 def getPortionOfCommitsThroughMasterBranch(localRepo):
@@ -141,7 +144,7 @@ def getPortionOfCommitsThroughMasterBranch(localRepo):
         localRepo, ["git log --pretty=format:'%H'"]).split("\n")
     totalNumCommitThroughMaster = 0
     for sha in allShaOnMaster:
-        if isCommittedThroughMaster(sha):
+        if isCommittedThroughMaster(sha, loaclRepo):
             totalNumCommitThroughMaster += 1
         else:
             print("not committed through master = ", sha)
@@ -153,7 +156,7 @@ def getPortionOfCommitsThroughMasterBranch(localRepo):
 def totalNumCommitsOnAllBrances(localRepo):
     allSha = GitOperations.executeGitShellCommand(
         localRepo, ["git log --all --pretty=format:'%H' | wc -l"])
-    return int (allSha.replace(" ", ""))
+    return int (allSha.replace(" ", "")) + 1
 
 def getPortionOfCommitsWithUnassignedTask(projectName):
     loaclRepo = "./CCP-REPOS/tika"
@@ -166,7 +169,7 @@ def getPortionOfCommitsWithUnassignedTask(projectName):
 
     allSha = GitOperations.executeGitShellCommand(
         loaclRepo, ["git log --all --pretty=format:'%H' | wc -l"])
-    totalNumCommits += int (allSha.replace(" ", ""))
+    totalNumCommits += int(allSha.replace(" ", ""))
 
     repo = git.Repo(loaclRepo)
     for issue in unassignedIssues:
@@ -179,4 +182,6 @@ def getPortionOfCommitsWithUnassignedTask(projectName):
 
 if __name__ == "__main__":
     # getPortionOfCommitsThroughMasterBranch()
-   print(getPortionOfCommitsThroughMasterBranch(calpolyC))
+    loaclRepo = "./CCP-REPOS/tika"
+    print(getPortionOfCommitsThroughMasterBranch(loaclRepo))
+    print (message)

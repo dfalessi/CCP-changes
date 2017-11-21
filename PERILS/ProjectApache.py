@@ -124,7 +124,7 @@ class ProjectApache:
             }), self.jiraApache.jiraProjectName)
 
         for localRepo in self.localRepos:
-            allSha = GitOperations.executeGitShellCommand(
+            numCommits = GitOperations.executeGitShellCommand(
                 localRepo, ["git log --all --pretty=format:'%H' | wc -l"])
             totalNumCommits += int(allSha.replace(" ", ""))
 
