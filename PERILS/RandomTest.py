@@ -117,17 +117,25 @@ print (from_master)
 '''
 
 '''
-In commit class
+    PERIL-27
 '''
 
-message = set()
+'''
+    This function is to handle the fact that git-when-merged can't detect the last commit on a branch.
+    Logic of this algorithm:
+        The last commit the master branch must be a normal commit if it's a merge commit.
+'''
+def checkIfTheLatestCommitCommittedThroughMaster(localRepo):
+    oneLineCommit = GitOperations.executeGitShellCommand(localRepo, ["git log --oneline -n 1"])
+    output = re.search( "(Merge) (branch|pull)", oneLineCommit)
+    return output == None
+
 def isCommittedThroughMaster(sha, localRepo):
     consoleOutput = GitOperations.executeGitShellCommand(
         localRepo, ["git when-merged -l {}".format(sha)])
-    message.add(consoleOutput)
     isDirectCommit = 0
     isMergedMaster = 0
-    if (consoleOutput != None):
+    if consoleOutput != None:
         isDirectCommit = len(re.findall(
             "(master                      Commit is directly on this branch.)",
             consoleOutput)) > 0
@@ -144,15 +152,20 @@ def getPortionOfCommitsThroughMasterBranch(localRepo):
         localRepo, ["git log --pretty=format:'%H'"]).split("\n")
     totalNumCommitThroughMaster = 0
     for sha in allShaOnMaster:
-        if isCommittedThroughMaster(sha, loaclRepo):
+        if isCommittedThroughMaster(sha, localRepo):
             totalNumCommitThroughMaster += 1
         else:
             print("not committed through master = ", sha)
-
+    if checkIfTheLatestCommitCommittedThroughMaster(localRepo):
+        totalNumCommitOnMaster += 1
     print("totalNumCommitOnMaster = ", totalNumCommitOnMaster)
     print("totalNumCommitThroughMaster = ", totalNumCommitThroughMaster)
     return (totalNumCommitOnMaster, totalNumCommitThroughMaster)
 
+
+'''
+    PERIL-30
+'''
 def totalNumCommitsOnAllBrances(localRepo):
     allSha = GitOperations.executeGitShellCommand(
         localRepo, ["git log --all --pretty=format:'%H' | wc -l"])
@@ -166,10 +179,7 @@ def getPortionOfCommitsWithUnassignedTask(projectName):
     unassignedIssues = JiraQuery.getUnassignedIssues(JIRA({
             'server': 'https://issues.apache.org/jira'
         }), projectName)
-
-    allSha = GitOperations.executeGitShellCommand(
-        loaclRepo, ["git log --all --pretty=format:'%H' | wc -l"])
-    totalNumCommits += int(allSha.replace(" ", ""))
+    totalNumCommits += totalNumCommitsOnAllBrances(loaclRepo)
 
     repo = git.Repo(loaclRepo)
     for issue in unassignedIssues:
@@ -182,6 +192,6 @@ def getPortionOfCommitsWithUnassignedTask(projectName):
 
 if __name__ == "__main__":
     # getPortionOfCommitsThroughMasterBranch()
-    loaclRepo = "./CCP-REPOS/tika"
-    print(getPortionOfCommitsThroughMasterBranch(loaclRepo))
-    print (message)
+    # loaclRepo = "./CCP-REPOS/tika"
+    # print(getPortionOfCommitsThroughMasterBranch(loaclRepo))
+    print (getPortionOfCommitsThroughMasterBranch(calpolyC))

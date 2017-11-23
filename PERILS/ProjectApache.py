@@ -12,6 +12,7 @@ from Git import GitOperations
 import git
 from jira import JIRA
 
+
 class ProjectApache:
     csvRows = None
     localRepos = None
@@ -103,30 +104,37 @@ class ProjectApache:
         row["numOpenRequirements"] = self.jiraApache.getNumOpenFeatures()
         row["numInProgressRequirements"] = self.jiraApache.getNumInProgressFeatures()
         row["portionOfCommitsWithUnassignedTask"] = self.getPortionOfCommitsWithUnassignedTask()
-        row["numBranches"] = 0
+        row["portionOfCommitsThroughMasterBranch"] = 0
+
+        allCommitsOnMasterInAllRepos = 0
+        allCommitsThroughMasterInAllRepos = 0
         for gitApache in self.gitsApache:
-            row["numBranches"] += gitApache.getNumberBranches()
+            temp = gitApache.getPortionOfCommitsThroughMasterBranch()
+            allCommitsOnMasterInAllRepos += temp[0]
+            allCommitsThroughMasterInAllRepos += temp[1]
+        row["portionOfCommitsThroughMasterBranch"] = round(allCommitsThroughMasterInAllRepos / \
+            allCommitsOnMasterInAllRepos, 2)
 
-        print("perilsForIssue = ", perilsForIssue)
+        Utility.prettyPrintJSON(row)
         return row
-
 
     '''
     Get the percentage of commits with unassigned tasks
     PERILS-30
     '''
+
     def getPortionOfCommitsWithUnassignedTask(self):
         totalNumCommits = 0
         numUnassignedTaskWithCommits = 0
 
         unassignedIssues = JiraQuery.getUnassignedIssues(JIRA({
-                'server': 'https://issues.apache.org/jira'
-            }), self.jiraApache.jiraProjectName)
+            'server': 'https://issues.apache.org/jira'
+        }), self.jiraApache.jiraProjectName)
 
         for localRepo in self.localRepos:
             numCommits = GitOperations.executeGitShellCommand(
                 localRepo, ["git log --all --pretty=format:'%H' | wc -l"])
-            totalNumCommits += int(allSha.replace(" ", ""))
+            totalNumCommits += int(numCommits.replace(" ", ""))
 
         for localRepo in self.localRepos:
             repo = git.Repo(localRepo)
@@ -134,10 +142,9 @@ class ProjectApache:
                 logInfo = repo.git.log("--all", "-i", "--grep=" + issue)
                 if logInfo != "":
                     numUnassignedTaskWithCommits += 1
-        print ("numUnassignedTaskWithCommits = ", numUnassignedTaskWithCommits)
-        print ("totalNumCommits = ", totalNumCommits)
+        print("numUnassignedTaskWithCommits = ", numUnassignedTaskWithCommits)
+        print("totalNumCommits = ", totalNumCommits)
         return round(numUnassignedTaskWithCommits / totalNumCommits, 2)
-
 
     '''
     It finds the peril that passed key belongs to.

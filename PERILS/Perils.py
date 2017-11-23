@@ -29,7 +29,7 @@ perils7 = ["portionOpenWhenThisInProgress",
            "portionResolvedWhenThisInProgress",
            "portionReopenedWhenThisInProgress",
            "portionClosedWhenThisInProgress"]
-perils27 = ["numBranches"]
+perils27 = ["portionOfCommitsThroughMasterBranch"]
 perils30 = ["portionOfCommitsWithUnassignedTask"]
 perils2 = [key for key in Utility.getAllPossibleTransitions()]
 
