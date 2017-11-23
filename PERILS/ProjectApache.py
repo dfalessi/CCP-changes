@@ -47,34 +47,46 @@ class ProjectApache:
         perilsDataForAllIssues = []
         row = {key: None for key in Perils.initCSVHeaders()}
 
+        # Summary of a project
+        row["project"] = self.jiraApache.jiraProjectName
+        row["numOpenRequirements"] = self.jiraApache.getNumOpenFeatures()
+        row["numInProgressRequirements"] = self.jiraApache.getNumInProgressFeatures()
+
         # initialize a dictionary for calculate portions
         for issue in self.jiraApache.getAllIssuesApache():
             perilsForIssue = {key: None for key in Perils.initCSVHeaders()}
             perilsResults = issue.getPerilsResults(self.localRepos)
+            # perils-6
             allDevelopersInAllRepos = set()
             for gitApache in self.gitsApache:
                 each = gitApache.getUniqueDevelopers(issue.reqName)
                 print("developers for each issue = ", each)
                 allDevelopersInAllRepos = allDevelopersInAllRepos | each
-                print("allDeveloeprsInAllRepos after developers for each issue = ", each)
+                print("allDeveloeprsInAllRepos after developers for ",  issue.reqName, " = ", each)
             print("allDevelopersInAllRepos = ", allDevelopersInAllRepos)
             perilsForIssue["numDevelopers"] = len(allDevelopersInAllRepos)
+            # perils-12
             perilsForIssue["numDevelopedRequirementsBeforeThisInProgress"] = perilsResults["numDevelopedRequirementsBeforeThisInProgress"]
+            # perils-16
             perilsForIssue["portionOpenWhileThisOpen"] = perilsResults['portionOpenWhileThisOpen']
             perilsForIssue["portionInProgressWhileThisOpen"] = perilsResults['portionInProgressWhileThisOpen']
             perilsForIssue["portionResolvedWhileThisOpen"] = perilsResults['portionResolvedWhileThisOpen']
             perilsForIssue["portionReopenedWhileThisOpen"] = perilsResults['portionReopenedWhileThisOpen']
             perilsForIssue["portionClosedWhileThisOpen"] = perilsResults['portionClosedWhileThisOpen']
+            # perils-7
             perilsForIssue["portionOpenWhenThisInProgress"] = perilsResults['portionOpenWhenThisInProgress']
             perilsForIssue["portionInProgressWhenThisInProgress"] = perilsResults["portionInProgressWhenThisInProgress"]
             perilsForIssue["portionReopenedWhenThisInProgress"] = perilsResults["portionReopenedWhenThisInProgress"]
             perilsForIssue["portionResolvedWhenThisInProgress"] = perilsResults["portionResolvedWhenThisInProgress"]
             perilsForIssue["portionClosedWhenThisInProgress"] = perilsResults["portionClosedWhenThisInProgress"]
+            # perils-11
             for key in perilsResults["numDescChangedCounters"]:
                 perilsForIssue["portionDesc{}".format(key.replace(
                     " ", ""))] = perilsResults["numDescChangedCounters"][key]
+            # perils-2
             for key in perilsResults["transitionCounters"]:
                 perilsForIssue[key] = perilsResults["transitionCounters"][key]
+            # perils-3
             for key in perilsResults["numCommitsEachStatus"]:
                 perilsForIssue["portionCommits{}".format(key.replace(
                     " ", ""))] = perilsResults["numCommitsEachStatus"][key]
@@ -88,24 +100,24 @@ class ProjectApache:
                                                               self.__getPERILSList(
                                                                   key),
                                                               perilsDataForAllIssues)  # getMappingFrom column to perils
-        # Calculates metrics that don't need SUM.
-        row["PRMergedByNonGithub"] = 0
-        h1 = gitApache.getPercentageByH1()
-        h2 = gitApache.getPercentageByH2()
-        h3 = gitApache.getPercentageByH3()
-        h4 = gitApache.getPercentageByH4()
-        print("h1 = ", h1)
-        print("h2 = ", h2)
-        print("h3 = ", h3)
-        print("h4 = ", h4)
-        for gitApache in self.gitsApache:
-            row["PRMergedByNonGithub"] += h1 + h2 + h3 + h4
-        row["project"] = self.jiraApache.jiraProjectName
-        row["numOpenRequirements"] = self.jiraApache.getNumOpenFeatures()
-        row["numInProgressRequirements"] = self.jiraApache.getNumInProgressFeatures()
-        row["portionOfCommitsWithUnassignedTask"] = self.getPortionOfCommitsWithUnassignedTask()
-        row["portionOfCommitsThroughMasterBranch"] = 0
 
+        # oldPerils-9
+        row["PRMergedByNonGithub"] = 0
+        for gitApache in self.gitsApache:
+            h1 = gitApache.getPercentageByH1()
+            h2 = gitApache.getPercentageByH2()
+            h3 = gitApache.getPercentageByH3()
+            h4 = gitApache.getPercentageByH4()
+            print("h1 = ", h1)
+            print("h2 = ", h2)
+            print("h3 = ", h3)
+            print("h4 = ", h4)
+            row["PRMergedByNonGithub"] += h1 + h2 + h3 + h4
+
+        # perils-30
+        row["portionOfCommitsWithUnassignedTask"] = self.getPortionOfCommitsWithUnassignedTask()
+        # perils-27
+        row["portionOfCommitsThroughMasterBranch"] = 0
         allCommitsOnMasterInAllRepos = 0
         allCommitsThroughMasterInAllRepos = 0
         for gitApache in self.gitsApache:
@@ -148,6 +160,7 @@ class ProjectApache:
 
     '''
     It finds the peril that passed key belongs to.
+    @param key - the name of a metric.
     '''
 
     def __getPERILSList(self, key):
