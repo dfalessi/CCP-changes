@@ -35,18 +35,20 @@ class GitApache:
     '''
     PERILS-27
     '''
-    def getPortionOfCommitsThroughMasterBranch(self, localRepo):
+
+    def getPortionOfCommitsThroughMasterBranch(self):
         totalNumCommitOnMaster = int(GitOperations.executeGitShellCommand(
-            localRepo, ["git rev-list --count master"]))
+            self.localRepo, ["git rev-list --count master"]))
         allShaOnMaster = GitOperations.executeGitShellCommand(
-            localRepo, ["git log --pretty=format:'%H'"]).split("\n")
+            self.localRepo, ["git log --pretty=format:'%H'"]).split("\n")
         totalNumCommitThroughMaster = 0
         for sha in allShaOnMaster:
-            if self.__isCommittedThroughMaster(sha, localRepo):
+            print ("sha = ", sha)
+            if self.__isCommittedThroughMaster(sha):
                 totalNumCommitThroughMaster += 1
             else:
                 print("not committed through master = ", sha)
-        if self.__checkIfTheLatestCommitCommittedThroughMaster(localRepo):
+        if self.__checkIfTheLatestCommitCommittedThroughMaster():
             totalNumCommitOnMaster += 1
         print("totalNumCommitOnMaster = ", totalNumCommitOnMaster)
         print("totalNumCommitThroughMaster = ", totalNumCommitThroughMaster)
@@ -277,19 +279,19 @@ class GitApache:
         The last commit the master branch must be a normal commit if it's a merge commit.
     '''
 
-    def __checkIfTheLatestCommitCommittedThroughMaster(self, localRepo):
+    def __checkIfTheLatestCommitCommittedThroughMaster(self):
         oneLineCommit = GitOperations.executeGitShellCommand(
-            localRepo, ["git log --oneline -n 1"])
+            self.localRepo, ["git log --oneline -n 1"])
         output = re.search("(Merge) (branch|pull)", oneLineCommit)
         return output == None
-
 
     '''
     Check if the passed sha is committed directly from master
     '''
-    def __isCommittedThroughMaster(self, sha, localRepo):
+
+    def __isCommittedThroughMaster(self, sha):
         consoleOutput = GitOperations.executeGitShellCommand(
-            localRepo, ["git when-merged -l {}".format(sha)])
+            self.localRepo, ["git when-merged -l {}".format(sha)])
         isDirectCommit = 0
         isMergedMaster = 0
         if consoleOutput != None:
@@ -300,4 +302,4 @@ class GitApache:
                 "(Merge branch 'master')", consoleOutput)) > 0
             print("isDirectCommit = ", isDirectCommit)
             print("isMergedMaster = ", isMergedMaster)
-    return isDirectCommit or isMergedMaster
+        return isDirectCommit or isMergedMaster

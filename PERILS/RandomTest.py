@@ -152,6 +152,7 @@ def getPortionOfCommitsThroughMasterBranch(localRepo):
         localRepo, ["git log --pretty=format:'%H'"]).split("\n")
     totalNumCommitThroughMaster = 0
     for sha in allShaOnMaster:
+        print ("sha = ", sha)
         if isCommittedThroughMaster(sha, localRepo):
             totalNumCommitThroughMaster += 1
         else:
@@ -194,4 +195,5 @@ if __name__ == "__main__":
     # getPortionOfCommitsThroughMasterBranch()
     # loaclRepo = "./CCP-REPOS/tika"
     # print(getPortionOfCommitsThroughMasterBranch(loaclRepo))
-    print (getPortionOfCommitsThroughMasterBranch(calpolyC))
+    tika = "./CCP-REPOS/tika"
+    print (getPortionOfCommitsThroughMasterBranch(tika))
