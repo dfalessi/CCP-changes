@@ -2,6 +2,8 @@
 # http://www.grantjenks.com/docs/sortedcontainers/
 # https://github.com/gitpython-developers/GitPython
 
+import curloc
+reload(curloc)
 import itertools
 import sys
 import time
@@ -10,12 +12,15 @@ from git import *
 
 class Files:
     
-    def __init__(self):
+    def __init__(self, curloc):
         self.files = dict()
+        self.curloc = curloc
         
     def updateCommits(self, repoPath, start, finish):
         #repoPath = argv[1]
+        #print repoPath
         repo = Repo(repoPath)
+        #repo = Repo.clone_from(repoPath, branch='master')
         assert not repo.bare
         commits = list(reversed(list(repo.iter_commits('master'))))
         #f = files.Files()
@@ -23,10 +28,24 @@ class Files:
             #print time.gmtime(commits[i].committed_date)
             #print commits[i].message
             self.update(commits[i])
+        self.updateBegSize(commits, start)
         #for i in range (0, start + 1):
-        self.update_BeginningSize(commits, start)
+        #self.update_BeginningSize(commits, start)
         #print f.files
         #export("PROJ_ID", self)
+    
+    def updateCommits2(self, repoPath, start):
+        repo = Repo(repoPath)
+        assert not repo.bare
+        commits = list(reversed(list(repo.iter_commits('master'))))
+        for i in range (len(commits)):
+            self.update(commits[i])
+        self.update_BegSize(start)
+    
+    def updateCommitsSmall(self, commits, start):
+        for i in range (len(commits)):
+            self.update(commits[i])
+        self.update_BegSize(start)
     
     def update(self, commit):
         stat = commit.stats
@@ -34,10 +53,11 @@ class Files:
         #print commitFiles
         #print '\n'
         for fileName, stats in commitFiles.items():
-            if fileName not in self.files:
-                self.addNew(fileName, stats, len(commitFiles) - 1)
-            else:
-                self.updateFile(fileName, stats, len(commitFiles) - 1)
+            if (fileName.endswith(".py")):
+                if fileName not in self.files:
+                    self.addNew(fileName, stats, len(commitFiles) - 1)
+                else:
+                    self.updateFile(fileName, stats, len(commitFiles) - 1)
     
     def addNew(self, fileName, stats, chgSetSize):
         entry = {
@@ -97,3 +117,19 @@ class Files:
                 if fileName in self.files:
                     entry = self.files[fileName]
                     entry['size'] += (stats['insertions'] - stats['deletions'])
+    
+    def update_BegSize(self, start):
+        for fileName in self.files.keys():
+            loc = self.curloc.files[fileName]
+            entry = self.files[fileName]
+            print fileName, start
+            entry['size'] = loc[start]
+        '''
+        entry = self.files[fileName]
+        stat = commit.stats
+        commitFiles = stat.files
+        for fileName, stats in commitFiles.items():
+            loc = self.curloc['fileName']
+            entry = self.files[fileName]
+            entry['size'] = loc[start]
+        '''

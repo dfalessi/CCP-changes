@@ -1,0 +1,11 @@
+Project ID,Class ID,Requirement ID,Size at beginning of release,LOC_touched,NR,Nfix,NAuth,LOC_added,MAX_LOC_added,AVG_LOC_added,Churn,MAX_Churn,AVG_Churn,ChgSetSize,MAX_ChgSet,AVG_ChgSet,Age,WeightedAge
+PROJ_ID,NLP/porter.py,REQ_ID,0,367,1,-1,None,367,367,367,367,367,367,5,5,5,-1,-1
+PROJ_ID,test.csv,REQ_ID,0,1,1,-1,None,1,1,1,1,1,1,3,3,3,-1,-1
+PROJ_ID,NLP/preprocess.pyc,REQ_ID,0,0,1,-1,None,0,0,0,0,0,0,5,5,5,-1,-1
+PROJ_ID,src/main/webapp/index.jsp,REQ_ID,89,2,1,-1,None,1,1,1,0,0,0,5,5,5,-1,-1
+PROJ_ID,NLP/preprocess.py,REQ_ID,0,38,1,-1,None,38,38,38,38,38,38,5,5,5,-1,-1
+PROJ_ID,NLP/test.py,REQ_ID,0,21,1,-1,None,21,21,21,21,21,21,5,5,5,-1,-1
+PROJ_ID,NLP/axis2_reqMap.txt,REQ_ID,0,818,1,-1,None,818,818,818,818,818,818,5,5,5,-1,-1
+PROJ_ID,TIKA-Table,REQ_ID,0,52,1,-1,None,52,52,52,52,52,52,3,3,3,-1,-1
+PROJ_ID,test2.csv,REQ_ID,0,2,1,-1,None,2,2,2,2,2,2,3,3,3,-1,-1
+PROJ_ID,tikaJira.py,REQ_ID,56,166,4,-1,None,116,38,29,66,66,16.5,3,3,0.75,-1,-1

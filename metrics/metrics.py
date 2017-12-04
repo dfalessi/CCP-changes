@@ -6,6 +6,8 @@ from git import *
 #from files import Files
 import files
 reload(files)
+import curloc
+reload(curloc)
 
 def printError():
     print "Invalid arguments. " \
@@ -60,7 +62,7 @@ def export(projID, f):
             file.write(",%d" % (stats['WeightedAge']))
             file.write("\n")
 
-def main(argv):
+def main_old(argv):
     if (len(argv) != 4):
         printError()
     #repoPath = argv[1]
@@ -72,6 +74,30 @@ def main(argv):
         f.update(commits[i - 1])
     #print f.files'''
     f.updateCommits(argv[1], int(argv[2]), int(argv[3]))
+    export("PROJ_ID", f)
+
+def main(argv):
+    test2(argv[1])
+
+def setupCurLoc(repoPath):
+    cl = curloc.CurLoc(repoPath)
+    return cl;
+
+def test2(repoPath):
+    cl = setupCurLoc(repoPath)
+    commits = repo = Repo(repoPath)
+    assert not repo.bare
+    commits = list(reversed(list(repo.iter_commits('master'))))
+    l1 = [commits[18], commits[19], commits[20], commits[21], commits[22]]
+    f = files.Files(cl)
+    f.updateCommitsSmall(l1, 18)
+    export("PROJ_ID", f)
+    
+def test1(repoPath):
+    cl = curloc.CurLoc(repoPath)
+    #cl.test()
+    f = files.Files(cl)
+    f.updateCommits2(repoPath, 15)
     export("PROJ_ID", f)
 
 def test():
